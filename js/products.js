@@ -311,3 +311,263 @@ window.location.href =
 }
 
 }
+
+// ================= LOAD PRODUCT DETAILS =================
+
+function loadProductDetails(){
+
+let product =
+JSON.parse(localStorage.getItem("selectedProduct"));
+
+
+if(!product){
+
+alert("Product not found");
+
+return;
+
+}
+
+
+let image =
+document.getElementById("productImage");
+
+let name =
+document.getElementById("productName");
+
+let price =
+document.getElementById("productPrice");
+
+let seller =
+document.getElementById("productSeller");
+
+let category =
+document.getElementById("productCategory");
+
+let description =
+document.getElementById("productDescription");
+
+
+if(image){
+
+image.src = product.image;
+
+}
+
+
+if(name){
+
+name.innerText = product.name;
+
+}
+
+
+if(price){
+
+price.innerText = product.price;
+
+}
+
+
+if(seller){
+
+seller.innerText = product.merchantName;
+
+}
+
+
+if(category){
+
+category.innerText = product.category;
+
+}
+
+
+if(description){
+
+description.innerText = product.description;
+
+}
+
+
+}
+
+
+
+// ================= ADD CURRENT PRODUCT TO CART =================
+
+function addCurrentProductToCart(){
+
+let product =
+JSON.parse(localStorage.getItem("selectedProduct"));
+
+
+if(!product){
+
+return;
+
+}
+
+
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+
+cart.push({
+
+id: product.id,
+
+name: product.name,
+
+price: product.price,
+
+quantity:1,
+
+merchantEmail:product.merchantEmail
+
+});
+
+
+localStorage.setItem(
+"cart",
+JSON.stringify(cart)
+);
+
+
+alert("Added to cart 🛒");
+
+
+}
+
+
+
+// ================= SUBMIT REVIEW =================
+
+function submitReview(){
+
+let product =
+JSON.parse(localStorage.getItem("selectedProduct"));
+
+
+let reviews =
+JSON.parse(localStorage.getItem("reviews")) || [];
+
+
+let review = {
+
+
+id:Date.now(),
+
+productId:product.id,
+
+productName:product.name,
+
+name:
+document.getElementById("reviewName").value,
+
+
+text:
+document.getElementById("reviewText").value,
+
+
+rating:
+Number(document.getElementById("reviewRating").value)
+
+
+};
+
+
+reviews.push(review);
+
+
+localStorage.setItem(
+"reviews",
+JSON.stringify(reviews)
+);
+
+
+alert("Review submitted ⭐");
+
+
+loadReviews();
+
+}
+
+
+
+// ================= LOAD REVIEWS =================
+
+function loadReviews(){
+
+let product =
+JSON.parse(localStorage.getItem("selectedProduct"));
+
+
+let reviewsBox =
+document.getElementById("reviews");
+
+
+if(!reviewsBox || !product){
+
+return;
+
+}
+
+
+let reviews =
+JSON.parse(localStorage.getItem("reviews")) || [];
+
+
+let productReviews =
+reviews.filter(function(review){
+
+return review.productId === product.id;
+
+});
+
+
+reviewsBox.innerHTML="";
+
+
+if(productReviews.length===0){
+
+reviewsBox.innerHTML=
+"<p>No reviews yet.</p>";
+
+return;
+
+}
+
+
+
+productReviews.forEach(function(review){
+
+
+reviewsBox.innerHTML += `
+
+<div class="product">
+
+<h3>
+${review.name}
+</h3>
+
+
+<p>
+${review.text}
+</p>
+
+
+<p>
+Rating:
+${"⭐".repeat(review.rating)}
+</p>
+
+
+</div>
+
+`;
+
+});
+
+
+}
