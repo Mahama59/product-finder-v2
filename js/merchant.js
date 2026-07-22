@@ -625,3 +625,35 @@ JSON.stringify(orders)
 loadMerchantOrders();
 
 }
+
+function shipOrder(id){
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+orders.forEach(function(order){
+
+if(order.id === id){
+
+order.shippingStatus="Shipped";
+
+order.trackingNumber =
+"PF-" + Date.now();
+
+}
+
+});
+
+
+localStorage.setItem(
+"orders",
+JSON.stringify(orders)
+);
+
+
+alert("Order shipped 🚚");
+
+loadMerchantOrders();
+
+}
