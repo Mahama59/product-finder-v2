@@ -179,14 +179,17 @@ approvedProducts.forEach(function(product){
 
 box.innerHTML += `
 
-<div class="
+<div class="product">
 
 
-<button onclick="openProduct(${product.id})">
+<img 
+src="${product.image || ''}"
+width="150">
 
-👁 View Product
 
-</button>
+<h3>
+${product.name}
+</h3>
 
 
 <p>
@@ -204,6 +207,14 @@ box.innerHTML += `
 </p>
 
 
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
+
+
+
 <button onclick="addToCart(${product.id})">
 
 🛒 Add To Cart
@@ -211,14 +222,12 @@ box.innerHTML += `
 </button>
 
 
+
 </div>
 
 `;
 
-
-
 });
-
 
 }
 
