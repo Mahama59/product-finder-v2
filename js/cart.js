@@ -196,3 +196,20 @@ alert("Checkout system coming next");
 
 
 }
+
+function updateCartCount(){
+
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+let count =
+document.getElementById("cartCount");
+
+
+if(count){
+
+count.innerText = cart.length;
+
+}
+
+}
