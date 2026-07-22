@@ -10,7 +10,7 @@
 </head>
 
 
-<body onload="protectAdmin(); loadAdminDashboard()">
+<body onload="protectAdmin(); loadAdminDashboard(); loadAdminStats()">
 
 
 
@@ -100,7 +100,31 @@ Marketplace control center
 
 </div>
 
+<div class="card">
 
+<h2>📊 Marketplace Overview</h2>
+
+<p>
+📦 Total Products:
+<span id="adminProducts">0</span>
+</p>
+
+<p>
+🏪 Total Merchants:
+<span id="adminMerchants">0</span>
+</p>
+
+<p>
+👥 Total Customers:
+<span id="adminCustomers">0</span>
+</p>
+
+<p>
+🧾 Total Orders:
+<span id="adminOrders">0</span>
+</p>
+
+</div>
 
 <script src="../js/admin.js"></script>
 
