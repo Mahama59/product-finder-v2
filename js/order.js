@@ -61,13 +61,10 @@ totalBox.innerText = total;
 
 
 // PLACE ORDER
-
 function placeOrder(){
-
 
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
-
 
 
 if(cart.length===0){
@@ -79,45 +76,62 @@ return;
 }
 
 
+let customerName =
+document.getElementById("customerName").value.trim();
+
+let customerEmail =
+document.getElementById("customerEmail").value.trim();
+
+let customerPhone =
+document.getElementById("customerPhone").value.trim();
+
+
+if(!customerName || !customerEmail || !customerPhone){
+
+alert("Please complete all customer details");
+
+return;
+
+}
+
+
+let total = 0;
+
+cart.forEach(function(item){
+
+total += item.price * item.quantity;
+
+});
+
 
 let orders =
 JSON.parse(localStorage.getItem("orders")) || [];
 
 
-
 let order = {
 
+id: Date.now(),
 
-id:Date.now(),
+customer: customerName,
 
+email: customerEmail,
 
-customer:
-document.getElementById("customerName").value,
+phone: customerPhone,
 
+items: cart,
 
-email:
-document.getElementById("customerEmail").value,
+total: total,
 
+merchantEmail: cart[0].merchantEmail,
 
-phone:
-document.getElementById("customerPhone").value,
+status: "New",
 
-
-items:cart,
-
-
-status:"New",
-
-
-date:new Date().toLocaleString()
-
+date: new Date().toLocaleString()
 
 };
 
 
-
 orders.push(order);
-
 
 
 localStorage.setItem(
@@ -126,17 +140,12 @@ JSON.stringify(orders)
 );
 
 
-
 localStorage.removeItem("cart");
-
 
 
 alert("Order placed successfully 🎉");
 
 
-
-window.location.href =
-"success.html";
-
+window.location.href = "success.html";
 
 }
