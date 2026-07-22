@@ -91,8 +91,16 @@ status:"Pending"
 
 
 products.push(product);
-
-
-
 localStorage.setItem(
-"
+"merchantProducts",
+JSON.stringify(products)
+);
+
+
+alert("Product saved successfully");
+
+
+window.location.href =
+"merchant-dashboard.html";
+
+}
