@@ -129,7 +129,6 @@ reader.readAsDataURL(file);
 
 function loadMarketplaceProducts(){
 
-
 let box =
 document.getElementById("marketplaceProducts");
 
@@ -143,6 +142,10 @@ JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
 
+console.log("Products:", products);
+
+
+
 let approvedProducts =
 products.filter(function(product){
 
@@ -152,14 +155,18 @@ return product.status === "Approved";
 
 
 
-box.innerHTML="";
+console.log("Approved:", approvedProducts);
+
+
+
+box.innerHTML = "";
 
 
 
 if(approvedProducts.length === 0){
 
 box.innerHTML =
-"<p>No approved products yet.</p>";
+"<p>No approved products available.</p>";
 
 return;
 
@@ -172,11 +179,7 @@ approvedProducts.forEach(function(product){
 
 box.innerHTML += `
 
-
 <div class="product">
-
-
-<img src="${product.image}" width="200">
 
 
 <h3>
@@ -185,19 +188,18 @@ ${product.name}
 
 
 <p>
-💰 $${product.price}
+💰 Price: $${product.price}
 </p>
 
 
 <p>
-📂 ${product.category}
+📂 Category: ${product.category}
 </p>
 
 
 <p>
-🏪 ${product.merchantName}
+🏪 Seller: ${product.merchantName}
 </p>
-
 
 
 <button onclick="addToCart(
@@ -212,7 +214,6 @@ ${product.price},
 
 
 </div>
-
 
 `;
 
