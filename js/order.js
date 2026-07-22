@@ -115,6 +115,9 @@ id: Date.now(),
 address:
 document.getElementById("customerAddress").value,
 
+customerEmail:
+document.getElementById("customerEmail").value,
+  
 city:
 document.getElementById("customerCity").value,
 
