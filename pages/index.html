@@ -13,51 +13,57 @@
 
 </head>
 
-<script src="js/products.js"></script>
 
-<script>
+<body onload="loadFeaturedProducts()">
 
-window.onload = function(){
 
-loadFeaturedProducts();
-
-};
-
-</script>
-  
-<body>
 
 <nav>
 
 <h2>🛍 Product Finder</h2>
 
-<div>
+<a href="index.html">
+Home
+</a>
 
-<a href="index.html">Home</a>
+<a href="pages/marketplace.html">
+Marketplace
+</a>
 
-<a href="pages/marketplace.html">Marketplace</a>
+<a href="pages/login.html">
+Login
+</a>
 
-<a href="pages/login.html">Login</a>
+<a href="pages/merchant-register.html">
+Sell
+</a>
 
-<a href="pages/register.html">Register</a>
+<a href="pages/order-tracking.html">
+🚚 Track Order
+</a>
 
-<a href="pages/merchant-register.html">Sell</a>
+<a href="pages/cart.html">
+Cart
+</a>
 
-</div>
 
 </nav>
 
+
+
 <header class="hero">
 
-<h1>Find Millions of Products</h1>
 
-<p>Discover, compare and shop from trusted sellers.</p>
+<h1>
+Find Millions of Products
+</h1>
 
-<input
-type="text"
-placeholder="Search products...">
 
-<br><br>
+<p>
+Discover, compare and buy products from trusted sellers.
+</p>
+
+
 
 <button onclick="window.location.href='pages/marketplace.html'">
 
@@ -65,83 +71,120 @@ placeholder="Search products...">
 
 </button>
 
+
 <button onclick="window.location.href='pages/merchant-register.html'">
 
-🏪 Become a Seller
+🏪 Become Seller
 
 </button>
+
 
 </header>
 
+
+
+
 <section>
 
-<h2 style="text-align:center;">
+
+<h2 style="text-align:center">
+
 🔥 Featured Products
+
 </h2>
+
+
 
 <div class="product-grid" id="featuredProducts">
 
-<p>Loading products...</p>
+
+<p>
+Loading products...
+</p>
+
 
 </div>
+
 
 </section>
 
-<section class="product-grid">
-
-<div class="product">
-
-<h3>🏠 Home & Living</h3>
-
-<p>Furniture and home essentials.</p>
-
-</div>
 
 
-<div class="product">
-
-<h3>⚽ Sports</h3>
-
-<p>Fitness and outdoor equipment.</p>
-
-</div>
-
-</section>
 
 
 <section class="card">
 
-<h2>Why Choose Product Finder?</h2>
 
-<p>✅ Trusted Sellers</p>
+<h2>
+Why Choose Product Finder?
+</h2>
 
-<p>✅ Secure Shopping</p>
 
-<p>✅ Affordable Prices</p>
+<p>
+✅ Trusted Sellers
+</p>
 
-<p>✅ Easy Product Search</p>
+
+<p>
+✅ Secure Shopping
+</p>
+
+
+<p>
+✅ Easy Product Search
+</p>
+
+
+<p>
+✅ Fast Delivery
+</p>
+
 
 </section>
 
+
+
+
+
 <section class="card">
 
-<h2>Start Selling Today</h2>
 
-<p>Open your online store and reach more customers.</p>
+<h2>
+Start Selling Today
+</h2>
+
+
+<p>
+Create your store and reach customers.
+</p>
+
 
 <button onclick="window.location.href='pages/merchant-register.html'">
 
-🚀 Register as Merchant
+🚀 Register Merchant
 
 </button>
 
+
 </section>
+
+
+
 
 <footer>
 
-<p>© 2026 Product Finder. All Rights Reserved.</p>
+<p>
+© 2026 Product Finder
+</p>
 
 </footer>
+
+
+
+<script src="js/products.js"></script>
+
+<script src="js/main.js"></script>
+
 
 </body>
 
