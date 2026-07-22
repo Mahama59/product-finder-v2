@@ -2,29 +2,39 @@ alert("admin.js connected");
 
 
 // ================= ADMIN LOGIN =================
-
-
 function adminLogin(){
-
 
 let email =
 document.getElementById("adminEmail").value.trim();
-
 
 let password =
 document.getElementById("adminPassword").value;
 
 
+let admins =
+JSON.parse(localStorage.getItem("admins")) || [];
 
-if(
-email === "admin@productfinder.com" &&
-password === "admin123"
-){
 
+let admin =
+admins.find(function(a){
+
+return a.email === email &&
+a.password === password;
+
+});
+
+
+if(admin){
 
 localStorage.setItem(
 "adminLoggedIn",
 "true"
+);
+
+
+localStorage.setItem(
+"currentAdmin",
+JSON.stringify(admin)
 );
 
 
@@ -34,20 +44,15 @@ alert("Admin login successful");
 window.location.href =
 "admin-dashboard.html";
 
-
 }
 
 else{
 
-
 alert("Incorrect admin details");
 
-
 }
 
-
 }
-
 
 
 // ================= ADMIN PROTECTION =================
