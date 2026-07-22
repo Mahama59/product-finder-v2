@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Product Details - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+
+<body onload="loadProductDetails(); loadReviews()">
+
+
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="marketplace.html">
+Marketplace
+</a>
+
+<a href="cart.html">
+Cart
+</a>
+
+</nav>
+
+
+
+<header class="hero">
+
+<h1>📦 Product Details</h1>
+
+</header>
+
+
+
+<div class="card">
+
+
+<img id="productImage" width="250">
+
+
+<h2 id="productName"></h2>
+
+
+<p>
+💰 Price:
+$<span id="productPrice"></span>
+</p>
+
+
+<p>
+🏪 Seller:
+<span id="productSeller"></span>
+</p>
+
+
+<p>
+📂 Category:
+<span id="productCategory"></span>
+</p>
+
+
+<p id="productDescription"></p>
+
+
+<button onclick="addCurrentProductToCart()">
+
+🛒 Add To Cart
+
+</button>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h2>⭐ Customer Reviews</h2>
+
+
+<div id="reviews">
+
+<p>No reviews yet.</p>
+
+</div>
+
+
+
+<h3>Add Review</h3>
+
+
+<input id="reviewName"
+placeholder="Your name">
+
+
+<br><br>
+
+
+<textarea id="reviewText"
+placeholder="Write your review">
+</textarea>
+
+
+<br><br>
+
+
+<select id="reviewRating">
+
+<option value="5">⭐⭐⭐⭐⭐</option>
+
+<option value="4">⭐⭐⭐⭐</option>
+
+<option value="3">⭐⭐⭐</option>
+
+<option value="2">⭐⭐</option>
+
+<option value="1">⭐</option>
+
+</select>
+
+
+<br><br>
+
+
+<button onclick="submitReview()">
+
+Submit Review
+
+</button>
+
+
+</div>
+
+
+
+
+<script src="../js/products.js"></script>
+
+
+</body>
+
+</html>
