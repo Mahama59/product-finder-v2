@@ -322,3 +322,182 @@ window.location.href =
 
 
 }
+
+// ================= MERCHANT PRODUCT MANAGEMENT =================
+
+
+function loadMerchantProducts(){
+
+
+let box =
+document.getElementById("merchantProducts");
+
+
+if(!box) return;
+
+
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+
+if(!merchant){
+
+box.innerHTML =
+"<p>Please login as merchant</p>";
+
+return;
+
+}
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
+
+
+box.innerHTML = "";
+
+
+
+if(myProducts.length === 0){
+
+box.innerHTML =
+"<p>No products added yet.</p>";
+
+return;
+
+}
+
+
+
+myProducts.forEach(function(product,index){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<img src="${product.image}" width="200">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+💰 Price: $${product.price}
+</p>
+
+
+<p>
+📂 Category: ${product.category}
+</p>
+
+
+<p>
+📦 Stock: ${product.stock}
+</p>
+
+
+<p>
+Status:
+${product.status}
+</p>
+
+
+
+<button onclick="deleteMerchantProduct(${index})">
+
+🗑 Delete
+
+</button>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+// ================= DELETE PRODUCT =================
+
+
+function deleteMerchantProduct(index){
+
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
+
+
+let productToDelete =
+myProducts[index];
+
+
+
+let realIndex =
+products.findIndex(function(product){
+
+return product.id === productToDelete.id;
+
+});
+
+
+
+products.splice(realIndex,1);
+
+
+
+localStorage.setItem(
+
+"merchantProducts",
+
+JSON.stringify(products)
+
+);
+
+
+
+alert("Product deleted");
+
+
+
+loadMerchantProducts();
+
+
+}
