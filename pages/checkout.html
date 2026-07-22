@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Checkout - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+
+<body onload="loadCheckout()">
+
+
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="cart.html">
+← Cart
+</a>
+
+</nav>
+
+
+
+<header class="hero">
+
+<h1>
+💳 Checkout
+</h1>
+
+</header>
+
+
+
+<div class="card">
+
+
+<h2>
+Customer Details
+</h2>
+
+
+<input id="customerName"
+placeholder="Full Name">
+
+
+<br><br>
+
+
+<input id="customerEmail"
+placeholder="Email">
+
+
+<br><br>
+
+
+<input id="customerPhone"
+placeholder="Phone Number">
+
+
+<br><br>
+
+
+<h2>
+Order Summary
+</h2>
+
+
+<div id="checkoutItems">
+
+</div>
+
+
+<h2>
+
+Total:
+$<span id="checkoutTotal">
+0
+</span>
+
+</h2>
+
+
+
+<button onclick="placeOrder()">
+
+✅ Place Order
+
+</button>
+
+
+
+</div>
+
+
+
+<script src="../js/order.js"></script>
+
+
+</body>
+
+</html>
