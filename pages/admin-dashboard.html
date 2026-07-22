@@ -10,8 +10,7 @@
 </head>
 
 
-<body onload="protectAdmin(); loadAdminDashboard(); loadAdminStats(); loadAdminOrders()">
-
+<body onload="protectAdmin(); loadAdminDashboard(); loadAdminStats(); loadAdminMerchants(); loadAdminOrders()">
 
 
 <nav>
@@ -110,7 +109,7 @@ Marketplace control center
 </p>
 
 <p>
-🏪 Total Merchants:
+🏪 Total Merchants: 
 <span id="adminMerchants">0</span>
 </p>
 
@@ -135,7 +134,20 @@ Marketplace control center
 <p>Loading orders...</p>
 
 </div>
+</div>
+  
+<div class="card">
 
+<h2>🏪 Merchant Management</h2>
+
+<div id="adminMerchantList">
+
+<p>Loading merchants...</p>
+
+</div>
+
+</div>
+  
 </div>
   
 <script src="../js/admin.js"></script>
