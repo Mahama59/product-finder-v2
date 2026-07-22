@@ -245,7 +245,14 @@ box.innerHTML="";
 
 
 approved.slice(0,4).forEach(function(product){
+if(approved.length === 0){
 
+box.innerHTML =
+"<p>No featured products yet.</p>";
+
+return;
+
+}
 
 box.innerHTML += `
 
