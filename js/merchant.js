@@ -1,61 +1,47 @@
 alert("merchant.js connected");
 
 
-// REGISTER MERCHANT
+// ================= MERCHANT REGISTER =================
 
 function registerMerchant(){
-
 
 let name =
 document.getElementById("merchantName").value.trim();
 
-
 let email =
 document.getElementById("merchantEmail").value.trim();
-
 
 let phone =
 document.getElementById("merchantPhone").value.trim();
 
 
-
 if(!name || !email || !phone){
 
-alert("Complete all fields");
-
+alert("Fill all fields");
 return;
 
 }
-
 
 
 let merchants =
 JSON.parse(localStorage.getItem("merchants")) || [];
 
 
-
 let exists =
-merchants.find(function(m){
-
-return m.email === email;
-
-});
-
+merchants.find(m => m.email === email);
 
 
 if(exists){
 
 alert("Merchant already exists");
-
 return;
 
 }
 
 
-
 let merchant = {
 
-id:Date.now(),
+id: Date.now(),
 
 name:name,
 
@@ -63,7 +49,9 @@ email:email,
 
 phone:phone,
 
-storeName:name+" Store"
+storeName:name + " Store",
+
+status:"Approved"
 
 };
 
@@ -87,17 +75,19 @@ JSON.stringify(merchant)
 
 
 
-alert("Store created successfully");
+alert("Merchant account created");
 
 
-window.location.href="merchant-login.html";
+window.location.href =
+"merchant-dashboard.html";
 
 
 }
 
 
 
-// LOGIN MERCHANT
+
+// ================= MERCHANT LOGIN =================
 
 
 function merchantLogin(){
@@ -105,7 +95,6 @@ function merchantLogin(){
 
 let email =
 document.getElementById("merchantEmail").value.trim();
-
 
 
 let phone =
@@ -119,18 +108,16 @@ JSON.parse(localStorage.getItem("merchants")) || [];
 
 
 let merchant =
-merchants.find(function(m){
-
-return m.email === email &&
-m.phone === phone;
-
-});
+merchants.find(m =>
+m.email === email &&
+m.phone === phone
+);
 
 
 
 if(!merchant){
 
-alert("Merchant account not found");
+alert("Wrong details");
 
 return;
 
@@ -145,17 +132,11 @@ JSON.stringify(merchant)
 
 
 
-localStorage.setItem(
-"merchantLoggedIn",
-"true"
-);
-
-
-
 alert("Login successful");
 
 
-window.location.href="../index.html";
+window.location.href =
+"merchant-dashboard.html";
 
 
 }
