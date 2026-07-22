@@ -602,3 +602,84 @@ JSON.stringify(orders)
 loadAdminOrders();
 
 }
+
+function loadAdminMerchants(){
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+let box =
+document.getElementById("adminMerchantList");
+
+
+if(!box) return;
+
+
+box.innerHTML="";
+
+
+if(merchants.length === 0){
+
+box.innerHTML =
+"<p>No merchants found.</p>";
+
+return;
+
+}
+
+
+merchants.forEach(function(merchant,index){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>🏪 ${merchant.storeName}</h3>
+
+<p>
+👤 Owner:
+${merchant.name}
+</p>
+
+<p>
+📧 Email:
+${merchant.email}
+</p>
+
+<button onclick="deleteMerchant(${index})">
+
+❌ Remove Merchant
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+function deleteMerchant(index){
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+merchants.splice(index,1);
+
+
+localStorage.setItem(
+"merchants",
+JSON.stringify(merchants)
+);
+
+
+alert("Merchant removed");
+
+
+loadAdminMerchants();
+
+}
