@@ -149,3 +149,66 @@ alert("Order placed successfully 🎉");
 window.location.href = "success.html";
 
 }
+
+function loadCustomerOrders(){
+
+let email = prompt("Enter your email to view your orders");
+
+if(!email) return;
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+let box =
+document.getElementById("customerOrders");
+
+if(!box) return;
+
+box.innerHTML = "";
+
+let myOrders = orders.filter(function(order){
+
+return order.email === email;
+
+});
+
+if(myOrders.length === 0){
+
+box.innerHTML =
+"<p>No orders found.</p>";
+
+return;
+
+}
+
+myOrders.forEach(function(order){
+
+let items = "";
+
+order.items.forEach(function(item){
+
+items += `<li>${item.name} x ${item.quantity}</li>`;
+
+});
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>🧾 Order #${order.id}</h3>
+
+<p><strong>Date:</strong> ${order.date}</p>
+
+<p><strong>Total:</strong> $${order.total}</p>
+
+<p><strong>Status:</strong> ${order.status}</p>
+
+<ul>${items}</ul>
+
+</div>
+
+`;
+
+});
+
+}
