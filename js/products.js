@@ -179,12 +179,14 @@ approvedProducts.forEach(function(product){
 
 box.innerHTML += `
 
-<div class="product">
+<div class="
 
 
-<h3>
-${product.name}
-</h3>
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
 
 
 <p>
