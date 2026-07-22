@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Dashboard - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+
+<body onload="protectAdmin(); loadAdminDashboard()">
+
+
+
+<nav>
+
+<h2>🛍 Product Finder Admin</h2>
+
+<a href="../index.html">
+Home
+</a>
+
+<a href="admin-products.html">
+Products
+</a>
+
+</nav>
+
+
+
+<header class="hero">
+
+<h1>👑 Admin Dashboard</h1>
+
+<p>
+Marketplace control center
+</p>
+
+</header>
+
+
+
+<div class="card">
+
+<h2>📊 Platform Summary</h2>
+
+
+<p>
+🏪 Merchants:
+<span id="merchantCount">
+0
+</span>
+</p>
+
+
+<p>
+📦 Products:
+<span id="productCount">
+0
+</span>
+</p>
+
+
+<p>
+⏳ Pending Approval:
+<span id="pendingCount">
+0
+</span>
+</p>
+
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>Admin Menu</h2>
+
+
+<button onclick="window.location.href='admin-products.html'">
+
+📦 Manage Products
+
+</button>
+
+
+<br><br>
+
+
+<button onclick="adminLogout()">
+
+🚪 Logout
+
+</button>
+
+
+</div>
+
+
+
+<script src="../js/admin.js"></script>
+
+
+</body>
+
+</html>
