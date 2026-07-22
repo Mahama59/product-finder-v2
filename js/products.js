@@ -129,21 +129,13 @@ reader.readAsDataURL(file);
 
 function loadMarketplaceProducts(){
 
-let box =
-document.getElementById("marketplaceProducts");
-
+let box = document.getElementById("marketplaceProducts");
 
 if(!box) return;
 
 
-
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-console.log("Products:", products);
-
 
 
 let approvedProducts =
@@ -154,13 +146,7 @@ return product.status === "Approved";
 });
 
 
-
-console.log("Approved:", approvedProducts);
-
-
-
 box.innerHTML = "";
-
 
 
 if(approvedProducts.length === 0){
@@ -173,7 +159,6 @@ return;
 }
 
 
-
 approvedProducts.forEach(function(product){
 
 
@@ -182,14 +167,7 @@ box.innerHTML += `
 <div class="product">
 
 
-<img 
-src="${product.image || ''}"
-width="150">
-
-
-<h3>
-${product.name}
-</h3>
+<h3>${product.name}</h3>
 
 
 <p>
@@ -214,7 +192,6 @@ ${product.name}
 </button>
 
 
-
 <button onclick="addToCart(${product.id})">
 
 🛒 Add To Cart
@@ -222,12 +199,12 @@ ${product.name}
 </button>
 
 
-
 </div>
 
 `;
 
 });
+
 
 }
 
