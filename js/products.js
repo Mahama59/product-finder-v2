@@ -282,3 +282,32 @@ View Product
 
 
 }
+
+function openProduct(id){
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let product =
+products.find(function(p){
+
+return p.id == id;
+
+});
+
+
+if(product){
+
+localStorage.setItem(
+"selectedProduct",
+JSON.stringify(product)
+);
+
+
+window.location.href =
+"product-details.html";
+
+}
+
+}
