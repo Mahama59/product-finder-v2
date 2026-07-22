@@ -9,46 +9,31 @@ JSON.parse(localStorage.getItem("cart")) || [];
 
 // ADD PRODUCT
 
-function addToCart(productId){
+function addToCart(name, price, merchantEmail){
 
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-let product =
-products.find(function(p){
-
-return p.id === productId;
-
-});
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
 
 
 
-if(!product){
+let item = {
 
-alert("Product not found");
+id: Date.now(),
 
-return;
+name:name,
 
-}
-
-
-
-cart.push({
-
-id:product.id,
-
-name:product.name,
-
-price:product.price,
+price:Number(price),
 
 quantity:1,
 
-merchantEmail:product.merchantEmail
+merchantEmail:merchantEmail
 
-});
+};
+
+
+
+cart.push(item);
 
 
 
@@ -59,7 +44,7 @@ JSON.stringify(cart)
 
 
 
-alert("Added to cart");
+alert("Added to cart 🛒");
 
 
 }
