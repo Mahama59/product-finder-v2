@@ -501,3 +501,103 @@ loadMerchantProducts();
 
 
 }
+
+// ================= MERCHANT ORDERS =================
+
+function loadMerchantOrders(){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+if(!merchant){
+
+alert("Please login");
+
+return;
+
+}
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+let box =
+document.getElementById("merchantOrders");
+
+if(!box) return;
+
+box.innerHTML = "";
+
+let myOrders =
+orders.filter(function(order){
+
+return order.merchantEmail === merchant.email;
+
+});
+
+if(myOrders.length === 0){
+
+box.innerHTML =
+"<p>No customer orders yet.</p>";
+
+return;
+
+}
+
+myOrders.forEach(function(order){
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+🧾 Order #${order.id}
+</h3>
+
+<p>
+👤 Customer:
+${order.customer}
+</p>
+
+<p>
+📧 ${order.email}
+</p>
+
+<p>
+📞 ${order.phone}
+</p>
+
+<p>
+💰 Total:
+$${order.total}
+</p>
+
+<p>
+📦 Status:
+${order.status}
+</p>
+
+<button onclick="updateOrderStatus(${order.id},'Accepted')">
+
+✅ Accept
+
+</button>
+
+<button onclick="updateOrderStatus(${order.id},'Shipped')">
+
+🚚 Ship
+
+</button>
+
+<button onclick="updateOrderStatus(${order.id},'Completed')">
+
+✔ Complete
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
