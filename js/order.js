@@ -257,7 +257,15 @@ return;
 
 
 
-orders.forEach(function(order){
+let myOrders =
+orders.filter(function(order){
+
+return order.customerEmail === email;
+
+});
+
+
+myOrders.forEach(function(order){
 
 
 box.innerHTML += `
