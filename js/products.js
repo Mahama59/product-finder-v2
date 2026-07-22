@@ -101,7 +101,7 @@ alert("Product saved successfully");
 
 
 window.location.href =
-"merchant-dashboard.html";
+"pages/merchant-dashboard.html";
 
 }
 
