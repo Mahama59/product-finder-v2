@@ -601,3 +601,27 @@ ${order.status}
 });
 
 }
+
+function updateOrderStatus(orderId,status){
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+orders.forEach(function(order){
+
+if(order.id===orderId){
+
+order.status=status;
+
+}
+
+});
+
+localStorage.setItem(
+"orders",
+JSON.stringify(orders)
+);
+
+loadMerchantOrders();
+
+}
