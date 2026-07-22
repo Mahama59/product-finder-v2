@@ -223,3 +223,59 @@ ${product.price},
 
 
 }
+
+function loadFeaturedProducts(){
+
+let box =
+document.getElementById("featuredProducts");
+
+
+if(!box) return;
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let approved =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+
+box.innerHTML="";
+
+
+approved.slice(0,4).forEach(function(product){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>${product.name}</h3>
+
+<p>
+💰 $${product.price}
+</p>
+
+<p>
+🏪 ${product.merchantName}
+</p>
+
+<button onclick="window.location.href='pages/marketplace.html'">
+
+View Product
+
+</button>
+
+</div>
+
+`;
+
+});
+
+
+}
