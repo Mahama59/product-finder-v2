@@ -13,6 +13,18 @@
 
 </head>
 
+<script src="js/products.js"></script>
+
+<script>
+
+window.onload = function(){
+
+loadFeaturedProducts();
+
+};
+
+</script>
+  
 <body>
 
 <nav>
@@ -61,7 +73,19 @@ placeholder="Search products...">
 
 </header>
 
-<section class="product-grid">
+<section>
+
+<h2 style="text-align:center;">
+🔥 Featured Products
+</h2>
+
+<div class="product-grid" id="featuredProducts">
+
+<p>Loading products...</p>
+
+</div>
+
+</section>
 
 <div class="product">
 
