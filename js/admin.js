@@ -570,3 +570,30 @@ Complete
 });
 
 }
+
+function adminUpdateOrder(id,status){
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+orders.forEach(function(order){
+
+if(order.id === id){
+
+order.status = status;
+
+}
+
+});
+
+
+localStorage.setItem(
+"orders",
+JSON.stringify(orders)
+);
+
+
+loadAdminOrders();
+
+}
