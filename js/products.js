@@ -573,3 +573,111 @@ ${"⭐".repeat(review.rating)}
 
 
 }
+
+// ================= SEARCH PRODUCTS =================
+
+function searchProducts(){
+
+let search =
+document.getElementById("searchInput").value.toLowerCase();
+
+
+let category =
+document.getElementById("categoryFilter").value;
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let approved =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+
+
+let results =
+approved.filter(function(product){
+
+
+let matchName =
+product.name.toLowerCase()
+.includes(search);
+
+
+
+let matchCategory =
+category === "" ||
+product.category === category;
+
+
+
+return matchName && matchCategory;
+
+
+});
+
+
+
+let box =
+document.getElementById("marketplaceProducts");
+
+
+box.innerHTML="";
+
+
+
+if(results.length===0){
+
+box.innerHTML =
+"<p>No products found.</p>";
+
+return;
+
+}
+
+
+
+results.forEach(function(product){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+💰 $${product.price}
+</p>
+
+
+<p>
+📂 ${product.category}
+</p>
+
+
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+}
