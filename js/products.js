@@ -126,3 +126,99 @@ e.target.result;
 reader.readAsDataURL(file);
 
 }
+
+function loadMarketplaceProducts(){
+
+
+let box =
+document.getElementById("marketplaceProducts");
+
+
+if(!box) return;
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let approvedProducts =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+
+
+box.innerHTML="";
+
+
+
+if(approvedProducts.length === 0){
+
+box.innerHTML =
+"<p>No approved products yet.</p>";
+
+return;
+
+}
+
+
+
+approvedProducts.forEach(function(product){
+
+
+box.innerHTML += `
+
+
+<div class="product">
+
+
+<img src="${product.image}" width="200">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+💰 $${product.price}
+</p>
+
+
+<p>
+📂 ${product.category}
+</p>
+
+
+<p>
+🏪 ${product.merchantName}
+</p>
+
+
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+}
