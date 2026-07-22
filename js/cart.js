@@ -17,7 +17,23 @@ JSON.parse(localStorage.getItem("cart")) || [];
 
 
 
-let item = {
+let existing =
+cart.find(function(item){
+
+return item.name === name;
+
+});
+
+
+
+if(existing){
+
+existing.quantity += 1;
+
+}else{
+
+
+cart.push({
 
 id: Date.now(),
 
@@ -29,11 +45,10 @@ quantity:1,
 
 merchantEmail:merchantEmail
 
-};
+});
 
 
-
-cart.push(item);
+}
 
 
 
@@ -44,10 +59,11 @@ JSON.stringify(cart)
 
 
 
-alert("Added to cart 🛒");
+alert("Product added to cart 🛒");
 
 
 }
+
 
 
 
