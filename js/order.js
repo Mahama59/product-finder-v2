@@ -222,3 +222,88 @@ box.innerHTML += `
 });
 
 }
+
+// ================= CUSTOMER ORDER TRACKING =================
+
+function loadCustomerOrders(){
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let email =
+localStorage.getItem("customerEmail");
+
+
+let box =
+document.getElementById("customerOrders");
+
+
+if(!box) return;
+
+
+box.innerHTML="";
+
+
+if(orders.length === 0){
+
+box.innerHTML =
+"<p>No orders found.</p>";
+
+return;
+
+}
+
+
+
+orders.forEach(function(order){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<h3>
+🧾 Order #${order.id}
+</h3>
+
+
+<p>
+📦 Order Status:
+${order.status}
+</p>
+
+
+<p>
+🚚 Shipping:
+${order.shippingStatus || "Processing"}
+</p>
+
+
+<p>
+🔎 Tracking Number:
+${order.trackingNumber || "Not assigned"}
+</p>
+
+
+<p>
+📍 Address:
+${order.address || "Not provided"}
+</p>
+
+
+<p>
+📅 Date:
+${order.date}
+</p>
+
+
+</div>
+
+`;
+
+});
+
+
+}
