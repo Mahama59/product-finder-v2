@@ -1,7 +1,7 @@
 alert("merchant.js connected");
 
 
-// ================= MERCHANT REGISTER =================
+// ================= REGISTER MERCHANT =================
 
 function registerMerchant(){
 
@@ -17,7 +17,7 @@ document.getElementById("merchantPhone").value.trim();
 
 if(!name || !email || !phone){
 
-alert("Fill all fields");
+alert("Please fill all fields");
 return;
 
 }
@@ -51,14 +51,12 @@ phone:phone,
 
 storeName:name + " Store",
 
-status:"Approved"
+joined:new Date().toLocaleDateString()
 
 };
 
 
-
 merchants.push(merchant);
-
 
 
 localStorage.setItem(
@@ -67,15 +65,13 @@ JSON.stringify(merchants)
 );
 
 
-
 localStorage.setItem(
 "merchant",
 JSON.stringify(merchant)
 );
 
 
-
-alert("Merchant account created");
+alert("Merchant registration successful");
 
 
 window.location.href =
@@ -86,8 +82,7 @@ window.location.href =
 
 
 
-
-// ================= MERCHANT LOGIN =================
+// ================= LOGIN MERCHANT =================
 
 
 function merchantLogin(){
@@ -108,7 +103,7 @@ JSON.parse(localStorage.getItem("merchants")) || [];
 
 
 let merchant =
-merchants.find(m =>
+merchants.find(m => 
 m.email === email &&
 m.phone === phone
 );
@@ -117,8 +112,7 @@ m.phone === phone
 
 if(!merchant){
 
-alert("Wrong details");
-
+alert("Incorrect merchant details");
 return;
 
 }
@@ -137,6 +131,194 @@ alert("Login successful");
 
 window.location.href =
 "merchant-dashboard.html";
+
+
+}
+
+
+
+// ================= DASHBOARD =================
+
+
+function loadMerchantDashboard(){
+
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+
+if(!merchant){
+
+return;
+
+}
+
+
+
+let welcome =
+document.getElementById("merchantWelcome");
+
+
+if(welcome){
+
+welcome.innerText =
+"Welcome " + merchant.name;
+
+}
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let myProducts =
+products.filter(product => 
+product.merchantEmail === merchant.email
+);
+
+
+
+let count =
+document.getElementById("productCount");
+
+
+if(count){
+
+count.innerText =
+myProducts.length;
+
+}
+
+
+
+let productBox =
+document.getElementById("merchantProducts");
+
+
+
+if(productBox){
+
+
+productBox.innerHTML="";
+
+
+
+if(myProducts.length === 0){
+
+productBox.innerHTML =
+"<p>No products yet.</p>";
+
+}
+
+else{
+
+
+myProducts.forEach(product=>{
+
+
+productBox.innerHTML += `
+
+<div class="card">
+
+<h3>${product.name}</h3>
+
+<p>
+💰 Price: $${product.price}
+</p>
+
+<p>
+📦 Stock: ${product.stock}
+</p>
+
+<p>
+📂 ${product.category}
+</p>
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+}
+
+
+
+
+// Revenue
+
+let revenue =
+0;
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+
+orders.forEach(order=>{
+
+
+order.items.forEach(item=>{
+
+
+if(item.merchantEmail === merchant.email){
+
+
+revenue +=
+Number(item.price) *
+Number(item.quantity);
+
+
+}
+
+
+});
+
+
+});
+
+
+
+let revenueBox =
+document.getElementById("merchantRevenue");
+
+
+
+if(revenueBox){
+
+revenueBox.innerText =
+revenue;
+
+}
+
+
+
+}
+
+
+
+
+// ================= LOGOUT =================
+
+
+function merchantLogout(){
+
+localStorage.removeItem("merchant");
+
+
+alert("Logged out");
+
+
+window.location.href =
+"merchant-login.html";
 
 
 }
