@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Merchant Dashboard - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+
+<body onload="loadMerchantDashboard()">
+
+
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="../index.html">Home</a>
+
+<a href="merchant-add-product.html">Add Product</a>
+
+</nav>
+
+
+
+<header class="hero">
+
+<h1>🏪 Merchant Dashboard</h1>
+
+<p id="merchantWelcome"></p>
+
+</header>
+
+
+
+<div class="card">
+
+
+<h2>📊 Store Summary</h2>
+
+
+<p>
+📦 Products:
+<span id="productCount">0</span>
+</p>
+
+
+<p>
+💰 Revenue:
+$<span id="merchantRevenue">0</span>
+</p>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h2>My Products</h2>
+
+
+<div id="merchantProducts">
+
+<p>No products yet.</p>
+
+</div>
+
+
+</div>
+
+
+
+<script src="../js/products.js"></script>
+<script src="../js/merchant.js"></script>
+
+
+</body>
+
+</html>
