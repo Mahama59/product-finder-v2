@@ -338,3 +338,92 @@ loadAdminProducts();
 
 
 }
+
+// ================= ADMIN REGISTER =================
+
+function registerAdmin(){
+
+
+let name =
+document.getElementById("adminName").value.trim();
+
+
+let email =
+document.getElementById("adminEmail").value.trim();
+
+
+let password =
+document.getElementById("adminPassword").value;
+
+
+
+if(!name || !email || !password){
+
+alert("Complete all fields");
+
+return;
+
+}
+
+
+
+let admins =
+JSON.parse(localStorage.getItem("admins")) || [];
+
+
+
+let exists =
+admins.find(function(admin){
+
+return admin.email === email;
+
+});
+
+
+
+if(exists){
+
+alert("Admin already exists");
+
+return;
+
+}
+
+
+
+let admin = {
+
+
+id: Date.now(),
+
+name:name,
+
+email:email,
+
+password:password
+
+
+};
+
+
+
+admins.push(admin);
+
+
+
+localStorage.setItem(
+"admins",
+JSON.stringify(admins)
+);
+
+
+
+alert("Admin account created successfully");
+
+
+
+window.location.href =
+"admin-login.html";
+
+
+}
