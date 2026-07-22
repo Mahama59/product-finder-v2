@@ -104,3 +104,25 @@ window.location.href =
 "merchant-dashboard.html";
 
 }
+
+function previewImage(event){
+
+let file = event.target.files[0];
+
+if(!file) return;
+
+
+let reader = new FileReader();
+
+
+reader.onload = function(e){
+
+document.getElementById("imagePreview").src =
+e.target.result;
+
+};
+
+
+reader.readAsDataURL(file);
+
+}
