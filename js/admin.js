@@ -427,3 +427,63 @@ window.location.href =
 
 
 }
+
+function loadAdminStats(){
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let productBox =
+document.getElementById("adminProducts");
+
+let merchantBox =
+document.getElementById("adminMerchants");
+
+let customerBox =
+document.getElementById("adminCustomers");
+
+let orderBox =
+document.getElementById("adminOrders");
+
+
+if(productBox){
+
+productBox.innerText = products.length;
+
+}
+
+
+if(merchantBox){
+
+merchantBox.innerText = merchants.length;
+
+}
+
+
+if(customerBox){
+
+customerBox.innerText = users.length;
+
+}
+
+
+if(orderBox){
+
+orderBox.innerText = orders.length;
+
+}
+
+}
