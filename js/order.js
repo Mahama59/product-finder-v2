@@ -112,6 +112,16 @@ let order = {
 
 id: Date.now(),
 
+address:
+document.getElementById("customerAddress").value,
+
+city:
+document.getElementById("customerCity").value,
+
+trackingNumber:"Not assigned",
+
+shippingStatus:"Processing",
+  
 customer: customerName,
 
 email: customerEmail,
