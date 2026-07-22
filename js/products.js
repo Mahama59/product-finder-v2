@@ -202,11 +202,7 @@ ${product.name}
 </p>
 
 
-<button onclick="addToCart(
-'${product.name}',
-${product.price},
-'${product.merchantEmail}'
-)">
+<button onclick="addToCart(${product.id})">
 
 🛒 Add To Cart
 
