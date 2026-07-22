@@ -487,3 +487,86 @@ orderBox.innerText = orders.length;
 }
 
 }
+
+function loadAdminOrders(){
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let box =
+document.getElementById("adminOrdersList");
+
+
+if(!box) return;
+
+
+box.innerHTML = "";
+
+
+if(orders.length === 0){
+
+box.innerHTML =
+"<p>No orders yet.</p>";
+
+return;
+
+}
+
+
+orders.forEach(function(order){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+🧾 Order #${order.id}
+</h3>
+
+
+<p>
+👤 Customer:
+${order.customer}
+</p>
+
+
+<p>
+💰 Total:
+$${order.total}
+</p>
+
+
+<p>
+📦 Status:
+${order.status}
+</p>
+
+
+<p>
+📅 ${order.date}
+</p>
+
+
+<button onclick="adminUpdateOrder(${order.id},'Approved')">
+
+Approve
+
+</button>
+
+
+<button onclick="adminUpdateOrder(${order.id},'Completed')">
+
+Complete
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+}
