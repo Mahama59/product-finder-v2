@@ -107,7 +107,11 @@ total += item.price * item.quantity;
 let orders =
 JSON.parse(localStorage.getItem("orders")) || [];
 
-
+let paymentMethod =
+document.querySelector(
+'input[name="paymentMethod"]:checked'
+).value;
+  
 let order = {
 
 id: Date.now(),
