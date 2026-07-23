@@ -192,11 +192,11 @@ box.innerHTML += `
 </button>
 
 
-<button onclick="addToCart(
-'${product.name}',
+<button onclick='addToCart(
+${JSON.stringify(product.name)},
 ${product.price},
-'${product.merchantEmail}'
-)">
+${JSON.stringify(product.merchantEmail)}
+)'>
 🛒 Add To Cart
 </button>
 
