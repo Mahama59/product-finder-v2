@@ -12,9 +12,16 @@ JSON.parse(localStorage.getItem("cart")) || [];
 function addToCart(name, price, merchantEmail){
 
 
+console.log(
+"Adding:",
+name,
+price,
+merchantEmail
+);
+
+
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
-
 
 
 let existing =
@@ -25,31 +32,31 @@ return item.name === name;
 });
 
 
-
 if(existing){
 
 existing.quantity += 1;
 
-}else{
+}
+
+else{
 
 
 cart.push({
 
 id: Date.now(),
 
-name:name,
+name: name,
 
-price:Number(price),
+price: Number(price),
 
-quantity:1,
+quantity: 1,
 
-merchantEmail:merchantEmail
+merchantEmail: merchantEmail
 
 });
 
 
 }
-
 
 
 localStorage.setItem(
@@ -58,12 +65,10 @@ JSON.stringify(cart)
 );
 
 
-
 alert("Product added to cart 🛒");
 
 
 }
-
 
 
 
