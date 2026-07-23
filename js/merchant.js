@@ -619,3 +619,99 @@ alert("Order shipped 🚚");
 loadMerchantOrders();
 
 }
+
+// ================= EDIT PRODUCT =================
+
+
+function loadEditProduct(){
+
+let product =
+JSON.parse(localStorage.getItem("editProduct"));
+
+
+if(!product) return;
+
+
+document.getElementById("editName").value =
+product.name;
+
+
+document.getElementById("editPrice").value =
+product.price;
+
+
+document.getElementById("editCategory").value =
+product.category;
+
+
+document.getElementById("editStock").value =
+product.stock;
+
+
+document.getElementById("editDescription").value =
+product.description || "";
+
+}
+
+
+
+// ================= UPDATE PRODUCT =================
+
+
+function updateProduct(){
+
+
+let product =
+JSON.parse(localStorage.getItem("editProduct"));
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let index =
+products.findIndex(function(item){
+
+return item.id === product.id;
+
+});
+
+
+
+products[index].name =
+document.getElementById("editName").value;
+
+
+products[index].price =
+Number(document.getElementById("editPrice").value);
+
+
+products[index].category =
+document.getElementById("editCategory").value;
+
+
+products[index].stock =
+Number(document.getElementById("editStock").value);
+
+
+products[index].description =
+document.getElementById("editDescription").value;
+
+
+
+localStorage.setItem(
+"merchantProducts",
+JSON.stringify(products)
+);
+
+
+
+alert("Product updated successfully");
+
+
+window.location.href =
+"merchant-products.html";
+
+
+}
