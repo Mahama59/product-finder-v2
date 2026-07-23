@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Customer Dashboard - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+<body onload="loadCustomerDashboard()">
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="../index.html">Home</a>
+
+<a href="marketplace.html">Marketplace</a>
+
+<a href="cart.html">Cart</a>
+
+<a href="order-tracking.html">My Orders</a>
+
+</nav>
+
+<header class="hero">
+
+<h1>👤 Customer Dashboard</h1>
+
+<p id="customerWelcome">Welcome</p>
+
+</header>
+
+<div class="card">
+
+<h2>📊 Account Summary</h2>
+
+<p>🧾 Orders: <span id="customerOrderCount">0</span></p>
+
+<p>❤️ Wishlist: <span id="wishlistCount">0</span></p>
+
+</div>
+
+<div class="card">
+
+<h2>⚙️ Quick Actions</h2>
+
+<button onclick="window.location.href='marketplace.html'">
+🛒 Continue Shopping
+</button>
+
+<br><br>
+
+<button onclick="window.location.href='order-tracking.html'">
+📦 My Orders
+</button>
+
+<br><br>
+
+<button onclick="customerLogout()">
+🚪 Logout
+</button>
+
+</div>
+
+<script src="../js/customer.js"></script>
+
+</body>
+
+  </html>
