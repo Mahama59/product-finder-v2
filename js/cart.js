@@ -182,3 +182,34 @@ count.innerText = cart.length;
 }
 
 }
+
+function addToWishlist(product){
+
+let wishlist =
+JSON.parse(localStorage.getItem("wishlist")) || [];
+
+let exists =
+wishlist.find(function(item){
+
+return item.id === product.id;
+
+});
+
+if(exists){
+
+alert("Already in wishlist ❤️");
+
+return;
+
+}
+
+wishlist.push(product);
+
+localStorage.setItem(
+"wishlist",
+JSON.stringify(wishlist)
+);
+
+alert("Added to wishlist ❤️");
+
+}
