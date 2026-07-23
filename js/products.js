@@ -501,7 +501,11 @@ let reviewsBox =
 document.getElementById("reviews");
 
 
-if(!reviewsBox || !product){
+let ratingBox =
+document.getElementById("averageRating");
+
+
+if(!product || !reviewsBox){
 
 return;
 
@@ -515,7 +519,7 @@ JSON.parse(localStorage.getItem("reviews")) || [];
 let productReviews =
 reviews.filter(function(review){
 
-return review.productId === product.id;
+return review.productId == product.id;
 
 });
 
@@ -523,18 +527,13 @@ return review.productId === product.id;
 reviewsBox.innerHTML="";
 
 
-if(productReviews.length===0){
-
-reviewsBox.innerHTML=
-"<p>No reviews yet.</p>";
-
-return;
-
-}
-
+let total = 0;
 
 
 productReviews.forEach(function(review){
+
+
+total += Number(review.rating);
 
 
 reviewsBox.innerHTML += `
@@ -552,7 +551,6 @@ ${review.text}
 
 
 <p>
-Rating:
 ${"⭐".repeat(review.rating)}
 </p>
 
@@ -562,6 +560,21 @@ ${"⭐".repeat(review.rating)}
 `;
 
 });
+
+
+if(productReviews.length > 0){
+
+ratingBox.innerText =
+(total / productReviews.length).toFixed(1)
++ " ⭐";
+
+}
+else{
+
+ratingBox.innerText =
+"No ratings yet";
+
+}
 
 
 }
