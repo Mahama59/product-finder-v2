@@ -186,17 +186,18 @@ box.innerHTML += `
 
 
 <button onclick="openProduct(${product.id})">
-
 👁 View Product
-
 </button>
 
+<button onclick="addToWishlistById(${product.id})">
+❤️ Wishlist
+</button>
 
-<button onclick='addToCart(
-${JSON.stringify(product.name)},
+<button onclick="addToCart(
+'${product.name}',
 ${product.price},
-${JSON.stringify(product.merchantEmail)}
-)'>
+'${product.merchantEmail}'
+)">
 🛒 Add To Cart
 </button>
 
