@@ -4,7 +4,7 @@ alert("order.js connected");
 // LOAD CHECKOUT
 
 function loadCheckout(){
-
+alert(JSON.stringify(cart));
 
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
