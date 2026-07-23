@@ -157,6 +157,12 @@ JSON.parse(localStorage.getItem("orders")) || [];
 
 
 let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
 let approvedProducts =
 myProducts.filter(function(product){
 
@@ -168,13 +174,6 @@ let pendingProducts =
 myProducts.filter(function(product){
 
 return product.status === "Pending";
-
-});
-
-  
-products.filter(function(product){
-
-return product.merchantEmail === merchant.email;
 
 });
 
@@ -215,25 +214,11 @@ revenue += item.price * item.quantity;
 document.getElementById("productCount").innerText =
 myProducts.length;
 
-let approved =
-myProducts.filter(function(product){
-
-return product.status === "Approved";
-
-});
-
-let pending =
-myProducts.filter(function(product){
-
-return product.status === "Pending";
-
-});
-
 document.getElementById("approvedProducts").innerText =
-approved.length;
+approvedProducts.length;
 
 document.getElementById("pendingProducts").innerText =
-pending.length;
+pendingProducts.length;
 
 document.getElementById("merchantOrders").innerText =
 myOrders.length;
