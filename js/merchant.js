@@ -145,18 +145,15 @@ function loadMerchantDashboard(){
 let merchant =
 JSON.parse(localStorage.getItem("merchant"));
 
-if(!merchant) return;
+if(!merchant){
 
-let welcome =
-document.getElementById("merchantWelcome");
+alert("Please login as merchant");
 
-if(welcome){
-
-welcome.innerText =
-"Welcome " + merchant.name;
+return;
 
 }
-  
+
+
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
@@ -165,6 +162,8 @@ let orders =
 JSON.parse(localStorage.getItem("orders")) || [];
 
 
+// Get this merchant products
+
 let myProducts =
 products.filter(function(product){
 
@@ -172,14 +171,20 @@ return product.merchantEmail === merchant.email;
 
 });
 
-let approvedProducts =
+
+// Approved products
+
+let approved =
 myProducts.filter(function(product){
 
 return product.status === "Approved";
 
 });
 
-let pendingProducts =
+
+// Pending products
+
+let pending =
 myProducts.filter(function(product){
 
 return product.status === "Pending";
@@ -187,10 +192,12 @@ return product.status === "Pending";
 });
 
 
+// Merchant orders
+
 let myOrders =
 orders.filter(function(order){
 
-return order.items.some(function(item){
+return order.items && order.items.some(function(item){
 
 return item.merchantEmail === merchant.email;
 
@@ -199,7 +206,10 @@ return item.merchantEmail === merchant.email;
 });
 
 
+// Calculate revenue
+
 let revenue = 0;
+
 
 myOrders.forEach(function(order){
 
@@ -209,7 +219,7 @@ order.items.forEach(function(item){
 
 if(item.merchantEmail === merchant.email){
 
-revenue += item.price * item.quantity;
+revenue += Number(item.price) * Number(item.quantity);
 
 }
 
@@ -218,25 +228,45 @@ revenue += item.price * item.quantity;
 }
 
 });
+
+
+
+// Update dashboard
+
+let welcome =
+document.getElementById("merchantWelcome");
+
+
+if(welcome){
+
+welcome.innerText =
+"Welcome " + merchant.storeName;
+
+}
+
 
 
 document.getElementById("productCount").innerText =
 myProducts.length;
 
+
 document.getElementById("approvedProducts").innerText =
-approvedProducts.length;
+approved.length;
+
 
 document.getElementById("pendingProducts").innerText =
-pendingProducts.length;
+pending.length;
+
 
 document.getElementById("merchantOrders").innerText =
 myOrders.length;
-  
+
+
 document.getElementById("revenue").innerText =
 revenue;
 
-}
 
+}
 
 // ================= LOGOUT =================
 
