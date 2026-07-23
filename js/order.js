@@ -67,7 +67,7 @@ let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
 
 
-if(cart.length===0){
+if(cart.length === 0){
 
 alert("Cart is empty");
 
@@ -95,73 +95,23 @@ return;
 }
 
 
-let total = 0;
-
-cart.forEach(function(item){
-
-total += item.price * item.quantity;
-
-});
-
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
 let paymentMethod =
 document.querySelector(
 'input[name="paymentMethod"]:checked'
 ).value;
-  
-let order = {
-
-id: Date.now(),
-
-address:
-document.getElementById("customerAddress").value,
 
 
-city:
-document.getElementById("customerCity").value,
 
-trackingNumber:"Not assigned",
+if(paymentMethod === "Paystack"){
 
-shippingStatus:"Processing",
-  
-customer: customerName,
+payWithPaystack();
 
-email: customerEmail,
+}
+else{
 
-phone: customerPhone,
+createOrder("Cash on Delivery");
 
-items: cart,
-
-total: total,
-
-merchantEmail: cart[0].merchantEmail,
-
-status: "New",
-
-date: new Date().toLocaleString()
-
-};
-
-
-orders.push(order);
-
-
-localStorage.setItem(
-"orders",
-JSON.stringify(orders)
-);
-
-
-localStorage.removeItem("cart");
-
-
-alert("Order placed successfully 🎉");
-
-
-window.location.href = "success.html";
+}
 
 }
 
@@ -318,5 +268,163 @@ ${order.date}
 
 });
 
+
+}
+
+function createOrder(paymentMethod){
+
+
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+
+let total = 0;
+
+
+cart.forEach(function(item){
+
+total += item.price * item.quantity;
+
+});
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let order = {
+
+
+id: Date.now(),
+
+
+address:
+document.getElementById("customerAddress").value,
+
+
+city:
+document.getElementById("customerCity").value,
+
+
+customer:
+document.getElementById("customerName").value,
+
+
+email:
+document.getElementById("customerEmail").value,
+
+
+phone:
+document.getElementById("customerPhone").value,
+
+
+items: cart,
+
+
+total: total,
+
+
+paymentMethod: paymentMethod,
+
+
+trackingNumber:"Not assigned",
+
+
+shippingStatus:"Processing",
+
+
+status:"New",
+
+
+date:new Date().toLocaleString()
+
+
+};
+
+
+
+orders.push(order);
+
+
+
+localStorage.setItem(
+"orders",
+JSON.stringify(orders)
+);
+
+
+
+localStorage.removeItem("cart");
+
+
+
+alert("Order placed successfully 🎉");
+
+
+
+window.location.href =
+"success.html";
+
+
+}
+
+function payWithPaystack(){
+
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+
+let total = 0;
+
+
+cart.forEach(function(item){
+
+total += item.price * item.quantity;
+
+});
+
+
+let handler = PaystackPop.setup({
+
+key: "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d",
+
+email:
+document.getElementById("customerEmail").value,
+
+
+amount:
+total * 100,
+
+
+currency: "GHS",
+
+
+callback: function(response){
+
+
+alert(
+"Payment successful. Reference: "
++ response.reference
+);
+
+
+createOrder("Paystack");
+
+
+},
+
+
+onClose: function(){
+
+
+alert("Payment cancelled");
+
+
+}
+
+});
+
+
+handler.openIframe();
 
 }
