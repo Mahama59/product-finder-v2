@@ -716,3 +716,78 @@ JSON.stringify(wishlist)
 alert("Added to wishlist ❤️");
 
 }
+
+// ================= LOAD WISHLIST =================
+
+function loadWishlist(){
+
+let box =
+document.getElementById("wishlistItems");
+
+if(!box) return;
+
+let wishlist =
+JSON.parse(localStorage.getItem("wishlist")) || [];
+
+box.innerHTML = "";
+
+if(wishlist.length === 0){
+
+box.innerHTML =
+"<p>Your wishlist is empty ❤️</p>";
+
+return;
+
+}
+
+wishlist.forEach(function(product,index){
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>${product.name}</h3>
+
+<p>💰 $${product.price}</p>
+
+<p>🏪 ${product.merchantName}</p>
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+🛒 Add To Cart
+</button>
+
+<button onclick="removeWishlist(${index})">
+❌ Remove
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+// ================= REMOVE WISHLIST =================
+
+function removeWishlist(index){
+
+let wishlist =
+JSON.parse(localStorage.getItem("wishlist")) || [];
+
+wishlist.splice(index,1);
+
+localStorage.setItem(
+"wishlist",
+JSON.stringify(wishlist)
+);
+
+loadWishlist();
+
+}
