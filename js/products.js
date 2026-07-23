@@ -668,3 +668,50 @@ ${product.name}
 
 
 }
+
+function addToWishlistById(id){
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+let product =
+products.find(function(item){
+
+return item.id == id;
+
+});
+
+if(!product){
+
+return;
+
+}
+
+let wishlist =
+JSON.parse(localStorage.getItem("wishlist")) || [];
+
+let exists =
+wishlist.find(function(item){
+
+return item.id == id;
+
+});
+
+if(exists){
+
+alert("Already in wishlist ❤️");
+
+return;
+
+}
+
+wishlist.push(product);
+
+localStorage.setItem(
+"wishlist",
+JSON.stringify(wishlist)
+);
+
+alert("Added to wishlist ❤️");
+
+}
