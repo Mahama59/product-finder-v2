@@ -157,6 +157,21 @@ JSON.parse(localStorage.getItem("orders")) || [];
 
 
 let myProducts =
+let approvedProducts =
+myProducts.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+let pendingProducts =
+myProducts.filter(function(product){
+
+return product.status === "Pending";
+
+});
+
+  
 products.filter(function(product){
 
 return product.merchantEmail === merchant.email;
