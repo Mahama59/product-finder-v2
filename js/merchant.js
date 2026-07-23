@@ -142,168 +142,91 @@ window.location.href =
 
 function loadMerchantDashboard(){
 
-
 let merchant =
 JSON.parse(localStorage.getItem("merchant"));
 
-
-
-if(!merchant){
-
-return;
-
-}
-
-
-
-let welcome =
-document.getElementById("merchantWelcome");
-
-
-if(welcome){
-
-welcome.innerText =
-"Welcome " + merchant.name;
-
-}
-
+if(!merchant) return;
 
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-
-let myProducts =
-products.filter(product => 
-product.merchantEmail === merchant.email
-);
-
-
-
-let count =
-document.getElementById("productCount");
-
-
-if(count){
-
-count.innerText =
-myProducts.length;
-
-}
-
-
-
-let productBox =
-document.getElementById("merchantProducts");
-
-
-
-if(productBox){
-
-
-productBox.innerHTML="";
-
-
-
-if(myProducts.length === 0){
-
-productBox.innerHTML =
-"<p>No products yet.</p>";
-
-}
-
-else{
-
-
-myProducts.forEach(product=>{
-
-
-productBox.innerHTML += `
-
-<div class="card">
-
-<h3>${product.name}</h3>
-
-<p>
-💰 Price: $${product.price}
-</p>
-
-<p>
-📦 Stock: ${product.stock}
-</p>
-
-<p>
-📂 ${product.category}
-</p>
-
-</div>
-
-`;
-
-});
-
-
-}
-
-
-}
-
-
-
-
-// Revenue
-
-let revenue =
-0;
-
-
 let orders =
 JSON.parse(localStorage.getItem("orders")) || [];
 
 
+let myProducts =
+products.filter(function(product){
 
-orders.forEach(order=>{
+return product.merchantEmail === merchant.email;
+
+});
 
 
-order.items.forEach(item=>{
+let myOrders =
+orders.filter(function(order){
 
+return order.items.some(function(item){
+
+return item.merchantEmail === merchant.email;
+
+});
+
+});
+
+
+let revenue = 0;
+
+myOrders.forEach(function(order){
+
+if(order.status === "Completed"){
+
+order.items.forEach(function(item){
 
 if(item.merchantEmail === merchant.email){
 
-
-revenue +=
-Number(item.price) *
-Number(item.quantity);
-
+revenue += item.price * item.quantity;
 
 }
 
+});
+
+}
 
 });
 
 
+document.getElementById("productCount").innerText =
+myProducts.length;
+
+let approved =
+myProducts.filter(function(product){
+
+return product.status === "Approved";
+
 });
 
+let pending =
+myProducts.filter(function(product){
 
+return product.status === "Pending";
 
-let revenueBox =
-document.getElementById("merchantRevenue");
+});
 
+document.getElementById("approvedProducts").innerText =
+approved.length;
 
+document.getElementById("pendingProducts").innerText =
+pending.length;
 
-if(revenueBox){
-
-revenueBox.innerText =
+document.getElementById("merchantOrders").innerText =
+myOrders.length;
+  
+document.getElementById("revenue").innerText =
 revenue;
 
 }
-
-
-
-}
-
-
 
 
 // ================= LOGOUT =================
