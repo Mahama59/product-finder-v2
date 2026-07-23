@@ -139,7 +139,7 @@ JSON.parse(localStorage.getItem("merchantProducts")) || [];
 let approvedProducts =
 products.filter(function(product){
 
-return product.status === "Approved";
+return product.status === "Approved" || product.status === "Pending";
 
 });
 
