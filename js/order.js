@@ -8,7 +8,7 @@ function loadCheckout(){
 
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
-
+console.log("Checkout Cart:", cart);
 
 
 let box =
