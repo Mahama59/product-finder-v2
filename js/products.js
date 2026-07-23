@@ -383,7 +383,7 @@ description.innerText = product.description;
 
 }
 
-
+loadReviews();
 }
 
 
