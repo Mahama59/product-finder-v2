@@ -719,3 +719,32 @@ window.location.href =
 
 
 }
+
+function editMerchantProduct(index){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
+
+localStorage.setItem(
+"editProduct",
+JSON.stringify(myProducts[index])
+);
+
+
+window.location.href =
+"merchant-edit-product.html";
+
+}
