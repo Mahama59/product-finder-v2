@@ -192,12 +192,13 @@ box.innerHTML += `
 </button>
 
 
-<button onclick="addToCart(${product.id})">
-
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
 🛒 Add To Cart
-
 </button>
-
 
 </div>
 
