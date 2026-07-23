@@ -147,7 +147,16 @@ JSON.parse(localStorage.getItem("merchant"));
 
 if(!merchant) return;
 
+let welcome =
+document.getElementById("merchantWelcome");
 
+if(welcome){
+
+welcome.innerText =
+"Welcome " + merchant.name;
+
+}
+  
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
