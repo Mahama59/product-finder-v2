@@ -374,12 +374,33 @@ ${product.name}
 📦 Stock: ${product.stock}
 </p>
 
+<p>
+${
+product.stock <= 5 
+? "⚠️ Low Stock" 
+: "✅ In Stock"
+}
+</p>
+
 
 <p>
-Status:
+Approval:
 ${product.status}
 </p>
 
+<p>
+Inventory:
+${getStockStatus(product.stock)}
+</p>
+
+<button onclick="changeStock(${index},1)">
+➕ Add Stock
+</button>
+
+
+<button onclick="changeStock(${index},-1)">
+➖ Remove Stock
+</button>
 <button onclick="editMerchantProduct(${index})">
 
 ✏️ Edit
@@ -746,5 +767,83 @@ JSON.stringify(myProducts[index])
 
 window.location.href =
 "merchant-edit-product.html";
+
+}
+
+// ================= INVENTORY STATUS =================
+
+
+function getStockStatus(stock){
+
+
+if(stock <= 0){
+
+return "❌ Out of Stock";
+
+}
+
+
+if(stock <= 5){
+
+return "⚠️ Low Stock";
+
+}
+
+
+return "✅ Available";
+
+
+}
+
+function changeStock(index, amount){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
+
+let product =
+myProducts[index];
+
+
+let realIndex =
+products.findIndex(function(item){
+
+return item.id === product.id;
+
+});
+
+
+products[realIndex].stock += amount;
+
+
+if(products[realIndex].stock < 0){
+
+products[realIndex].stock = 0;
+
+}
+
+
+localStorage.setItem(
+"merchantProducts",
+JSON.stringify(products)
+);
+
+
+alert("Stock updated");
+
+
+loadMerchantProducts();
 
 }
