@@ -1,23 +1,9 @@
 alert("cart.js connected");
 
 
-// GET CART
-
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
-
-
 // ADD PRODUCT
 
 function addToCart(name, price, merchantEmail){
-
-
-console.log(
-"Adding:",
-name,
-price,
-merchantEmail
-);
 
 
 let cart =
@@ -40,21 +26,19 @@ existing.quantity += 1;
 
 else{
 
-
 cart.push({
 
 id: Date.now(),
 
-name: name,
+name:name,
 
-price: Number(price),
+price:Number(price),
 
-quantity: 1,
+quantity:1,
 
-merchantEmail: merchantEmail
+merchantEmail:merchantEmail
 
 });
-
 
 }
 
@@ -67,7 +51,6 @@ JSON.stringify(cart)
 
 alert("Product added to cart 🛒");
 
-
 }
 
 
@@ -75,6 +58,10 @@ alert("Product added to cart 🛒");
 // LOAD CART
 
 function loadCart(){
+
+
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
 
 
 let box =
@@ -85,14 +72,7 @@ let totalBox =
 document.getElementById("cartTotal");
 
 
-
 if(!box) return;
-
-
-
-cart =
-JSON.parse(localStorage.getItem("cart")) || [];
-
 
 
 box.innerHTML="";
@@ -101,11 +81,12 @@ box.innerHTML="";
 let total=0;
 
 
-
 if(cart.length===0){
 
-box.innerHTML=
+box.innerHTML =
 "<p>Your cart is empty</p>";
+
+totalBox.innerText = 0;
 
 return;
 
@@ -116,12 +97,11 @@ return;
 cart.forEach(function(item,index){
 
 
-total += item.price * item.quantity;
+total += Number(item.price) * Number(item.quantity);
 
 
 
 box.innerHTML += `
-
 
 <div class="product">
 
@@ -130,7 +110,6 @@ box.innerHTML += `
 <p>
 Price: $${item.price}
 </p>
-
 
 <p>
 Quantity: ${item.quantity}
@@ -146,11 +125,9 @@ Remove
 
 </div>
 
-
 `;
 
 });
-
 
 
 totalBox.innerText = total;
@@ -165,15 +142,17 @@ totalBox.innerText = total;
 function removeCartItem(index){
 
 
-cart.splice(index,1);
+let cart =
+JSON.parse(localStorage.getItem("cart")) || [];
 
+
+cart.splice(index,1);
 
 
 localStorage.setItem(
 "cart",
 JSON.stringify(cart)
 );
-
 
 
 loadCart();
@@ -183,29 +162,14 @@ loadCart();
 
 
 
-// CHECKOUT
-
-function checkout(){
-
-
-if(cart.length===0){
-
-alert("Cart is empty");
-
-return;
-
-}
-
-
-alert("Checkout system coming next");
-
-
-}
+// CART COUNT
 
 function updateCartCount(){
 
+
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
+
 
 let count =
 document.getElementById("cartCount");
