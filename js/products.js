@@ -182,6 +182,12 @@ box.innerHTML += `
 🏪 Seller: ${product.merchantName}
 </p>
 
+<p>
+⭐ Rating:
+<span>
+${getProductRating(product.id)}
+</span>
+</p>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
@@ -787,5 +793,49 @@ JSON.stringify(wishlist)
 );
 
 loadWishlist();
+
+}
+
+// ================= PRODUCT RATING =================
+
+
+function getProductRating(productId){
+
+let reviews =
+JSON.parse(localStorage.getItem("reviews")) || [];
+
+
+let productReviews =
+reviews.filter(function(review){
+
+return review.productId == productId;
+
+});
+
+
+if(productReviews.length === 0){
+
+return "No ratings yet";
+
+}
+
+
+let total = 0;
+
+
+productReviews.forEach(function(review){
+
+total += Number(review.rating);
+
+});
+
+
+let average =
+total / productReviews.length;
+
+
+return average.toFixed(1) + " ⭐ (" 
++ productReviews.length 
++ " reviews)";
 
 }
