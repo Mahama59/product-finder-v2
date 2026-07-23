@@ -670,6 +670,10 @@ ${product.name}
 📂 ${product.category}
 </p>
 
+<p>
+⭐ Rating:
+${getProductRating(product.id)}
+</p>
 
 <button onclick="openProduct(${product.id})">
 
