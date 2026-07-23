@@ -125,7 +125,11 @@ localStorage.setItem(
 "user",
 JSON.stringify(user)
 );
-
+  
+localStorage.setItem(
+"customerEmail",
+user.email
+);
 
 
 localStorage.setItem(
