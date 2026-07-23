@@ -380,7 +380,11 @@ Status:
 ${product.status}
 </p>
 
+<button onclick="editMerchantProduct(${index})">
 
+✏️ Edit
+
+</button>
 
 <button onclick="deleteMerchantProduct(${index})">
 
