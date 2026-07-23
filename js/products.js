@@ -96,12 +96,11 @@ localStorage.setItem(
 JSON.stringify(products)
 );
 
-
 alert("Product saved successfully");
-
 
 window.location.href =
 "merchant-dashboard.html";
+
 }
 
 function previewImage(event){
