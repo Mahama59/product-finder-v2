@@ -75,10 +75,19 @@ id="marketplaceProducts">
 
 </div>
 
+<script src="../js/cart.js"></script>
 <script src="../js/products.js"></script>
-<script src="../js/marketplace.js"></script>
-<script src="../js/main.js"></script>
 <script>
+
+console.log(
+"Marketplace storage:",
+JSON.parse(localStorage.getItem("merchantProducts"))
+);
+
+</script>
+  
+<script src="../js/main.js"></script>
+<script src="../js/marketplace.js"></script>
 
 document.addEventListener("DOMContentLoaded", function(){
 
