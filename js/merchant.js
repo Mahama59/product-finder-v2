@@ -951,3 +951,178 @@ completed;
 
 
 }
+
+// ================= SALES CHART =================
+
+function loadSalesChart(){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let myOrders =
+orders.filter(function(order){
+
+return order.merchantEmail === merchant.email;
+
+});
+
+
+let total = 0;
+
+
+myOrders.forEach(function(order){
+
+total += Number(order.total);
+
+});
+
+
+let ctx =
+document.getElementById("salesChart");
+
+
+if(!ctx) return;
+
+
+
+new Chart(ctx,{
+
+type:"bar",
+
+data:{
+
+labels:["Revenue"],
+
+datasets:[{
+
+label:"Sales",
+
+data:[total]
+
+}]
+
+},
+
+
+options:{
+
+responsive:true
+
+}
+
+
+});
+
+
+}
+
+
+
+// ================= BEST SELLING PRODUCTS =================
+
+function loadBestProducts(){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let box =
+document.getElementById("bestProducts");
+
+
+if(!box) return;
+
+
+let products={};
+
+
+
+orders.forEach(function(order){
+
+
+order.items.forEach(function(item){
+
+
+if(item.merchantEmail === merchant.email){
+
+
+if(!products[item.name]){
+
+products[item.name]=0;
+
+}
+
+
+products[item.name]+=item.quantity;
+
+
+}
+
+
+});
+
+
+});
+
+
+
+box.innerHTML="";
+
+
+let list =
+Object.entries(products);
+
+
+
+if(list.length===0){
+
+box.innerHTML =
+"<p>No sales yet.</p>";
+
+return;
+
+}
+
+
+
+list.sort(function(a,b){
+
+return b[1]-a[1];
+
+});
+
+
+
+list.slice(0,5).forEach(function(item){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+🏆 ${item[0]}
+</h3>
+
+<p>
+Sold: ${item[1]}
+</p>
+
+</div>
+
+`;
+
+
+});
+
+
+}
