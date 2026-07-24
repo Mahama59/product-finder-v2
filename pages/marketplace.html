@@ -1,4 +1,4 @@
-please<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -9,30 +9,28 @@ please<!DOCTYPE html>
 
 </head>
 
-
 <body>
-
-
 
 <nav>
 
 <h2>🛍 Product Finder</h2>
 
-<a href="../index.html">
-Home
+<a href="../index.html">Home</a>
+
+<a href="order-tracking.html">🚚 Track Order</a>
+
+<a href="cart.html">
+🛒 Cart
+<span id="cartCount">0</span>
 </a>
 
-<a href="order-tracking.html">
-🚚 Track Order
-</a>
-  
-<a href="cart.html">
-Cart
-</a>
+<a href="wishlist.html">❤️ Wishlist</a>
+
+<a href="customer-orders.html">📦 My Orders</a>
+
+<a href="profile.html">👤 Profile</a>
 
 </nav>
-
-
 
 <header class="hero">
 
@@ -40,70 +38,56 @@ Cart
 
 <h2>🔍 Search Products</h2>
 
-<input 
+<input
 id="searchInput"
 placeholder="Search products..."
 onkeyup="searchProducts()">
 
+<select
+id="categoryFilter"
+onchange="searchProducts()">
 
-<select id="categoryFilter" onchange="searchProducts()">
+<option value="">All Categories</option>
 
-<option value="">
-All Categories
-</option>
+<option value="Electronics">Electronics</option>
 
-<option value="Electronics">
-Electronics
-</option>
+<option value="Fashion">Fashion</option>
 
-<option value="Fashion">
-Fashion
-</option>
+<option value="Home">Home & Living</option>
 
-<option value="Home">
-Home & Living
-</option>
-
-<option value="Sports">
-Sports
-</option>
+<option value="Sports">Sports</option>
 
 </select>
 
-
 </div>
 
-  
 <h1>🛒 Marketplace</h1>
 
 <p>Find products from trusted sellers</p>
 
 </header>
 
+<div
+class="product-grid"
+id="marketplaceProducts">
 
-
-<div class="product-grid" id="marketplaceProducts">
-
-<p>
-Loading products...
-</p>
+<p>Loading products...</p>
 
 </div>
 
-
-
-  <script src="../js/cart.js"></script>
+<script src="../js/cart.js"></script>
 <script src="../js/products.js"></script>
 <script src="../js/main.js"></script>
+
 <script>
 
-window.onload = function(){
+document.addEventListener("DOMContentLoaded", function(){
 
-console.log("Marketplace loading");
+updateCartCount();
 
 loadMarketplaceProducts();
 
-};
+});
 
 </script>
 
