@@ -832,3 +832,107 @@ return average.toFixed(1) + " ⭐ ("
 + " reviews)";
 
 }
+
+// ================= RECOMMENDATION ENGINE =================
+
+function loadRecommendations(){
+
+
+let currentProduct =
+JSON.parse(localStorage.getItem("selectedProduct"));
+
+
+let box =
+document.getElementById("recommendations");
+
+
+if(!box || !currentProduct){
+
+return;
+
+}
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+
+let recommended =
+products.filter(function(product){
+
+
+return (
+
+product.status === "Approved" &&
+
+product.category === currentProduct.category &&
+
+product.id !== currentProduct.id
+
+);
+
+
+});
+
+
+
+box.innerHTML="";
+
+
+
+if(recommended.length === 0){
+
+box.innerHTML =
+"<p>No recommendations yet.</p>";
+
+return;
+
+}
+
+
+
+recommended.slice(0,4)
+.forEach(function(product){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+💰 $${product.price}
+</p>
+
+
+<p>
+🏪 ${product.merchantName}
+</p>
+
+
+<p>
+⭐ ${getProductRating(product.id)}
+</p>
+
+
+<button onclick="openProduct(${product.id})">
+
+View Product
+
+</button>
+
+
+</div>
+
+`;
+
+
+});
+
+
+}
