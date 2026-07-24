@@ -164,25 +164,13 @@ box.innerHTML += `
 
 <div class="product">
 
-<h3>
-${product.name}
-</h3>
+<h3>${product.name}</h3>
 
+<p>💰 Price: $${product.price}</p>
 
-<p>
-💰 Price: $${product.price}
-</p>
+<p>📂 Category: ${product.category}</p>
 
-
-<p>
-📂 Category: ${product.category}
-</p>
-
-
-<p>
-🏪 Seller: ${product.merchantName}
-</p>
-
+<p>🏪 Seller: ${product.merchantName}</p>
 
 <p>
 ⭐ Rating:
@@ -191,7 +179,9 @@ ${getProductRating(product.id)}
 
 
 <button onclick="openProduct(${product.id})">
+
 👁 View Product
+
 </button>
 
 
@@ -200,12 +190,16 @@ ${getProductRating(product.id)}
 ${product.price},
 '${product.merchantEmail}'
 )">
+
 🛒 Add To Cart
+
 </button>
 
 
 <button onclick="addToWishlistById(${product.id})">
+
 ❤️ Wishlist
+
 </button>
 
 
@@ -214,9 +208,6 @@ ${product.price},
 `;
 
 });
-
-
-}
 
 function loadFeaturedProducts(){
 
