@@ -646,25 +646,17 @@ return;
 
 results.forEach(function(product){
 
-
 box.innerHTML += `
 
 <div class="product">
 
+<h3>${product.name}</h3>
 
-<h3>
-${product.name}
-</h3>
+<p>💰 Price: $${product.price}</p>
 
+<p>📂 Category: ${product.category}</p>
 
-<p>
-💰 $${product.price}
-</p>
-
-
-<p>
-📂 ${product.category}
-</p>
+<p>🏪 Seller: ${product.merchantName}</p>
 
 <p>
 ⭐ Rating:
@@ -672,18 +664,26 @@ ${getProductRating(product.id)}
 </p>
 
 <button onclick="openProduct(${product.id})">
-
 👁 View Product
-
 </button>
 
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+🛒 Add To Cart
+</button>
+
+<button onclick="addToWishlistById(${product.id})">
+❤️ Wishlist
+</button>
 
 </div>
 
 `;
 
 });
-
 
 }
 
