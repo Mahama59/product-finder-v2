@@ -858,3 +858,96 @@ alert("Stock updated");
 loadMerchantProducts();
 
 }
+
+// ================= MERCHANT ANALYTICS =================
+
+function loadMerchantAnalytics(){
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+if(!merchant){
+return;
+}
+
+
+// PRODUCTS
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let myProducts =
+products.filter(function(product){
+
+return product.merchantEmail === merchant.email;
+
+});
+
+
+// ORDERS
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+let myOrders =
+orders.filter(function(order){
+
+return order.merchantEmail === merchant.email;
+
+});
+
+
+
+let revenue = 0;
+
+
+myOrders.forEach(function(order){
+
+revenue += Number(order.total);
+
+});
+
+
+
+let shipped =
+myOrders.filter(function(order){
+
+return order.shippingStatus === "Shipped";
+
+}).length;
+
+
+
+let completed =
+myOrders.filter(function(order){
+
+return order.status === "Completed";
+
+}).length;
+
+
+
+document.getElementById("productCount").innerText =
+myProducts.length;
+
+
+document.getElementById("merchantOrders").innerText =
+myOrders.length;
+
+
+document.getElementById("revenue").innerText =
+revenue;
+
+
+document.getElementById("shippedOrders").innerText =
+shipped;
+
+
+document.getElementById("completedOrders").innerText =
+completed;
+
+
+}
