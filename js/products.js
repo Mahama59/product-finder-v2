@@ -210,39 +210,30 @@ ${product.price},
 });
 
 } 
+
 function loadFeaturedProducts(){
 
 let box =
 document.getElementById("featuredProducts");
 
-
 if(!box) return;
-
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
-
 let approved =
 products.filter(function(product){
-
 return product.status === "Approved";
-
 });
 
+box.innerHTML = "";
 
-box.innerHTML="";
-
+if(approved.length === 0){
+box.innerHTML = "<p>No featured products yet.</p>";
+return;
+}
 
 approved.slice(0,4).forEach(function(product){
-if(approved.length === 0){
-
-box.innerHTML =
-"<p>No featured products yet.</p>";
-
-return;
-
-}
 
 box.innerHTML += `
 
@@ -250,18 +241,12 @@ box.innerHTML += `
 
 <h3>${product.name}</h3>
 
-<p>
-💰 $${product.price}
-</p>
+<p>💰 $${product.price}</p>
 
-<p>
-🏪 ${product.merchantName}
-</p>
+<p>🏪 ${product.merchantName}</p>
 
-<button onclick="window.location.href='pages/marketplace.html'">
-
-View Product
-
+<button onclick="openProduct(${product.id})">
+👁 View Product
 </button>
 
 </div>
@@ -269,7 +254,6 @@ View Product
 `;
 
 });
-
 
 }
 
@@ -295,9 +279,8 @@ JSON.stringify(product)
 );
 
 
-window.location.href =
-"product-details.html";
-
+window.location.href = "product-details.html";
+});  
 }
 
 }
@@ -654,14 +637,11 @@ box.innerHTML += `
 
 <p>💰 Price: $${product.price}</p>
 
-<p>📂 Category: ${product.category}</p>
+<p>📂 ${product.category}</p>
 
 <p>🏪 Seller: ${product.merchantName}</p>
 
-<p>
-⭐ Rating:
-${getProductRating(product.id)}
-</p>
+<p>⭐ ${getProductRating(product.id)}</p>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
@@ -684,7 +664,7 @@ ${product.price},
 `;
 
 });
-
+  
 }
 
 function addToWishlistById(id){
