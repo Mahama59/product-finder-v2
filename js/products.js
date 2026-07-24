@@ -155,8 +155,8 @@ console.log("Approved products:", approvedProducts);
 box.innerHTML = "";
 
 
-approvedProducts.forEach(function(product){
 
+approvedProducts.forEach(function(product){
 
 box.innerHTML += `
 
@@ -164,13 +164,30 @@ box.innerHTML += `
 
 <h3>${product.name}</h3>
 
-<p>💰 Price: $${product.price}</p>
+<p>
+💰 Price: $${product.price}
+</p>
 
-<p>🏪 Seller: ${product.merchantName}</p>
+<p>
+📂 Category: ${product.category}
+</p>
 
-<button>
+<p>
+🏪 Seller: ${product.merchantName}
+</p>
+
+<p>
+⭐ Rating:
+${getProductRating(product.id)}
+</p>
+
+
+<button onclick="openProduct(${product.id})">
+
 👁 View Product
+
 </button>
+
 
 <button onclick="addToWishlistById(${product.id})">
 
@@ -189,12 +206,12 @@ ${product.price},
 
 </button>
 
+
 </div>
 
 `;
 
 });
-
 
 if(approvedProducts.length === 0){
 
