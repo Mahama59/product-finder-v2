@@ -264,6 +264,7 @@ box.innerHTML += `
 
 }
 
+
 function openProduct(id){
 
 let products =
@@ -286,8 +287,9 @@ JSON.stringify(product)
 );
 
 
-window.location.href = "product-details.html";
-});  
+window.location.href =
+"product-details.html";
+
 }
 
 }
