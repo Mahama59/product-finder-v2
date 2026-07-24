@@ -172,6 +172,23 @@ box.innerHTML += `
 👁 View Product
 </button>
 
+<button onclick="addToWishlistById(${product.id})">
+
+❤️ Wishlist
+
+</button>
+
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
 </div>
 
 `;
