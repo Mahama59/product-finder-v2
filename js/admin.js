@@ -165,118 +165,6 @@ window.location.href =
 
 }
 
-// ================= ADMIN PRODUCTS =================
-
-
-function loadAdminProducts(){
-
-
-let box =
-document.getElementById("adminProducts");
-
-
-if(!box) return;
-
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-box.innerHTML = "";
-
-
-
-if(products.length === 0){
-
-
-box.innerHTML =
-"<p>No products found.</p>";
-
-
-return;
-
-
-}
-
-
-
-products.forEach(function(product,index){
-
-
-
-box.innerHTML += `
-
-
-<div class="product">
-
-
-<img 
-src="${product.image || ''}"
-width="200">
-
-
-<h3>
-${product.name}
-</h3>
-
-
-<p>
-💰 Price: $${product.price}
-</p>
-
-
-<p>
-🏪 Seller:
-${product.merchantName}
-</p>
-
-
-<p>
-📂 Category:
-${product.category}
-</p>
-
-
-<p>
-Status:
-${product.status}
-</p>
-
-
-
-<button onclick="approveProduct(${index})">
-
-✅ Approve
-
-</button>
-
-
-
-<button onclick="rejectProduct(${index})">
-
-❌ Reject
-
-</button>
-
-
-
-</div>
-
-
-
-`;
-
-
-
-});
-
-
-}
-
-
-
 
 // ================= APPROVE PRODUCT =================
 
@@ -647,6 +535,18 @@ ${merchant.name}
 📧 Email:
 ${merchant.email}
 </p>
+
+<p>
+Status:
+${merchant.status || "Active"}
+</p>
+
+<button onclick="suspendMerchant('${merchant.email}')">
+
+⛔ Suspend Merchant
+
+</button>
+
 
 <button onclick="deleteMerchant(${index})">
 
