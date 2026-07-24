@@ -129,8 +129,9 @@ function loadMarketplaceProducts(){
 
 let box = document.getElementById("marketplaceProducts");
 
-if(!box) return;
+console.log("Marketplace box:", box);
 
+if(!box) return;
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
