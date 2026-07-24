@@ -8,7 +8,14 @@ function saveProduct(){
 let merchant =
 JSON.parse(localStorage.getItem("merchant"));
 
+if(merchant.status === "Suspended"){
 
+alert("Your account is suspended. You cannot add products.");
+
+return;
+
+}
+  
 if(!merchant){
 
 alert("Please login first");
