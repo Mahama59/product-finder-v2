@@ -129,52 +129,60 @@ function loadMarketplaceProducts(){
 
 let box = document.getElementById("marketplaceProducts");
 
-if(!box){
-    console.log("Marketplace box not found");
-    return;
-}
+if(!box) return;
 
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-console.log("Products found:", products);
-
-
-let approvedProducts = products.filter(function(product){
+let approvedProducts =
+products.filter(function(product){
 
 return product.status === "Approved";
 
 });
 
 
-console.log("Approved products:", approvedProducts);
-
-
 box.innerHTML = "";
 
 
+if(approvedProducts.length === 0){
+
+box.innerHTML =
+"<p>No approved products available.</p>";
+
+return;
+
+}
+
 
 approvedProducts.forEach(function(product){
+
 
 box.innerHTML += `
 
 <div class="product">
 
-<h3>${product.name}</h3>
+<h3>
+${product.name}
+</h3>
+
 
 <p>
 💰 Price: $${product.price}
 </p>
 
+
 <p>
 📂 Category: ${product.category}
 </p>
 
+
 <p>
 🏪 Seller: ${product.merchantName}
 </p>
+
 
 <p>
 ⭐ Rating:
@@ -183,16 +191,7 @@ ${getProductRating(product.id)}
 
 
 <button onclick="openProduct(${product.id})">
-
 👁 View Product
-
-</button>
-
-
-<button onclick="addToWishlistById(${product.id})">
-
-❤️ Wishlist
-
 </button>
 
 
@@ -201,9 +200,12 @@ ${getProductRating(product.id)}
 ${product.price},
 '${product.merchantEmail}'
 )">
-
 🛒 Add To Cart
+</button>
 
+
+<button onclick="addToWishlistById(${product.id})">
+❤️ Wishlist
 </button>
 
 
@@ -212,13 +214,6 @@ ${product.price},
 `;
 
 });
-
-if(approvedProducts.length === 0){
-
-box.innerHTML =
-"<p>No approved products.</p>";
-
-}
 
 
 }
