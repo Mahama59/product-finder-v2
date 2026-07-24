@@ -563,17 +563,25 @@ $${order.total}
 ${order.status}
 </p>
 
+<p>
+🚚 Shipping:
+${order.shippingStatus || "Processing"}
+</p>
+
+
 <button onclick="updateOrderStatus(${order.id},'Accepted')">
 
 ✅ Accept
 
 </button>
 
+
 <button onclick="updateOrderStatus(${order.id},'Shipped')">
 
 🚚 Ship
 
 </button>
+
 
 <button onclick="updateOrderStatus(${order.id},'Completed')">
 
