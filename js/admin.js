@@ -793,3 +793,36 @@ loadAdminProducts();
 
 
 }
+
+function suspendMerchant(email){
+
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+let merchant =
+merchants.find(function(item){
+
+return item.email === email;
+
+});
+
+
+if(merchant){
+
+merchant.status="Suspended";
+
+}
+
+
+localStorage.setItem(
+"merchants",
+JSON.stringify(merchants)
+);
+
+
+alert("Merchant suspended");
+
+
+}
