@@ -1,6 +1,6 @@
 alert("admin.js connected");
 
-
+<script src="../js/security.js"></script>
 // ================= ADMIN LOGIN =================
 function adminLogin(){
 
