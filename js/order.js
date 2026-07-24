@@ -296,6 +296,10 @@ localStorage.setItem(
 JSON.stringify(orders)
 );
 
+addNotification(
+"Your order #" + order.id + " has been placed successfully 🎉"
+);
+
 localStorage.setItem(
 "customerEmail",
 document.getElementById("customerEmail").value
