@@ -159,7 +159,7 @@ return;
 
 approvedProducts.forEach(function(product){
 
-
+console.log("Displaying:", product);
 box.innerHTML += `
 
 <div class="product">
@@ -209,6 +209,7 @@ ${product.price},
 
 });
 
+} 
 function loadFeaturedProducts(){
 
 let box =
