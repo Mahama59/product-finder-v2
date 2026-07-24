@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+please<!DOCTYPE html>
 <html>
 
 <head>
@@ -92,14 +92,19 @@ Loading products...
 
 
 
-<script src="../js/cart.js"></script>
+  <script src="../js/cart.js"></script>
 <script src="../js/products.js"></script>
 <script src="../js/main.js"></script>
-
 <script>
-document.addEventListener("DOMContentLoaded", function(){
-    loadMarketplaceProducts();
-});
+
+window.onload = function(){
+
+console.log("Marketplace loading");
+
+loadMarketplaceProducts();
+
+};
+
 </script>
 
 </body>
