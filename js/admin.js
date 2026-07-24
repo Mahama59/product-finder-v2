@@ -683,3 +683,113 @@ alert("Merchant removed");
 loadAdminMerchants();
 
 }
+
+// ================= ADMIN PRODUCTS =================
+
+function loadAdminProducts(){
+
+
+let box =
+document.getElementById("adminProducts");
+
+
+if(!box) return;
+
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+box.innerHTML="";
+
+
+
+products.forEach(function(product,index){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+Seller: ${product.merchantName}
+</p>
+
+
+<p>
+Status:
+${product.status}
+</p>
+
+
+
+<button onclick="approveProduct(${index})">
+
+✅ Approve
+
+</button>
+
+
+
+<button onclick="rejectProduct(${index})">
+
+❌ Reject
+
+</button>
+
+
+
+<button onclick="deleteProduct(${index})">
+
+🗑 Delete
+
+</button>
+
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+// ================= DELETE PRODUCT =================
+
+
+function deleteProduct(index){
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+products.splice(index,1);
+
+
+localStorage.setItem(
+"merchantProducts",
+JSON.stringify(products)
+);
+
+
+alert("Product deleted");
+
+
+loadAdminProducts();
+
+
+}
