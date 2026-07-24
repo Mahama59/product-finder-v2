@@ -255,6 +255,8 @@ document.getElementById("customerName").value,
 email:
 document.getElementById("customerEmail").value,
 
+customerEmail:
+document.getElementById("customerEmail").value,
 
 phone:
 document.getElementById("customerPhone").value,
