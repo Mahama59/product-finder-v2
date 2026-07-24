@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>My Profile - Product Finder</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body onload="loadProfile()">
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="../index.html">Home</a>
+
+<a href="customer-orders.html">My Orders</a>
+
+<a href="wishlist.html">Wishlist</a>
+
+</nav>
+
+<header class="hero">
+
+<h1>👤 My Profile</h1>
+
+</header>
+
+<div class="card">
+
+<h2>Account Information</h2>
+
+<p><strong>Name:</strong> <span id="profileName"></span></p>
+
+<p><strong>Email:</strong> <span id="profileEmail"></span></p>
+
+<button onclick="logoutUser()">
+🚪 Logout
+</button>
+
+</div>
+
+<script src="../js/auth.js"></script>
+
+<script>
+
+function loadProfile(){
+
+let user =
+JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+
+window.location.href="login.html";
+return;
+
+}
+
+document.getElementById("profileName").innerText =
+user.name;
+
+document.getElementById("profileEmail").innerText =
+user.email;
+
+}
+
+</script>
+
+</body>
+
+</html>
