@@ -129,33 +129,30 @@ function loadMarketplaceProducts(){
 
 let box = document.getElementById("marketplaceProducts");
 
-console.log("Marketplace box:", box);
+if(!box){
+    console.log("Marketplace box not found");
+    return;
+}
 
-if(!box) return;
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-let approvedProducts =
-products.filter(function(product){
+console.log("Products found:", products);
 
-return product.status === "Approved" || product.status === "Pending";
+
+let approvedProducts = products.filter(function(product){
+
+return product.status === "Approved";
 
 });
 
 
+console.log("Approved products:", approvedProducts);
+
+
 box.innerHTML = "";
-
-
-if(approvedProducts.length === 0){
-
-box.innerHTML =
-"<p>No approved products available.</p>";
-
-return;
-
-}
 
 
 approvedProducts.forEach(function(product){
@@ -165,45 +162,14 @@ box.innerHTML += `
 
 <div class="product">
 
-
 <h3>${product.name}</h3>
 
+<p>💰 Price: $${product.price}</p>
 
-<p>
-💰 Price: $${product.price}
-</p>
+<p>🏪 Seller: ${product.merchantName}</p>
 
-
-<p>
-📂 Category: ${product.category}
-</p>
-
-
-<p>
-🏪 Seller: ${product.merchantName}
-</p>
-
-<p>
-⭐ Rating:
-<span>
-${getProductRating(product.id)}
-</span>
-</p>
-
-<button onclick="openProduct(${product.id})">
+<button>
 👁 View Product
-</button>
-
-<button onclick="addToWishlistById(${product.id})">
-❤️ Wishlist
-</button>
-
-<button onclick="addToCart(
-'${product.name}',
-${product.price},
-'${product.merchantEmail}'
-)">
-🛒 Add To Cart
 </button>
 
 </div>
@@ -211,6 +177,14 @@ ${product.price},
 `;
 
 });
+
+
+if(approvedProducts.length === 0){
+
+box.innerHTML =
+"<p>No approved products.</p>";
+
+}
 
 
 }
