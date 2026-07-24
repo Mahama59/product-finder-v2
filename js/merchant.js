@@ -617,6 +617,9 @@ localStorage.setItem(
 JSON.stringify(orders)
 );
 
+addNotification(
+"Your order #" + orderId + " status changed to " + status + " 🚚"
+);
 loadMerchantOrders();
 
 }
