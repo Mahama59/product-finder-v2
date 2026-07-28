@@ -909,35 +909,34 @@ View Product
 
 
 // ================= FEATURED PRODUCTS =================
-
 function loadFeaturedProducts(){
 
 let box = document.getElementById("featuredProducts");
 
-if(!box) return;
+if(!box){
+    alert("featuredProducts box missing");
+    return;
+}
 
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
-alert("Homepage products: " + products.length);
-  
+
 let approvedProducts =
 products.filter(function(product){
 
 return product.status === "Approved";
 
 });
-alert("Homepage approved: " + approvedProducts.length);
+
 
 box.innerHTML = "";
 
 
 if(approvedProducts.length === 0){
 
-box.innerHTML =
-"<p>No featured products available.</p>";
-
+box.innerHTML = "<p>No approved products.</p>";
 return;
 
 }
@@ -945,72 +944,25 @@ return;
 
 approvedProducts.slice(0,4).forEach(function(product){
 
-
 box.innerHTML += `
 
 <div class="product">
 
-
-<img 
-src="${product.image || 'https://via.placeholder.com/250'}"
+<img src="${product.image || 'https://via.placeholder.com/250'}"
 width="250"
 height="250">
 
+<h3>${product.name}</h3>
 
-<h3>
-${product.name}
-</h3>
+<p>💰 $${product.price}</p>
 
+<p>📂 ${product.category}</p>
 
-<p class="price">
-💰 $${product.price}
-</p>
-
-
-<p>
-📂 ${product.category}
-</p>
-
-
-<p>
-🏪 ${product.merchantName}
-</p>
-
-
-<p>
-⭐ ${getProductRating(product.id)}
-</p>
-
-
-<p>
-${
-product.stock > 0
-?
-"✅ In Stock"
-:
-"❌ Out of Stock"
-}
-</p>
-
-
+<p>🏪 ${product.merchantName}</p>
 
 <button onclick="openProduct(${product.id})">
-
 👁 View Product
-
 </button>
-
-
-<button onclick="addToCart(
-'${product.name.replace(/'/g,"\\'")}',
-${product.price},
-'${product.merchantEmail}'
-)">
-
-🛒 Add To Cart
-
-</button>
-
 
 </div>
 
