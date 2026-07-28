@@ -143,32 +143,17 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-let approvedProducts =
-products.filter(function(product){
-
-return product.status === "Approved" || product.status === "Pending";
-
-});
+box.innerHTML = "";
 
 
-box.innerHTML="";
+products.forEach(function(product){
+
+let div = document.createElement("div");
+
+div.className = "product";
 
 
-if(approvedProducts.length === 0){
-
-box.innerHTML =
-"<p>No products available.</p>";
-
-return;
-
-}
-
-
-approvedProducts.forEach(function(product){
-
-box.innerHTML += `
-
-<div class="product">
+div.innerHTML = `
 
 <h3>${product.name}</h3>
 
@@ -178,28 +163,42 @@ box.innerHTML += `
 
 <p>🏪 Seller: ${product.merchantName}</p>
 
-
-<button onclick="openProduct(${product.id})">
-
-👁 View Product
-
-</button>
-
-
-<button onclick="addToCart(
-'${product.name}',
-${product.price},
-'${product.merchantEmail}'
-)">
-
-🛒 Add To Cart
-
-</button>
-
-
-</div>
-
 `;
+
+
+let viewButton = document.createElement("button");
+
+viewButton.innerText = "👁 View Product";
+
+viewButton.onclick = function(){
+
+openProduct(product.id);
+
+};
+
+
+let cartButton = document.createElement("button");
+
+cartButton.innerText = "🛒 Add To Cart";
+
+cartButton.onclick = function(){
+
+addToCart(
+product.name,
+product.price,
+product.merchantEmail
+);
+
+};
+
+
+div.appendChild(viewButton);
+
+div.appendChild(cartButton);
+
+
+box.appendChild(div);
+
 
 });
 
