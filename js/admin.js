@@ -92,6 +92,15 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+
+let orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+
+
 let pending =
 products.filter(function(product){
 
@@ -100,47 +109,101 @@ return product.status === "Pending";
 });
 
 
-console.log("Merchants:", merchants);
-console.log("Products:", products);
 
+// Top summary
 
-
-let merchantBox =
+let merchantCount =
 document.getElementById("merchantCount");
 
-
-let productBox =
+let productCount =
 document.getElementById("productCount");
 
-
-let pendingBox =
+let pendingCount =
 document.getElementById("pendingCount");
 
 
 
-if(merchantBox){
+if(merchantCount){
 
-merchantBox.innerText = merchants.length;
-
-}
-
-
-if(productBox){
-
-productBox.innerText = products.length;
+merchantCount.innerText =
+merchants.length;
 
 }
 
 
-if(pendingBox){
+if(productCount){
 
-pendingBox.innerText = pending.length;
+productCount.innerText =
+products.length;
 
 }
 
+
+if(pendingCount){
+
+pendingCount.innerText =
+pending.length;
+
 }
 
 
+
+// Marketplace overview
+
+let adminProducts =
+document.getElementById("adminProducts");
+
+let adminMerchants =
+document.getElementById("adminMerchants");
+
+let adminCustomers =
+document.getElementById("adminCustomers");
+
+let adminOrders =
+document.getElementById("adminOrders");
+
+
+
+if(adminProducts){
+
+adminProducts.innerText =
+products.length;
+
+}
+
+
+if(adminMerchants){
+
+adminMerchants.innerText =
+merchants.length;
+
+}
+
+
+if(adminCustomers){
+
+adminCustomers.innerText =
+users.length;
+
+}
+
+
+if(adminOrders){
+
+adminOrders.innerText =
+orders.length;
+
+}
+
+
+console.log("Admin Dashboard Loaded", {
+merchants: merchants.length,
+products: products.length,
+users: users.length,
+orders: orders.length
+});
+
+}
 
 // ================= ADMIN LOGOUT =================
 
