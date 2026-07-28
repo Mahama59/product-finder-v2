@@ -924,6 +924,7 @@ View Product
 
 
 // ================= FEATURED PRODUCTS =================
+
 function loadFeaturedProducts(){
 
 let box = document.getElementById("featuredProducts");
@@ -935,29 +936,95 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-alert(
-"Products found: " + products.length
-);
+let approvedProducts =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
 
 
 box.innerHTML = "";
 
 
-products.forEach(function(product){
+if(approvedProducts.length === 0){
+
+box.innerHTML =
+"<p>No featured products available.</p>";
+
+return;
+
+}
+
+
+approvedProducts.slice(0,4).forEach(function(product){
+
 
 box.innerHTML += `
 
 <div class="product">
 
-<h3>${product.name}</h3>
 
-<p>
-Status: ${product.status}
+<img 
+src="${product.image || 'https://via.placeholder.com/250'}"
+width="250"
+height="250">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p class="price">
+💰 $${product.price}
 </p>
 
+
 <p>
-Price: $${product.price}
+📂 ${product.category}
 </p>
+
+
+<p>
+🏪 ${product.merchantName}
+</p>
+
+
+<p>
+⭐ ${getProductRating(product.id)}
+</p>
+
+
+<p>
+${
+product.stock > 0
+?
+"✅ In Stock"
+:
+"❌ Out of Stock"
+}
+</p>
+
+
+
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
+
+
+<button onclick="addToCart(
+'${product.name.replace(/'/g,"\\'")}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
 
 </div>
 
