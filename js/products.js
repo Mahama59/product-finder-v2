@@ -923,10 +923,11 @@ View Product
 }
 
 
+// ================= FEATURED PRODUCTS =================
+
 function loadFeaturedProducts(){
 
-let box =
-document.getElementById("featuredProducts");
+let box = document.getElementById("featuredProducts");
 
 if(!box) return;
 
@@ -935,8 +936,9 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-// Show approved products only
-let approved =
+// Only approved products
+
+let approvedProducts =
 products.filter(function(product){
 
 return product.status === "Approved";
@@ -947,18 +949,19 @@ return product.status === "Approved";
 box.innerHTML = "";
 
 
-if(approved.length === 0){
+if(approvedProducts.length === 0){
 
 box.innerHTML =
-"<p>No featured products yet.</p>";
+"<p>No featured products available yet.</p>";
 
 return;
 
 }
 
 
+// Show first 4 products
 
-approved.slice(0,4).forEach(function(product){
+approvedProducts.slice(0,4).forEach(function(product){
 
 
 box.innerHTML += `
@@ -967,8 +970,9 @@ box.innerHTML += `
 
 
 <img 
-src="${product.image}" 
-width="200">
+src="${product.image || 'https://via.placeholder.com/250'}"
+width="250"
+height="250">
 
 
 <h3>
@@ -976,21 +980,55 @@ ${product.name}
 </h3>
 
 
-<p>
-💰 Price: $${product.price}
+
+<p class="price">
+
+💰 $${product.price}
+
 </p>
 
 
+
 <p>
-🏪 Seller:
-${product.merchantName}
+
+📂 ${product.category}
+
 </p>
 
 
+
 <p>
-📂 Category:
-${product.category}
+
+<span class="seller-badge">
+
+🏪 Verified Seller
+
+</span>
+
 </p>
+
+
+
+<p class="rating">
+
+⭐ ${getProductRating(product.id)}
+
+</p>
+
+
+
+<p class="stock">
+
+${
+product.stock > 0
+?
+"✅ In Stock"
+:
+"❌ Out of Stock"
+}
+
+</p>
+
 
 
 <button onclick="openProduct(${product.id})">
@@ -1000,8 +1038,9 @@ ${product.category}
 </button>
 
 
+
 <button onclick="addToCart(
-'${product.name}',
+'${product.name.replace(/'/g,"\\'")}',
 ${product.price},
 '${product.merchantEmail}'
 )">
@@ -1011,10 +1050,18 @@ ${product.price},
 </button>
 
 
+
+<button onclick="addToWishlistById(${product.id})">
+
+❤️ Wishlist
+
+</button>
+
+
+
 </div>
 
 `;
-
 
 });
 
