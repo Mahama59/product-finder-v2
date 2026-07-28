@@ -146,59 +146,96 @@ JSON.parse(localStorage.getItem("merchantProducts")) || [];
 box.innerHTML = "";
 
 
-products.forEach(function(product){
+approvedProducts.forEach(function(product){
 
-let div = document.createElement("div");
+box.innerHTML += `
 
-div.className = "product";
+<div class="product">
 
 
-div.innerHTML = `
+<img src="${product.image}">
 
-<h3>${product.name}</h3>
 
-<p>💰 Price: $${product.price}</p>
+<h3>
+${product.name}
+</h3>
 
-<p>📂 Category: ${product.category}</p>
 
-<p>🏪 Seller: ${product.merchantName}</p>
+<p class="price">
+
+💰 $${product.price}
+
+</p>
+
+
+<p>
+
+📂 ${product.category}
+
+</p>
+
+
+<p>
+
+<span class="seller-badge">
+
+🏪 Verified Seller
+
+</span>
+
+</p>
+
+
+<p class="rating">
+
+⭐ ${getProductRating(product.id)}
+
+</p>
+
+
+<p class="stock">
+
+${
+product.stock > 0 
+? "✅ In Stock"
+: "❌ Out of Stock"
+}
+
+</p>
+
+
+
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
+
+
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
+
+
+<button onclick="addToWishlistById(${product.id})">
+
+❤️ Wishlist
+
+</button>
+
+
+
+</div>
 
 `;
-
-
-let viewButton = document.createElement("button");
-
-viewButton.innerText = "👁 View Product";
-
-viewButton.onclick = function(){
-
-openProduct(product.id);
-
-};
-
-
-let cartButton = document.createElement("button");
-
-cartButton.innerText = "🛒 Add To Cart";
-
-cartButton.onclick = function(){
-
-addToCart(
-product.name,
-product.price,
-product.merchantEmail
-);
-
-};
-
-
-div.appendChild(viewButton);
-
-div.appendChild(cartButton);
-
-
-box.appendChild(div);
-
 
 });
 
