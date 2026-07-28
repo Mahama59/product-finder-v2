@@ -884,3 +884,102 @@ View Product
 
 
 }
+
+
+function loadFeaturedProducts(){
+
+let box =
+document.getElementById("featuredProducts");
+
+if(!box) return;
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+// Show approved products only
+let approved =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+
+box.innerHTML = "";
+
+
+if(approved.length === 0){
+
+box.innerHTML =
+"<p>No featured products yet.</p>";
+
+return;
+
+}
+
+
+
+approved.slice(0,4).forEach(function(product){
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<img 
+src="${product.image}" 
+width="200">
+
+
+<h3>
+${product.name}
+</h3>
+
+
+<p>
+💰 Price: $${product.price}
+</p>
+
+
+<p>
+🏪 Seller:
+${product.merchantName}
+</p>
+
+
+<p>
+📂 Category:
+${product.category}
+</p>
+
+
+<button onclick="openProduct(${product.id})">
+
+👁 View Product
+
+</button>
+
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
+
+</div>
+
+`;
+
+
+});
+
+
+}
