@@ -143,54 +143,28 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
+let approvedProducts =
+products.filter(function(product){
+
+return product.status === "Approved" || product.status === "Pending";
+
+});
+
+
 box.innerHTML="";
 
 
-products.forEach(function(product){
+if(approvedProducts.length === 0){
 
-box.innerHTML += `
+box.innerHTML =
+"<p>No products available.</p>";
 
-<div class="product">
-
-<h3>${product.name}</h3>
-
-<p>Price: $${product.price}</p>
-
-<p>Category: ${product.category}</p>
-
-<p>Seller: ${product.merchantName}</p>
-
-</div>
-
-`;
-
-});
-
-}
-
-function loadFeaturedProducts(){
-
-let box =
-document.getElementById("featuredProducts");
-
-if(!box) return;
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-let approved =
-products.filter(function(product){
-return product.status === "Approved";
-});
-
-box.innerHTML = "";
-
-if(approved.length === 0){
-box.innerHTML = "<p>No featured products yet.</p>";
 return;
+
 }
 
-approved.slice(0,4).forEach(function(product){
+
+approvedProducts.forEach(function(product){
 
 box.innerHTML += `
 
@@ -198,13 +172,30 @@ box.innerHTML += `
 
 <h3>${product.name}</h3>
 
-<p>💰 $${product.price}</p>
+<p>💰 Price: $${product.price}</p>
 
-<p>🏪 ${product.merchantName}</p>
+<p>📂 Category: ${product.category}</p>
+
+<p>🏪 Seller: ${product.merchantName}</p>
+
 
 <button onclick="openProduct(${product.id})">
+
 👁 View Product
+
 </button>
+
+
+<button onclick="addToCart(
+'${product.name}',
+${product.price},
+'${product.merchantEmail}'
+)">
+
+🛒 Add To Cart
+
+</button>
+
 
 </div>
 
@@ -213,7 +204,6 @@ box.innerHTML += `
 });
 
 }
-
 
 function openProduct(id){
 
