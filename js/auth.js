@@ -159,13 +159,13 @@ window.location.href="../index.html";
 
 // ================= LOGOUT =================
 
-
 function logoutUser(){
 
 localStorage.removeItem("user");
 
-localStorage.removeItem("loggedIn");
+localStorage.removeItem("customer");
 
+localStorage.removeItem("loggedIn");
 
 alert("Logged out");
 
