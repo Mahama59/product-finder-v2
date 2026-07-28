@@ -144,26 +144,38 @@ function loadMarketplaceProducts(){
 
 let box = document.getElementById("marketplaceProducts");
 
-if(!box) return;
+if(!box) {
+    alert("Marketplace box not found");
+    return;
+}
 
 
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
+alert("Total products: " + products.length);
+
+
 // ONLY SHOW APPROVED PRODUCTS
 let approvedProducts =
 products.filter(function(product){
 
-return product.status === "Approved" || product.status === "Pending";
+return product.status === "Approved";
 
 });
+
+
+alert("Approved products: " + approvedProducts.length);
 
 
 box.innerHTML = "";
 
 
 approvedProducts.forEach(function(product){
+
+console.log(product);
+
 
 box.innerHTML += `
 
@@ -174,23 +186,16 @@ src="${product.image || 'https://via.placeholder.com/250'}"
 width="250">
 
 
-<h3>
-${product.name}
-</h3>
-
+<h3>${product.name}</h3>
 
 <p class="price">
-
 💰 $${product.price}
-
 </p>
-
 
 <p>
 📂 Category:
 ${product.category}
 </p>
-
 
 <p>
 🏪 Seller:
@@ -198,26 +203,8 @@ ${product.merchantName}
 </p>
 
 
-<p>
-⭐ ${getProductRating(product.id)}
-</p>
-
-
-<p>
-${
-product.stock > 0
-?
-"✅ In Stock"
-:
-"❌ Out of Stock"
-}
-</p>
-
-
 <button onclick="openProduct(${product.id})">
-
 👁 View Product
-
 </button>
 
 
@@ -226,9 +213,7 @@ product.stock > 0
 ${product.price},
 '${product.merchantEmail}'
 )">
-
 🛒 Add To Cart
-
 </button>
 
 
