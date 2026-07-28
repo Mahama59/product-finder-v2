@@ -920,14 +920,15 @@ if(!box) return;
 let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
-
+alert("Homepage products: " + products.length);
+  
 let approvedProducts =
 products.filter(function(product){
 
 return product.status === "Approved";
 
 });
-
+alert("Homepage approved: " + approvedProducts.length);
 
 box.innerHTML = "";
 
