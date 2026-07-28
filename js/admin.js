@@ -723,3 +723,51 @@ alert("Merchant suspended");
 
 
 }
+
+  function loadAdminUsers(){
+
+let users =
+JSON.parse(localStorage.getItem("users")) || [];
+
+
+let box =
+document.getElementById("adminUserList");
+
+
+if(!box) return;
+
+
+box.innerHTML="";
+
+
+if(users.length === 0){
+
+box.innerHTML =
+"<p>No customers found.</p>";
+
+return;
+
+}
+
+
+users.forEach(function(user){
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+👤 ${user.name}
+</h3>
+
+<p>
+📧 ${user.email}
+</p>
+
+</div>
+
+`;
+
+});
+
+}
