@@ -82,9 +82,7 @@ window.location.href =
 
 // ================= ADMIN DASHBOARD =================
 
-
 function loadAdminDashboard(){
-
 
 let merchants =
 JSON.parse(localStorage.getItem("merchants")) || [];
@@ -94,13 +92,16 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-
 let pending =
 products.filter(function(product){
 
 return product.status === "Pending";
 
 });
+
+
+console.log("Merchants:", merchants);
+console.log("Products:", products);
 
 
 
@@ -119,27 +120,23 @@ document.getElementById("pendingCount");
 
 if(merchantBox){
 
-merchantBox.innerText =
-merchants.length;
+merchantBox.innerText = merchants.length;
 
 }
 
 
 if(productBox){
 
-productBox.innerText =
-products.length;
+productBox.innerText = products.length;
 
 }
 
 
 if(pendingBox){
 
-pendingBox.innerText =
-pending.length;
+pendingBox.innerText = pending.length;
 
 }
-
 
 }
 
