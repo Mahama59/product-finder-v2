@@ -154,7 +154,7 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-alert("Total products: " + products.length);
+alert("Marketplace products: " + products.length);
 
 
 // ONLY SHOW APPROVED PRODUCTS
