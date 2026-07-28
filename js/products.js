@@ -79,12 +79,12 @@ stock:Number(stock),
 
 
 image:
-document.getElementById("imagePreview").src,
+document.getElementById("imagePreview").src || 
+"https://via.placeholder.com/250",
 
 
 merchantEmail:
 merchant.email,
-
 
 merchantName:
 merchant.storeName,
@@ -114,7 +114,15 @@ function previewImage(event){
 
 let file = event.target.files[0];
 
-if(!file) return;
+
+if(!file){
+
+document.getElementById("imagePreview").src =
+"https://via.placeholder.com/250";
+
+return;
+
+}
 
 
 let reader = new FileReader();
