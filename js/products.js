@@ -143,6 +143,15 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
+// ONLY SHOW APPROVED PRODUCTS
+let approvedProducts =
+products.filter(function(product){
+
+return product.status === "Approved";
+
+});
+
+
 box.innerHTML = "";
 
 
@@ -152,8 +161,9 @@ box.innerHTML += `
 
 <div class="product">
 
-
-<img src="${product.image}">
+<img 
+src="${product.image || 'https://via.placeholder.com/250'}"
+width="250">
 
 
 <h3>
@@ -169,40 +179,31 @@ ${product.name}
 
 
 <p>
-
-📂 ${product.category}
-
+📂 Category:
+${product.category}
 </p>
 
 
 <p>
-
-<span class="seller-badge">
-
-🏪 Verified Seller
-
-</span>
-
+🏪 Seller:
+${product.merchantName}
 </p>
 
 
-<p class="rating">
-
+<p>
 ⭐ ${getProductRating(product.id)}
-
 </p>
 
 
-<p class="stock">
-
+<p>
 ${
-product.stock > 0 
-? "✅ In Stock"
-: "❌ Out of Stock"
+product.stock > 0
+?
+"✅ In Stock"
+:
+"❌ Out of Stock"
 }
-
 </p>
-
 
 
 <button onclick="openProduct(${product.id})">
@@ -212,9 +213,8 @@ product.stock > 0
 </button>
 
 
-
 <button onclick="addToCart(
-'${product.name}',
+'${product.name.replace(/'/g,"\\'")}',
 ${product.price},
 '${product.merchantEmail}'
 )">
@@ -222,15 +222,6 @@ ${product.price},
 🛒 Add To Cart
 
 </button>
-
-
-
-<button onclick="addToWishlistById(${product.id})">
-
-❤️ Wishlist
-
-</button>
-
 
 
 </div>
@@ -241,6 +232,7 @@ ${product.price},
 
 }
 
+  
 function openProduct(id){
 
 let products =
