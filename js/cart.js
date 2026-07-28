@@ -166,18 +166,27 @@ loadCart();
 
 function updateCartCount(){
 
-
 let cart =
 JSON.parse(localStorage.getItem("cart")) || [];
 
 
-let count =
+let count = 0;
+
+
+cart.forEach(function(item){
+
+count += Number(item.quantity || 1);
+
+});
+
+
+let cartBox =
 document.getElementById("cartCount");
 
 
-if(count){
+if(cartBox){
 
-count.innerText = cart.length;
+cartBox.innerText = count;
 
 }
 
