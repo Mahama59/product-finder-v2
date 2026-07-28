@@ -924,7 +924,6 @@ View Product
 
 
 // ================= FEATURED PRODUCTS =================
-
 function loadFeaturedProducts(){
 
 let box = document.getElementById("featuredProducts");
@@ -936,128 +935,29 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-// Only approved products
-
-let approvedProducts =
-products.filter(function(product){
-
-return product.status === "Approved";
-
-});
+alert(
+"Products found: " + products.length
+);
 
 
 box.innerHTML = "";
 
 
-if(approvedProducts.length === 0){
-
-box.innerHTML =
-"<p>No featured products available yet.</p>";
-
-return;
-
-}
-
-
-// Show first 4 products
-
-approvedProducts.slice(0,4).forEach(function(product){
-
+products.forEach(function(product){
 
 box.innerHTML += `
 
 <div class="product">
 
-
-<img 
-src="${product.image || 'https://via.placeholder.com/250'}"
-width="250"
-height="250">
-
-
-<h3>
-${product.name}
-</h3>
-
-
-
-<p class="price">
-
-💰 $${product.price}
-
-</p>
-
-
+<h3>${product.name}</h3>
 
 <p>
-
-📂 ${product.category}
-
+Status: ${product.status}
 </p>
-
-
 
 <p>
-
-<span class="seller-badge">
-
-🏪 Verified Seller
-
-</span>
-
+Price: $${product.price}
 </p>
-
-
-
-<p class="rating">
-
-⭐ ${getProductRating(product.id)}
-
-</p>
-
-
-
-<p class="stock">
-
-${
-product.stock > 0
-?
-"✅ In Stock"
-:
-"❌ Out of Stock"
-}
-
-</p>
-
-
-
-<button onclick="openProduct(${product.id})">
-
-👁 View Product
-
-</button>
-
-
-
-<button onclick="addToCart(
-'${product.name.replace(/'/g,"\\'")}',
-${product.price},
-'${product.merchantEmail}'
-)">
-
-🛒 Add To Cart
-
-</button>
-
-
-
-<button onclick="addToWishlistById(${product.id})">
-
-❤️ Wishlist
-
-</button>
-
-
 
 </div>
 
