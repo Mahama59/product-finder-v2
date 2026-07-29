@@ -972,3 +972,138 @@ height="250">
 
 
 }
+
+
+// ================= OPEN SELLER STORE =================
+
+function openSellerStore(merchantEmail){
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+let merchant =
+merchants.find(function(item){
+
+return item.email === merchantEmail;
+
+});
+
+
+if(!merchant){
+
+alert("Seller not found");
+
+return;
+
+}
+
+
+localStorage.setItem(
+"selectedSeller",
+JSON.stringify(merchant)
+);
+
+
+window.location.href =
+"seller-store.html";
+
+}
+
+
+
+// ================= LOAD SELLER STORE =================
+
+function loadSellerStore(){
+
+let seller =
+JSON.parse(localStorage.getItem("selectedSeller"));
+
+
+if(!seller){
+
+alert("Seller not found");
+
+window.location.href="marketplace.html";
+
+return;
+
+}
+
+
+document.getElementById("storeName").innerText =
+"🏪 " + seller.storeName;
+
+
+document.getElementById("storeInfo").innerText =
+"Seller: " + seller.name;
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let sellerProducts =
+products.filter(function(product){
+
+return product.merchantEmail === seller.email &&
+product.status === "Approved";
+
+});
+
+
+let box =
+document.getElementById("sellerProducts");
+
+
+box.innerHTML = "";
+
+
+if(sellerProducts.length === 0){
+
+box.innerHTML =
+"<p>No products available.</p>";
+
+return;
+
+}
+
+
+sellerProducts.forEach(function(product){
+
+box.innerHTML += `
+
+<div class="product">
+
+<img
+src="${product.image || 'https://via.placeholder.com/250'}"
+width="250"
+height="250">
+
+<h3>${product.name}</h3>
+
+<p>💰 $${product.price}</p>
+
+<p>📂 ${product.category}</p>
+
+<p>⭐ ${getProductRating(product.id)}</p>
+
+<button onclick="openProduct(${product.id})">
+👁 View Product
+</button>
+
+<button onclick="addToCart(
+'${product.name.replace(/'/g,"\\'")}',
+${product.price},
+'${product.merchantEmail}'
+)">
+🛒 Add To Cart
+</button>
+
+</div>
+
+`;
+
+});
+
+}
