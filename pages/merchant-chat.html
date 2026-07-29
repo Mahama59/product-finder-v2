@@ -1,1 +1,57 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+<title>Merchant Messages</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+<body onload="loadMerchantChat()">
+
+<nav>
+
+<h2>🏪 Merchant Dashboard</h2>
+
+<a href="merchant-dashboard.html">Dashboard</a>
+
+</nav>
+
+<header class="hero">
+
+<h1>💬 Customer Messages</h1>
+
+</header>
+
+<div class="card">
+
+<div id="merchantChatMessages">
+
+<p>No conversations yet.</p>
+
+</div>
+
+<br>
+
+<input
+type="text"
+id="merchantReply"
+placeholder="Reply to customer...">
+
+<br><br>
+
+<button onclick="sendMerchantReply()">
+
+Send Reply
+
+</button>
+
+</div>
+
+<script src="../js/chat.js"></script>
+
+</body>
+
+</html>
