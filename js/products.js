@@ -229,6 +229,13 @@ ${product.price},
 
 </button>
 
+<button onclick="openChat(
+'${product.merchantEmail}',
+${product.id}
+)">
+💬 Chat with Seller
+</button>
+
 </div>
 
 `;
