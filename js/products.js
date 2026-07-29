@@ -4,17 +4,20 @@ alert("products.js connected");
 // ================= SAVE PRODUCT =================
 
 function saveProduct(){
-
 let merchant =
 JSON.parse(localStorage.getItem("merchant"));
 
-if(merchant.status === "Suspended"){
-
-alert("Your account is suspended. You cannot add products.");
-
-return;
-
+if(!merchant){
+    alert("Please login first");
+    return;
 }
+
+if(merchant.status === "Suspended"){
+    alert("Your account is suspended.");
+    return;
+}
+
+
   
 if(!merchant){
 
@@ -1295,17 +1298,4 @@ window.location.reload();
 
 }
 
-// ================= OPEN SELLER STORE =================
 
-function openSellerStore(email){
-
-localStorage.setItem(
-"sellerEmail",
-email
-);
-
-
-window.location.href =
-"seller-store.html";
-
-}
