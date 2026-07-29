@@ -16,10 +16,11 @@ window.location.href="chat.html";
 
 function loadCustomerChat(){
 
+markMessagesRead();
+
 displayCustomerMessages();
 
 }
-
 
 function sendCustomerMessage(){
 
