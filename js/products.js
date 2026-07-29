@@ -210,11 +210,6 @@ ${product.merchantName}
 
 </p>
 
-<a href="compare.html">
-
-⚖️ Compare
-
-</a>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
