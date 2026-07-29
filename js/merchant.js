@@ -124,7 +124,16 @@ localStorage.setItem(
 JSON.stringify(merchant)
 );
 
+merchant.online = true;
 
+merchant.lastSeen =
+new Date().toLocaleString();
+
+
+localStorage.setItem(
+"merchant",
+JSON.stringify(merchant)
+);
 
 alert("Login successful");
 
@@ -273,6 +282,26 @@ revenue;
 
 function merchantLogout(){
 
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+if(merchant){
+
+merchant.online = false;
+
+merchant.lastSeen =
+new Date().toLocaleString();
+
+
+localStorage.setItem(
+"merchant",
+JSON.stringify(merchant)
+);
+
+}
+
+
 localStorage.removeItem("merchant");
 
 
@@ -281,7 +310,6 @@ alert("Logged out");
 
 window.location.href =
 "merchant-login.html";
-
 
 }
 
@@ -1124,5 +1152,37 @@ Sold: ${item[1]}
 
 });
 
+
+}
+
+function getSellerStatus(email){
+
+let merchants =
+JSON.parse(localStorage.getItem("merchants")) || [];
+
+
+let merchant =
+merchants.find(function(item){
+
+return item.email === email;
+
+});
+
+
+if(!merchant){
+
+return "⚪ Offline";
+
+}
+
+
+if(merchant.online){
+
+return "🟢 Online";
+
+}
+
+
+return "⚪ Offline";
 
 }
