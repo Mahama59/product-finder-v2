@@ -11,13 +11,17 @@
 
 <body onload="loadMerchantChat()">
 
+
 <nav>
 
-<h2>🏪 Merchant Dashboard</h2>
+<h2>🏪 Merchant Chat</h2>
 
-<a href="merchant-dashboard.html">Dashboard</a>
+<a href="merchant-dashboard.html">
+Dashboard
+</a>
 
 </nav>
+
 
 <header class="hero">
 
@@ -25,22 +29,21 @@
 
 </header>
 
+
 <div class="card">
+
 
 <div id="merchantChatMessages">
 
-<p>No conversations yet.</p>
+<p>Loading messages...</p>
 
 </div>
 
-<br>
 
-<input
-type="text"
+<input 
 id="merchantReply"
-placeholder="Reply to customer...">
+placeholder="Type reply...">
 
-<br><br>
 
 <button onclick="sendMerchantReply()">
 
@@ -48,9 +51,13 @@ Send Reply
 
 </button>
 
+
 </div>
 
+
+
 <script src="../js/chat.js"></script>
+
 
 </body>
 
