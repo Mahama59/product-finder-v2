@@ -11,7 +11,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
 });
 
+document.addEventListener("DOMContentLoaded",function(){
 
+updateMessageCount();
+
+});
 
 // ================= CART COUNT =================
 
