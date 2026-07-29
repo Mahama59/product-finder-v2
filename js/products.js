@@ -210,10 +210,15 @@ ${product.merchantName}
 
 </p>
 
+<a href="compare.html">
+
+⚖️ Compare
+
+</a>
+
 <button onclick="openProduct(${product.id})">
 👁 View Product
 </button>
-
 
 <button onclick="addToCart(
 '${product.name.replace(/'/g,"\\'")}',
@@ -223,6 +228,11 @@ ${product.price},
 🛒 Add To Cart
 </button>
 
+<button onclick="addToCompare(${product.id})">
+
+⚖️ Compare
+
+</button>
 
 </div>
 
@@ -1112,5 +1122,145 @@ ${product.price},
 `;
 
 });
+
+}
+
+// ================= PRODUCT COMPARISON =================
+
+function addToCompare(productId){
+
+let compare =
+JSON.parse(localStorage.getItem("compareProducts")) || [];
+
+
+if(compare.includes(productId)){
+
+alert("Product already selected.");
+
+return;
+
+}
+
+
+if(compare.length >= 4){
+
+alert("You can compare up to 4 products.");
+
+return;
+
+}
+
+
+compare.push(productId);
+
+
+localStorage.setItem(
+"compareProducts",
+JSON.stringify(compare)
+);
+
+
+alert("Product added for comparison.");
+
+}
+
+
+function loadComparison(){
+
+let compare =
+JSON.parse(localStorage.getItem("compareProducts")) || [];
+
+
+let products =
+JSON.parse(localStorage.getItem("merchantProducts")) || [];
+
+
+let selected =
+products.filter(function(product){
+
+return compare.includes(product.id);
+
+});
+
+
+let box =
+document.getElementById("comparisonTable");
+
+
+if(!box) return;
+
+
+if(selected.length === 0){
+
+box.innerHTML =
+"<p>No products selected for comparison.</p>";
+
+return;
+
+}
+
+
+let html = `
+<table border="1" cellpadding="10">
+
+<tr>
+
+<th>Feature</th>
+`;
+
+
+selected.forEach(function(product){
+
+html += `<th>${product.name}</th>`;
+
+});
+
+
+html += "</tr>";
+
+
+function row(title,key){
+
+html += `<tr><td><b>${title}</b></td>`;
+
+
+selected.forEach(function(product){
+
+html += `<td>${product[key] || "-"}</td>`;
+
+});
+
+
+html += "</tr>";
+
+}
+
+
+row("Price","price");
+
+row("Category","category");
+
+row("Seller","merchantName");
+
+row("Stock","stock");
+
+row("Description","description");
+
+
+html += "</table>";
+
+
+box.innerHTML = html;
+
+}
+
+
+function clearComparison(){
+
+localStorage.removeItem("compareProducts");
+
+alert("Comparison cleared.");
+
+window.location.reload();
 
 }
