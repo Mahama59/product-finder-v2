@@ -434,3 +434,130 @@ productId
 window.location.href="chat.html";
 
 }
+
+
+// ================= MESSAGE NOTIFICATION COUNT =================
+
+function updateMessageCount(){
+
+let countBox =
+document.getElementById("messageCount");
+
+
+if(!countBox) return;
+
+
+let chats =
+JSON.parse(localStorage.getItem("chats")) || [];
+
+
+let customer =
+JSON.parse(localStorage.getItem("customer"));
+
+
+if(!customer){
+
+return;
+
+}
+
+
+let unread = 0;
+
+
+chats.forEach(function(chat){
+
+
+if(chat.customerEmail === customer.email){
+
+
+chat.messages.forEach(function(message){
+
+
+if(
+message.sender === "merchant" &&
+!message.read
+){
+
+unread++;
+
+}
+
+
+});
+
+
+}
+
+
+});
+
+
+
+countBox.innerText = unread;
+
+
+if(unread === 0){
+
+countBox.style.display="none";
+
+}
+else{
+
+countBox.style.display="inline-block";
+
+}
+
+
+}
+
+
+
+// ================= MARK MESSAGES READ =================
+
+function markMessagesRead(){
+
+
+let chats =
+JSON.parse(localStorage.getItem("chats")) || [];
+
+
+let customer =
+JSON.parse(localStorage.getItem("customer"));
+
+
+
+chats.forEach(function(chat){
+
+
+if(chat.customerEmail === customer.email){
+
+
+chat.messages.forEach(function(message){
+
+
+if(message.sender==="merchant"){
+
+message.read=true;
+
+}
+
+
+});
+
+
+}
+
+
+});
+
+
+localStorage.setItem(
+"chats",
+JSON.stringify(chats)
+);
+
+
+updateMessageCount();
+
+}
