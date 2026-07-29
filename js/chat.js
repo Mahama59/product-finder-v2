@@ -92,10 +92,11 @@ sender:"customer",
 
 text:text,
 
-time:new Date().toLocaleString()
+time:new Date().toLocaleString(),
+
+read:false
 
 });
-
 
 localStorage.setItem(
 "chats",
@@ -245,7 +246,9 @@ sender:"merchant",
 
 text:text,
 
-time:new Date().toLocaleString()
+time:new Date().toLocaleString(),
+
+read:false
 
 });
 
@@ -692,6 +695,69 @@ productId
 
 window.location.href =
 "merchant-chat.html";
+
+
+}
+
+function updateMerchantMessageCount(){
+
+let badge =
+document.getElementById("messageCount");
+
+
+if(!badge) return;
+
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+let chats =
+JSON.parse(localStorage.getItem("chats")) || [];
+
+
+let count = 0;
+
+
+chats.forEach(function(chat){
+
+if(chat.merchantEmail === merchant.email){
+
+
+chat.messages.forEach(function(message){
+
+
+if(
+message.sender === "customer" &&
+message.read === false
+){
+
+count++;
+
+}
+
+
+});
+
+
+}
+
+});
+
+
+badge.innerText = count;
+
+
+if(count === 0){
+
+badge.style.display="none";
+
+}
+else{
+
+badge.style.display="inline-block";
+
+}
 
 
 }
