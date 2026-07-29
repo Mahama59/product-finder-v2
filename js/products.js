@@ -198,10 +198,17 @@ ${product.category}
 </p>
 
 <p>
-🏪 Seller:
-${product.merchantName}
-</p>
 
+🏪 Seller:
+
+<a href="#"
+onclick="openSellerStore('${product.merchantEmail}')">
+
+${product.merchantName}
+
+</a>
+
+</p>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
