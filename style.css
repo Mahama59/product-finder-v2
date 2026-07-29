@@ -235,3 +235,18 @@ padding:4px 8px;
 font-size:12px;
 
 }
+
+.seller-link{
+
+color:#2563eb;
+font-weight:bold;
+cursor:pointer;
+text-decoration:none;
+
+}
+
+.seller-link:hover{
+
+text-decoration:underline;
+
+}
