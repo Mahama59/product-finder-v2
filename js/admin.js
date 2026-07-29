@@ -151,7 +151,7 @@ pending.length;
 // Marketplace overview
 
 let adminProducts =
-document.getElementById("adminProducts");
+document.getElementById("adminProductsCount");
 
 let adminMerchants =
 document.getElementById("adminMerchants");
