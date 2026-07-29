@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+<title>Chat with Seller - Product Finder</title>
+
+<link rel="stylesheet" href="../style.css">
+
+</head>
+
+<body onload="loadCustomerChat()">
+
+<nav>
+
+<h2>🛍 Product Finder</h2>
+
+<a href="../index.html">Home</a>
+
+<a href="marketplace.html">Marketplace</a>
+
+</nav>
+
+<header class="hero">
+
+<h1>💬 Chat with Seller</h1>
+
+</header>
+
+<div class="card">
+
+<div id="chatMessages">
+
+<p>No messages yet.</p>
+
+</div>
+
+<br>
+
+<input
+type="text"
+id="chatMessage"
+placeholder="Type your message...">
+
+<br><br>
+
+<button onclick="sendCustomerMessage()">
+
+Send Message
+
+</button>
+
+</div>
+
+<script src="../js/chat.js"></script>
+
+</body>
+
+</html>
