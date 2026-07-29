@@ -165,15 +165,28 @@ return;
 
 conversation.messages.forEach(function(message){
 
+let style =
+message.sender === "customer"
+?
+"customer-message"
+:
+"merchant-message";
+
+
 box.innerHTML += `
 
-<div class="product">
+<div class="chat-message ${style}">
 
-<b>${message.sender}</b>
+<p>
+${message.text}
+</p>
 
-<p>${message.text}</p>
 
-<small>${message.time}</small>
+<small class="chat-time">
+
+${message.time}
+
+</small>
 
 </div>
 
