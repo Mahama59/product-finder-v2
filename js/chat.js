@@ -1,1 +1,1 @@
-
+alert("chat.js connected");
