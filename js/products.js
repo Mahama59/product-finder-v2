@@ -223,17 +223,17 @@ ${product.price},
 🛒 Add To Cart
 </button>
 
-<button onclick="addToCompare(${product.id})">
-
-⚖️ Compare
-
-</button>
-
 <button onclick="openChat(
 '${product.merchantEmail}',
 ${product.id}
 )">
 💬 Chat with Seller
+</button>
+
+<button onclick="addToCompare(${product.id})">
+
+⚖️ Compare
+
 </button>
 
 </div>
