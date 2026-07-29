@@ -305,3 +305,119 @@ box.innerHTML += `
 });
 
 }
+
+
+// ================= CONVERSATION LIST =================
+
+function loadConversations(){
+
+let box =
+document.getElementById("conversationList");
+
+if(!box) return;
+
+
+let chats =
+JSON.parse(localStorage.getItem("chats")) || [];
+
+
+let customer =
+JSON.parse(localStorage.getItem("customer"));
+
+
+if(!customer){
+
+box.innerHTML =
+"<p>Please login first.</p>";
+
+return;
+
+}
+
+
+let myChats =
+chats.filter(function(chat){
+
+return chat.customerEmail === customer.email;
+
+});
+
+
+box.innerHTML="";
+
+
+if(myChats.length === 0){
+
+box.innerHTML =
+"<p>No conversations yet.</p>";
+
+return;
+
+}
+
+
+
+myChats.forEach(function(chat){
+
+
+let lastMessage =
+chat.messages[chat.messages.length - 1];
+
+
+box.innerHTML += `
+
+<div class="product">
+
+<h3>
+💬 ${chat.merchantEmail}
+</h3>
+
+
+<p>
+${lastMessage ? lastMessage.text : "No message"}
+</p>
+
+
+<small>
+${lastMessage ? lastMessage.time : ""}
+</small>
+
+
+<button onclick="continueChat(
+'${chat.merchantEmail}',
+${chat.productId}
+)">
+
+Open Chat
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+function continueChat(email, productId){
+
+localStorage.setItem(
+"chatMerchant",
+email
+);
+
+
+localStorage.setItem(
+"chatProduct",
+productId
+);
+
+
+window.location.href="chat.html";
+
+}
