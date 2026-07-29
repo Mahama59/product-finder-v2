@@ -210,6 +210,9 @@ ${product.merchantName}
 
 </p>
 
+<p>
+${getSellerStatus(product.merchantEmail)}
+</p>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
@@ -1264,5 +1267,20 @@ localStorage.removeItem("compareProducts");
 alert("Comparison cleared.");
 
 window.location.reload();
+
+}
+
+// ================= OPEN SELLER STORE =================
+
+function openSellerStore(email){
+
+localStorage.setItem(
+"sellerEmail",
+email
+);
+
+
+window.location.href =
+"seller-store.html";
 
 }
