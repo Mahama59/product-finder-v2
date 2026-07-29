@@ -562,3 +562,136 @@ JSON.stringify(chats)
 updateMessageCount();
 
 }
+
+// ================= MERCHANT CONVERSATION LIST =================
+
+
+function loadMerchantConversations(){
+
+
+let box =
+document.getElementById("merchantConversationList");
+
+
+if(!box) return;
+
+
+
+let merchant =
+JSON.parse(localStorage.getItem("merchant"));
+
+
+
+let chats =
+JSON.parse(localStorage.getItem("chats")) || [];
+
+
+
+if(!merchant){
+
+box.innerHTML =
+"<p>Please login as merchant</p>";
+
+return;
+
+}
+
+
+
+let myChats =
+chats.filter(function(chat){
+
+return chat.merchantEmail === merchant.email;
+
+});
+
+
+
+box.innerHTML="";
+
+
+
+if(myChats.length === 0){
+
+box.innerHTML =
+"<p>No customer conversations yet.</p>";
+
+return;
+
+}
+
+
+
+myChats.forEach(function(chat){
+
+
+
+let last =
+chat.messages[
+chat.messages.length - 1
+];
+
+
+
+box.innerHTML += `
+
+<div class="product">
+
+
+<h3>
+💬 Customer
+</h3>
+
+
+<p>
+${last ? last.text : "No messages"}
+</p>
+
+
+<small>
+${last ? last.time : ""}
+</small>
+
+
+
+<button onclick="openMerchantChat(
+'${chat.customerEmail}',
+'${chat.productId}'
+)">
+
+Open Chat
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+function openMerchantChat(customerEmail, productId){
+
+
+localStorage.setItem(
+"merchantCustomer",
+customerEmail
+);
+
+
+localStorage.setItem(
+"chatProduct",
+productId
+);
+
+
+window.location.href =
+"merchant-chat.html";
+
+
+}
