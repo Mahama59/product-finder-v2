@@ -201,7 +201,8 @@ ${product.category}
 
 🏪 Seller:
 
-<a href="#"
+<a class="seller-link"
+href="#"
 onclick="openSellerStore('${product.merchantEmail}')">
 
 ${product.merchantName}
@@ -631,7 +632,19 @@ box.innerHTML += `
 
 <p>📂 ${product.category}</p>
 
-<p>🏪 Seller: ${product.merchantName}</p>
+<p>
+
+🏪 Seller:
+
+<a class="seller-link"
+href="#"
+onclick="openSellerStore('${product.merchantEmail}')">
+
+${product.merchantName}
+
+</a>
+
+</p>
 
 <p>⭐ ${getProductRating(product.id)}</p>
 
@@ -980,7 +993,19 @@ height="250">
 
 <p>📂 ${product.category}</p>
 
-<p>🏪 ${product.merchantName}</p>
+<p>
+
+🏪 Seller:
+
+<a class="seller-link"
+href="#"
+onclick="openSellerStore('${product.merchantEmail}')">
+
+${product.merchantName}
+
+</a>
+
+</p>
 
 <button onclick="openProduct(${product.id})">
 👁 View Product
