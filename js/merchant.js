@@ -906,10 +906,15 @@ let products =
 JSON.parse(localStorage.getItem("merchantProducts")) || [];
 
 
-let myProducts =
-products.filter(function(product){
+let myOrders =
+orders.filter(function(order){
 
-return product.merchantEmail === merchant.email;
+return order.items &&
+order.items.some(function(item){
+
+return item.merchantEmail === merchant.email;
+
+});
 
 });
 
