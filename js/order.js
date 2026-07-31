@@ -4,18 +4,17 @@
 // ============================================
 
 console.log("order.js loaded");
-// ============================================
-// PAYMENT BACKEND
-// ============================================
 
+// ============================================
+// PAYM0
 // Local testing:
 const PAYMENT_API_BASE_URL =
     "http://localhost:3000";
 
-// Later, when the backend is deployed to Render,
-// change this to your Render URL, for example:
+// Later, when the backend is deployed to Render:
 // const PAYMENT_API_BASE_URL =
-//     "https://product-finder-api.onrender.com";
+//     "https://your-render-service.onrender.com";
+
 
 // ============================================
 // STORAGE HELPERS
@@ -24,11 +23,18 @@ const PAYMENT_API_BASE_URL =
 function getCart() {
 
     try {
+
         return JSON.parse(
             localStorage.getItem("cart")
         ) || [];
+
     } catch (error) {
-        console.error("Could not read cart:", error);
+
+        console.error(
+            "Could not read cart:",
+            error
+        );
+
         return [];
     }
 }
@@ -37,11 +43,18 @@ function getCart() {
 function getOrders() {
 
     try {
+
         return JSON.parse(
             localStorage.getItem("orders")
         ) || [];
+
     } catch (error) {
-        console.error("Could not read orders:", error);
+
+        console.error(
+            "Could not read orders:",
+            error
+        );
+
         return [];
     }
 }
@@ -88,7 +101,9 @@ function loadCheckout() {
             "<p>Your cart is empty.</p>";
 
         if (totalBox) {
-            totalBox.innerText = "0.00";
+
+            totalBox.innerText =
+                "GHS 0.00";
         }
 
         return;
@@ -102,20 +117,23 @@ function loadCheckout() {
         const quantity =
             Number(item.quantity || 0);
 
-        total += price * quantity;
+        total +=
+            price * quantity;
 
         box.innerHTML += `
             <p>
                 ${item.name || "Product"}
                 x ${quantity}
                 -
-                $${price.toFixed(2)}
+                GHS ${price.toFixed(2)}
             </p>
         `;
     });
 
     if (totalBox) {
+
         totalBox.innerText =
+            "GHS " +
             total.toFixed(2);
     }
 }
@@ -130,27 +148,46 @@ function placeOrder() {
     const cart = getCart();
 
     if (cart.length === 0) {
-        alert("Cart is empty.");
+
+        alert(
+            "Cart is empty."
+        );
+
         return;
     }
 
     const customerName =
-        document.getElementById("customerName")?.value.trim();
+        document.getElementById(
+            "customerName"
+        )
+        ?.value
+        .trim();
 
     const customerEmail =
-        document.getElementById("customerEmail")
-        ?.value.trim()
+        document.getElementById(
+            "customerEmail"
+        )
+        ?.value
+        .trim()
         .toLowerCase();
 
     const customerPhone =
-        document.getElementById("customerPhone")?.value.trim();
+        document.getElementById(
+            "customerPhone"
+        )
+        ?.value
+        .trim();
 
     if (
         !customerName ||
         !customerEmail ||
         !customerPhone
     ) {
-        alert("Please complete all customer details.");
+
+        alert(
+            "Please complete all customer details."
+        );
+
         return;
     }
 
@@ -160,32 +197,47 @@ function placeOrder() {
         );
 
     if (!selectedPayment) {
-        alert("Please select a payment method.");
+
+        alert(
+            "Please select a payment method."
+        );
+
         return;
     }
 
     const paymentMethod =
         selectedPayment.value;
 
-    if (paymentMethod === "Paystack") {
+    if (
+        paymentMethod ===
+        "Paystack"
+    ) {
 
         payWithPaystack();
 
         return;
     }
 
-    if (paymentMethod === "Cash on Delivery") {
+    if (
+        paymentMethod ===
+        "Cash on Delivery"
+    ) {
 
-        createOrder("Cash on Delivery");
+        createOrder(
+            "Cash on Delivery"
+        );
 
         return;
     }
 
-    alert("Invalid payment method.");
+    alert(
+        "Invalid payment method."
+    );
 }
 
+
 // ============================================
-// CREATE ORDER
+// CREATE LOCAL ORDER
 // ============================================
 
 function createOrder(
@@ -196,43 +248,60 @@ function createOrder(
     const cart = getCart();
 
     if (cart.length === 0) {
-        alert("Cart is empty.");
+
+        alert(
+            "Cart is empty."
+        );
+
         return;
     }
 
     const customerName =
         document.getElementById(
             "customerName"
-        )?.value.trim();
+        )
+        ?.value
+        .trim();
 
     const customerEmail =
         document.getElementById(
             "customerEmail"
-        )?.value.trim().toLowerCase();
+        )
+        ?.value
+        .trim()
+        .toLowerCase();
 
     const customerPhone =
         document.getElementById(
             "customerPhone"
-        )?.value.trim();
+        )
+        ?.value
+        .trim();
 
     const address =
         document.getElementById(
             "customerAddress"
-        )?.value.trim() || "";
+        )
+        ?.value
+        .trim() || "";
 
     const city =
         document.getElementById(
             "customerCity"
-        )?.value.trim() || "";
+        )
+        ?.value
+        .trim() || "";
 
     if (
         !customerName ||
         !customerEmail ||
         !customerPhone
     ) {
+
         alert(
             "Please complete customer details."
         );
+
         return;
     }
 
@@ -246,11 +315,13 @@ function createOrder(
 
     });
 
-    const orders = getOrders();
+    const orders =
+        getOrders();
 
     const order = {
 
-        id: Date.now(),
+        id:
+            Date.now(),
 
         customer:
             customerName,
@@ -282,7 +353,9 @@ function createOrder(
                         item.name,
 
                     price:
-                        Number(item.price || 0),
+                        Number(
+                            item.price || 0
+                        ),
 
                     quantity:
                         Number(
@@ -290,7 +363,8 @@ function createOrder(
                         ),
 
                     merchantEmail:
-                        item.merchantEmail || ""
+                        item.merchantEmail ||
+                        ""
 
                 };
 
@@ -325,18 +399,19 @@ function createOrder(
 
     };
 
-    orders.push(order);
+    orders.push(
+        order
+    );
 
-    saveOrders(orders);
+    saveOrders(
+        orders
+    );
 
-    // Keep customer email available
-    // for existing customer-order pages.
     localStorage.setItem(
         "customerEmail",
         customerEmail
     );
 
-    // Notify customer if notifications.js exists.
     if (
         typeof addNotification ===
         "function"
@@ -347,7 +422,6 @@ function createOrder(
             order.id +
             " has been placed successfully 🎉"
         );
-
     }
 
     localStorage.removeItem(
@@ -359,7 +433,7 @@ function createOrder(
     );
 
     window.location.href =
-    "my-orders.html";
+        "my-orders.html";
 }
 
 
@@ -401,22 +475,26 @@ function loadCustomerOrders() {
     }
 
     const myOrders =
-        orders.filter(function(order) {
+        orders.filter(
+            function(order) {
 
-            return (
-                String(
-                    order.customerEmail ||
-                    order.email ||
-                    ""
-                )
-                .trim()
-                .toLowerCase() ===
-                email
-            );
+                return (
+                    String(
+                        order.customerEmail ||
+                        order.email ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase() ===
+                    email
+                );
 
-        });
+            }
+        );
 
-    if (myOrders.length === 0) {
+    if (
+        myOrders.length === 0
+    ) {
 
         box.innerHTML =
             "<p>No orders found.</p>";
@@ -424,450 +502,60 @@ function loadCustomerOrders() {
         return;
     }
 
-    myOrders.forEach(function(order) {
-
-        box.innerHTML += `
-
-            <div class="product">
-
-                <h3>
-                    🧾 Order #${order.id}
-                </h3>
-
-                <p>
-                    📦 Order Status:
-                    ${order.status || "New"}
-                </p>
-
-                <p>
-                    💳 Payment:
-                    ${order.paymentStatus || "Pending"}
-                </p>
-
-                <p>
-                    🚚 Shipping:
-                    ${order.shippingStatus || "Processing"}
-                </p>
-
-                <p>
-                    🔎 Tracking Number:
-                    ${order.trackingNumber || "Not assigned"}
-                </p>
-
-                <p>
-                    📍 Address:
-                    ${order.address || "Not provided"}
-                </p>
-
-                <p>
-                    💰 Total:
-                    $${Number(order.total || 0).toFixed(2)}
-                </p>
-
-                <p>
-                    📅 Date:
-                    ${order.date || "-"}
-                </p>
-
-            </div>
-        `;
-    });
-}
-
-
-// ============================================
-// PAYSTACK
-// ============================================
-
-function payWithPaystack() {
-
-    const cart = getCart();
-
-    if (cart.length === 0) {
-        alert("Cart is empty.");
-        return;
-    }
-
-    const email =
-        document.getElementById(
-            "customerEmail"
-        )
-        ?.value
-        .trim()
-        .toLowerCase();
-
-    if (!email) {
-        alert("Please enter your email.");
-        return;
-    }
-
-    if (
-        typeof PaystackPop ===
-        "undefined"
-    ) {
-        alert(
-            "Paystack has not loaded. Please refresh."
-        );
-        return;
-    }
-
-    let total = 0;
-
-    cart.forEach(function(item) {
-
-        total +=
-            Number(item.price || 0) *
-            Number(item.quantity || 0);
-
-    });
-
-    if (total <= 0) {
-        alert(
-            "Order total must be greater than zero."
-        );
-        return;
-    }
-
-    initializePaystackPayment(
-        email,
-        total
-    )
-        .then(function(initialized) {
-
-            console.log(
-                "Paystack initialized:",
-                initialized
-            );
-
-            const paystack =
-                new PaystackPop();
-
-            paystack.resumeTransaction(
-                initialized.accessCode,
-                {
-                    onSuccess:
-                        async function(transaction) {
-
-                            console.log(
-                                "Paystack payment completed:",
-                                transaction.reference
-                            );
-
-                            try {
-
-                                const verified =
-                                    await verifyPaystackPayment(
-                                        transaction.reference,
-                                        total
-                                    );
-
-                                console.log(
-                                    "PAYMENT VERIFIED:",
-                                    verified
-                                );
-
-                                const serverOrder =
-                                    await createVerifiedServerOrder(
-                                        transaction.reference,
-                                        total
-                                    );
-
-                                console.log(
-                                    "SERVER ORDER CREATED:",
-                                    serverOrder
-                                );
-
-                                createOrder(
-                                    "Paystack",
-                                    transaction.reference
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    "Payment/order verification failed:",
-                                    error
-                                );
-
-                                alert(
-                                    "Payment could not be fully verified. Your order has NOT been confirmed.\n\nReference: " +
-                                    transaction.reference
-                                );
-                            }
-                        },
-
-                    onCancel:
-                        function() {
-
-                            alert(
-                                "Payment cancelled."
-                            );
-
-                        },
-
-                    onError:
-                        function(error) {
-
-                            console.error(
-                                "Paystack error:",
-                                error
-                            );
-
-                            alert(
-                                "Paystack payment could not be completed."
-                            );
-
-                        }
-                }
-            );
-
-        })
-        .catch(function(error) {
-
-            console.error(
-                "Paystack initialization failed:",
-                error
-            );
-
-            alert(
-                error.message ||
-                "Unable to start Paystack payment."
-            );
-
-        });
-}
-
-function(error) {
-
-                console.error(
-                    "Paystack error:",
-                    error
-                );
-
-                alert(
-                    "Payment could not be started."
-                );
-
-            }
-
-    });
-}
-
-// ============================================
-// VERIFY PAYSTACK PAYMENT ON SERVER
-// ============================================
-
-async function verifyPaystackPayment(
-    reference,
-    expectedAmount
-) {
-
-    if (!reference) {
-        throw new Error(
-            "Payment reference is missing."
-        );
-    }
-
-    const response = await fetch(
-        PAYMENT_API_BASE_URL +
-        "/api/paystack/verify/" +
-        encodeURIComponent(reference)
-    );
-
-    let result;
-
-    try {
-        result = await response.json();
-    } catch (error) {
-        throw new Error(
-            "Payment server returned an invalid response."
-        );
-    }
-
-    if (!response.ok) {
-
-        throw new Error(
-            result.message ||
-            "Payment verification request failed."
-        );
-    }
-
-    if (!result.success || !result.data) {
-
-        throw new Error(
-            result.message ||
-            "Paystack transaction could not be verified."
-        );
-    }
-
-    const transaction =
-        result.data;
-
-    // Paystack amounts are in the smallest
-    // currency unit, so GHS 100 = 10000.
-    const expectedAmountInSubunit =
-        Math.round(
-            Number(expectedAmount) * 100
-        );
-
-    const actualAmount =
-        Number(transaction.amount);
-
-    const paymentSuccessful =
-        transaction.status === "success";
-
-    const amountMatches =
-        actualAmount ===
-        expectedAmountInSubunit;
-
-    const currencyMatches =
-        transaction.currency === "GHS";
-
-    if (!paymentSuccessful) {
-
-        throw new Error(
-            "Paystack payment was not successful."
-        );
-    }
-
-    if (!amountMatches) {
-
-        console.error(
-            "PAYMENT AMOUNT MISMATCH",
-            {
-                expected:
-                    expectedAmountInSubunit,
-                received:
-                    actualAmount
-            }
-        );
-
-        throw new Error(
-            "Payment amount does not match the order."
-        );
-    }
-
-    if (!currencyMatches) {
-
-        throw new Error(
-            "Payment currency does not match GHS."
-        );
-    }
-
-    return transaction;
-}
-
-// ============================================
-// CREATE VERIFIED SERVER ORDER
-// ============================================
-
-async function createVerifiedServerOrder(
-    paymentReference,
-    total
-) {
-
-    const customer = {
-        name:
-            document.getElementById(
-                "customerName"
-            )?.value.trim(),
-
-        email:
-            document.getElementById(
-                "customerEmail"
-            )?.value.trim().toLowerCase(),
-
-        phone:
-            document.getElementById(
-                "customerPhone"
-            )?.value.trim(),
-
-        address:
-            document.getElementById(
-                "customerAddress"
-            )?.value.trim() || "",
-
-        city:
-            document.getElementById(
-                "customerCity"
-            )?.value.trim() || ""
-    };
-
-    const cart = getCart();
-
-    const items =
-        cart.map(function(item) {
-
-            return {
-                id: item.id,
-                name: item.name,
-                price:
-                    Number(
-                        item.price || 0
-                    ),
-                quantity:
-                    Number(
-                        item.quantity || 0
-                    ),
-                merchantEmail:
-                    item.merchantEmail || ""
-            };
-
-        });
-
-    const response = await fetch(
-        PAYMENT_API_BASE_URL +
-        "/api/orders/paystack",
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
-
-            body: JSON.stringify({
-
-                paymentReference:
-                    paymentReference,
-
-                total:
-                    total,
-
-                customer:
-                    customer,
-
-                items:
-                    items
-            })
+    myOrders.forEach(
+        function(order) {
+
+            box.innerHTML += `
+
+                <div class="product">
+
+                    <h3>
+                        🧾 Order #${order.id}
+                    </h3>
+
+                    <p>
+                        📦 Order Status:
+                        ${order.status || "New"}
+                    </p>
+
+                    <p>
+                        💳 Payment:
+                        ${order.paymentStatus || "Pending"}
+                    </p>
+
+                    <p>
+                        🚚 Shipping:
+                        ${order.shippingStatus || "Processing"}
+                    </p>
+
+                    <p>
+                        🔎 Tracking Number:
+                        ${order.trackingNumber || "Not assigned"}
+                    </p>
+
+                    <p>
+                        📍 Address:
+                        ${order.address || "Not provided"}
+                    </p>
+
+                    <p>
+                        💰 Total:
+                        GHS ${Number(
+                            order.total || 0
+                        ).toFixed(2)}
+                    </p>
+
+                    <p>
+                        📅 Date:
+                        ${order.date || "-"}
+                    </p>
+
+                </div>
+            `;
         }
     );
-
-    let result;
-
-    try {
-
-        result =
-            await response.json();
-
-    } catch (error) {
-
-        throw new Error(
-            "Payment server returned an invalid response."
-        );
-
-    }
-
-    if (!response.ok || !result.success) {
-
-        throw new Error(
-            result.message ||
-            "Verified order could not be created."
-        );
-    }
-
-    return result.order;
 }
+
 
 // ============================================
 // INITIALIZE PAYSTACK PAYMENT ON SERVER
@@ -878,30 +566,41 @@ async function initializePaystackPayment(
     amount
 ) {
 
-    const response = await fetch(
-        PAYMENT_API_BASE_URL +
-        "/api/paystack/initialize",
-        {
-            method: "POST",
+    const response =
+        await fetch(
+            PAYMENT_API_BASE_URL +
+            "/api/paystack/initialize",
+            {
+                method:
+                    "POST",
 
-            headers: {
-                "Content-Type":
-                    "application/json"
-            },
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-            body: JSON.stringify({
-                email: email,
-                amount: amount
-            })
-        }
-    );
+                body:
+                    JSON.stringify({
+
+                        email:
+                            email,
+
+                        amount:
+                            Number(amount)
+
+                    })
+            }
+        );
 
     let result;
 
     try {
+
         result =
             await response.json();
+
     } catch (error) {
+
         throw new Error(
             "Payment server returned an invalid response."
         );
@@ -911,15 +610,28 @@ async function initializePaystackPayment(
         !response.ok ||
         !result.success
     ) {
+
         throw new Error(
             result.message ||
             "Could not initialize Paystack payment."
         );
     }
 
-    if (!result.accessCode) {
+    if (
+        !result.accessCode
+    ) {
+
         throw new Error(
             "Paystack did not return an access code."
+        );
+    }
+
+    if (
+        !result.reference
+    ) {
+
+        throw new Error(
+            "Paystack did not return a transaction reference."
         );
     }
 
@@ -935,8 +647,18 @@ async function waitForPaymentStatus(
     reference
 ) {
 
-    const maxAttempts = 30;
-    const delayMs = 3000;
+    if (!reference) {
+
+        throw new Error(
+            "Payment reference is missing."
+        );
+    }
+
+    const maxAttempts =
+        30;
+
+    const delayMs =
+        3000;
 
     for (
         let attempt = 1;
@@ -955,7 +677,9 @@ async function waitForPaymentStatus(
                     )
                 );
 
-            if (response.ok) {
+            if (
+                response.ok
+            ) {
 
                 const result =
                     await response.json();
@@ -995,4 +719,355 @@ async function waitForPaymentStatus(
         "Payment is still processing. Reference: " +
         reference
     );
+}
+
+
+// ============================================
+// CREATE VERIFIED SERVER ORDER
+// ============================================
+
+async function createVerifiedServerOrder(
+    paymentReference,
+    total
+) {
+
+    const cart =
+        getCart();
+
+    if (cart.length === 0) {
+
+        throw new Error(
+            "Cart is empty."
+        );
+    }
+
+    const customer = {
+
+        name:
+            document.getElementById(
+                "customerName"
+            )
+            ?.value
+            .trim(),
+
+        email:
+            document.getElementById(
+                "customerEmail"
+            )
+            ?.value
+            .trim()
+            .toLowerCase(),
+
+        phone:
+            document.getElementById(
+                "customerPhone"
+            )
+            ?.value
+            .trim(),
+
+        address:
+            document.getElementById(
+                "customerAddress"
+            )
+            ?.value
+            .trim() || "",
+
+        city:
+            document.getElementById(
+                "customerCity"
+            )
+            ?.value
+            .trim() || ""
+
+    };
+
+    if (!customer.name) {
+
+        throw new Error(
+            "Customer name is required."
+        );
+    }
+
+    if (!customer.email) {
+
+        throw new Error(
+            "Customer email is required."
+        );
+    }
+
+    if (!customer.phone) {
+
+        throw new Error(
+            "Customer phone is required."
+        );
+    }
+
+    const items =
+        cart.map(
+            function(item) {
+
+                return {
+
+                    id:
+                        item.id,
+
+                    name:
+                        item.name,
+
+                    price:
+                        Number(
+                            item.price || 0
+                        ),
+
+                    quantity:
+                        Number(
+                            item.quantity || 0
+                        ),
+
+                    merchantEmail:
+                        item.merchantEmail ||
+                        ""
+
+                };
+            }
+        );
+
+    const response =
+        await fetch(
+            PAYMENT_API_BASE_URL +
+            "/api/orders/paystack",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify({
+
+                        paymentReference:
+                            paymentReference,
+
+                        total:
+                            Number(total),
+
+                        customer:
+                            customer,
+
+                        items:
+                            items
+
+                    })
+            }
+        );
+
+    let result;
+
+    try {
+
+        result =
+            await response.json();
+
+    } catch (error) {
+
+        throw new Error(
+            "Order server returned an invalid response."
+        );
+    }
+
+    if (
+        !response.ok ||
+        !result.success
+    ) {
+
+        throw new Error(
+            result.message ||
+            "Verified server order could not be created."
+        );
+    }
+
+    if (!result.order) {
+
+        throw new Error(
+            "Server did not return the created order."
+        );
+    }
+
+    return result.order;
+}
+
+
+// ============================================
+// PAYSTACK PAYMENT
+// ============================================
+// Flow:
+//
+// 1. Backend initializes transaction.
+// 2. Paystack returns access code/reference.
+// 3. Popup resumes transaction.
+// 4. Backend webhook marks payment PAID.
+// 5. Frontend waits for PAID.
+// 6. Backend verifies again.
+// 7. Local customer order is created.
+//
+// Paystack's secret key NEVER appears here.
+
+async function payWithPaystack() {
+
+    const cart =
+        getCart();
+
+    if (
+        cart.length === 0
+    ) {
+
+        alert(
+            "Cart is empty."
+        );
+
+        return;
+    }
+
+    const email =
+        document.getElementById(
+            "customerEmail"
+        )
+        ?.value
+        .trim()
+        .toLowerCase();
+
+    if (!email) {
+
+        alert(
+            "Please enter your email."
+        );
+
+        return;
+    }
+
+    if (
+        typeof PaystackPop ===
+        "undefined"
+    ) {
+
+        alert(
+            "Paystack has not loaded. Please refresh."
+        );
+
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach(
+        function(item) {
+
+            total +=
+                Number(
+                    item.price || 0
+                ) *
+                Number(
+                    item.quantity || 0
+                );
+
+        }
+    );
+
+    if (
+        total <= 0
+    ) {
+
+        alert(
+            "Order total must be greater than zero."
+        );
+
+        return;
+    }
+
+    try {
+
+        // ----------------------------------------
+        // STEP 1: INITIALIZE ON SERVER
+        // ----------------------------------------
+
+        const initialized =
+            await initializePaystackPayment(
+                email,
+                total
+            );
+
+        console.log(
+            "Paystack initialized:",
+            initialized
+        );
+
+        // ----------------------------------------
+        // STEP 2: OPEN PAYSTACK POPUP
+        // ----------------------------------------
+
+        const paystack =
+            new PaystackPop();
+
+        paystack.resumeTransaction(
+            initialized.accessCode
+        );
+
+        // ----------------------------------------
+        // STEP 3: WAIT FOR WEBHOOK CONFIRMATION
+        // ----------------------------------------
+
+        alert(
+            "Payment window opened. Complete the payment and please keep this page open while we confirm it."
+        );
+
+        const payment =
+            await waitForPaymentStatus(
+                initialized.reference
+            );
+
+        console.log(
+            "WEBHOOK PAYMENT CONFIRMED:",
+            payment
+        );
+
+        // ----------------------------------------
+        // STEP 4: CREATE VERIFIED SERVER ORDER
+        // ----------------------------------------
+
+        const serverOrder =
+            await createVerifiedServerOrder(
+                initialized.reference,
+                total
+            );
+
+        console.log(
+            "SERVER ORDER CREATED:",
+            serverOrder
+        );
+
+        // ----------------------------------------
+        // STEP 5: KEEP EXISTING CUSTOMER PAGES
+        // WORKING DURING THE DATABASE TRANSITION
+        // ----------------------------------------
+
+        createOrder(
+            "Paystack",
+            initialized.reference
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Paystack payment processing error:",
+            error
+        );
+
+        alert(
+            error.message ||
+            "Payment could not be completed or verified."
+        );
+    }
 }
