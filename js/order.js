@@ -4,7 +4,18 @@
 // ============================================
 
 console.log("order.js loaded");
+// ============================================
+// PAYMENT BACKEND
+// ============================================
 
+// Local testing:
+const PAYMENT_API_BASE_URL =
+    "http://localhost:3000";
+
+// Later, when the backend is deployed to Render,
+// change this to your Render URL, for example:
+// const PAYMENT_API_BASE_URL =
+//     "https://product-finder-api.onrender.com";
 
 // ============================================
 // STORAGE HELPERS
@@ -468,87 +479,283 @@ function loadCustomerOrders() {
 // PAYSTACK
 // ============================================
 
+// ============================================
+// PAYSTACK
+// ============================================
+
 function payWithPaystack() {
 
     const cart = getCart();
 
     if (cart.length === 0) {
+
         alert("Cart is empty.");
+
         return;
     }
 
     const email =
-        document.getElementById("customerEmail")
-        ?.value.trim();
+        document.getElementById(
+            "customerEmail"
+        )
+        ?.value
+        .trim()
+        .toLowerCase();
 
     if (!email) {
-        alert("Please enter your email.");
+
+        alert(
+            "Please enter your email."
+        );
+
         return;
     }
 
-    if (typeof PaystackPop === "undefined") {
-        alert("Paystack has not loaded. Please refresh.");
+    if (
+        typeof PaystackPop ===
+        "undefined"
+    ) {
+
+        alert(
+            "Paystack has not loaded. Please refresh."
+        );
+
         return;
     }
 
     let total = 0;
 
     cart.forEach(function(item) {
+
         total +=
             Number(item.price || 0) *
             Number(item.quantity || 0);
+
     });
 
     if (total <= 0) {
-        alert("Order total must be greater than zero.");
+
+        alert(
+            "Order total must be greater than zero."
+        );
+
         return;
     }
 
-    const publicKey = "YOUR_PAYSTACK_PUBLIC_KEY";
+    const publicKey =
+        "YOUR_PAYSTACK_PUBLIC_KEY";
 
-    if (publicKey === "YOUR_PAYSTACK_PUBLIC_KEY") {
-        alert("Add your Paystack public test key first.");
+    if (
+        publicKey ===
+        "YOUR_PAYSTACK_PUBLIC_KEY"
+    ) {
+
+        alert(
+            "Add your Paystack public test key first."
+        );
+
         return;
     }
 
-    const paystack = new PaystackPop();
+    const paystack =
+        new PaystackPop();
 
     paystack.newTransaction({
 
-        key: publicKey,
+        key:
+            publicKey,
 
-        email: email,
+        email:
+            email,
 
-        amount: Math.round(total * 100),
+        amount:
+            Math.round(
+                total * 100
+            ),
 
-        currency: "GHS",
+        currency:
+            "GHS",
 
-        onSuccess: function(transaction) {
+        onSuccess:
+            async function(transaction) {
 
-            alert(
-                "Payment completed.\nReference: " +
-                transaction.reference
-            );
+                console.log(
+                    "Paystack reference received:",
+                    transaction.reference
+                );
 
-            createOrder(
-                "Paystack",
-                transaction.reference
-            );
-        },
+                /*
+                 * IMPORTANT:
+                 *
+                 * Do NOT create the order yet.
+                 *
+                 * First ask our backend to verify
+                 * this reference directly with Paystack.
+                 */
 
-        onCancel: function() {
+                try {
 
-            alert("Payment cancelled.");
-        },
+                    const verified =
+                        await verifyPaystackPayment(
+                            transaction.reference,
+                            total
+                        );
 
-        onError: function(error) {
+                    console.log(
+                        "PAYMENT VERIFIED:",
+                        verified
+                    );
 
-            console.error("Paystack error:", error);
+                    /*
+                     * Only after server verification
+                     * do we create the local order.
+                     */
 
-            alert(
-                "Payment could not be started."
-            );
-        }
+                    createOrder(
+                        "Paystack",
+                        transaction.reference
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Payment verification failed:",
+                        error
+                    );
+
+                    alert(
+                        "Payment was received by Paystack, but our server could not verify it. Your order has NOT been confirmed. Please contact support with your reference:\n\n" +
+                        transaction.reference
+                    );
+                }
+            },
+
+        onCancel:
+            function() {
+
+                alert(
+                    "Payment cancelled."
+                );
+
+            },
+
+        onError:
+            function(error) {
+
+                console.error(
+                    "Paystack error:",
+                    error
+                );
+
+                alert(
+                    "Payment could not be started."
+                );
+
+            }
 
     });
+}
+
+// ============================================
+// VERIFY PAYSTACK PAYMENT ON SERVER
+// ============================================
+
+async function verifyPaystackPayment(
+    reference,
+    expectedAmount
+) {
+
+    if (!reference) {
+        throw new Error(
+            "Payment reference is missing."
+        );
+    }
+
+    const response = await fetch(
+        PAYMENT_API_BASE_URL +
+        "/api/paystack/verify/" +
+        encodeURIComponent(reference)
+    );
+
+    let result;
+
+    try {
+        result = await response.json();
+    } catch (error) {
+        throw new Error(
+            "Payment server returned an invalid response."
+        );
+    }
+
+    if (!response.ok) {
+
+        throw new Error(
+            result.message ||
+            "Payment verification request failed."
+        );
+    }
+
+    if (!result.success || !result.data) {
+
+        throw new Error(
+            result.message ||
+            "Paystack transaction could not be verified."
+        );
+    }
+
+    const transaction =
+        result.data;
+
+    // Paystack amounts are in the smallest
+    // currency unit, so GHS 100 = 10000.
+    const expectedAmountInSubunit =
+        Math.round(
+            Number(expectedAmount) * 100
+        );
+
+    const actualAmount =
+        Number(transaction.amount);
+
+    const paymentSuccessful =
+        transaction.status === "success";
+
+    const amountMatches =
+        actualAmount ===
+        expectedAmountInSubunit;
+
+    const currencyMatches =
+        transaction.currency === "GHS";
+
+    if (!paymentSuccessful) {
+
+        throw new Error(
+            "Paystack payment was not successful."
+        );
+    }
+
+    if (!amountMatches) {
+
+        console.error(
+            "PAYMENT AMOUNT MISMATCH",
+            {
+                expected:
+                    expectedAmountInSubunit,
+                received:
+                    actualAmount
+            }
+        );
+
+        throw new Error(
+            "Payment amount does not match the order."
+        );
+    }
+
+    if (!currencyMatches) {
+
+        throw new Error(
+            "Payment currency does not match GHS."
+        );
+    }
+
+    return transaction;
 }
