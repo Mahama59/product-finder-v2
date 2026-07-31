@@ -3,7 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-
+const prisma =
+    require("./prismaClient");
 const app = express();
 
 const PORT =
