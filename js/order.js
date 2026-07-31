@@ -925,3 +925,100 @@ async function initializePaystackPayment(
 
     return result;
 }
+
+// ============================================
+// WAIT FOR PAYSTACK PAYMENT VERIFICATION
+// ============================================
+
+async function waitForPaystackPayment(
+    reference,
+    expectedAmount
+) {
+
+    const maxAttempts = 30;
+    const delayMs = 3000;
+
+    for (
+        let attempt = 1;
+        attempt <= maxAttempts;
+        attempt++
+    ) {
+
+        try {
+
+            const response =
+                await fetch(
+                    PAYMENT_API_BASE_URL +
+                    "/api/paystack/verify/" +
+                    encodeURIComponent(
+                        reference
+                    )
+                );
+
+            const result =
+                await response.json();
+
+            if (
+                response.ok &&
+                result.success &&
+                result.data
+            ) {
+
+                const transaction =
+                    result.data;
+
+                const expectedAmountInSubunit =
+                    Math.round(
+                        Number(
+                            expectedAmount
+                        ) * 100
+                    );
+
+                const amountMatches =
+                    Number(
+                        transaction.amount
+                    ) ===
+                    expectedAmountInSubunit;
+
+                const success =
+                    transaction.status ===
+                    "success";
+
+                const currencyMatches =
+                    transaction.currency ===
+                    "GHS";
+
+                if (
+                    success &&
+                    amountMatches &&
+                    currencyMatches
+                ) {
+
+                    return transaction;
+                }
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Payment verification attempt failed:",
+                error
+            );
+
+        }
+
+        await new Promise(
+            function(resolve) {
+                setTimeout(
+                    resolve,
+                    delayMs
+                );
+            }
+        );
+    }
+
+    throw new Error(
+        "Payment verification timed out. Your payment may still be processing. Reference: " +
+        reference
+    );
+}
