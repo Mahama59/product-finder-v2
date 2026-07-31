@@ -651,10 +651,38 @@ function loadMarketplaceProducts() {
         card.appendChild(category);
         card.appendChild(seller);
         card.appendChild(stock);
-        card.appendChild(viewButton);
-        card.appendChild(cartButton);
-        card.appendChild(wishlistButton);
-        card.appendChild(compareButton);
+       card.appendChild(viewButton);
+       card.appendChild(cartButton);
+       card.appendChild(wishlistButton);
+       card.appendChild(compareButton);
+
+
+// CHAT WITH SELLER
+const chatButton =
+    document.createElement("button");
+
+chatButton.textContent =
+    "💬 Chat with Seller";
+
+chatButton.onclick =
+    function() {
+
+        if (
+            typeof openChat !== "function"
+        ) {
+            alert(
+                "Chat system is not available."
+            );
+            return;
+        }
+
+        openChat(
+            product.merchantEmail,
+            product.id
+        );
+    };
+
+card.appendChild(chatButton);
 
         box.appendChild(card);
     });
