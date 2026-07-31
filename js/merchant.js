@@ -1,1193 +1,1213 @@
-alert("merchant.js connected");
+// ============================================
+// PRODUCT FINDER - MERCHANT.JS
+// Merchant registration, login, products,
+// orders, inventory, analytics and seller status
+// ============================================
+
+console.log("merchant.js loaded");
 
 
-// ================= REGISTER MERCHANT =================
+// ============================================
+// STORAGE HELPERS
+// ============================================
 
-function registerMerchant(){
+function getMerchants() {
+    try {
+        return JSON.parse(localStorage.getItem("merchants")) || [];
+    } catch (error) {
+        console.error("Could not read merchants:", error);
+        return [];
+    }
+}
 
-let name =
-document.getElementById("merchantName").value.trim();
+function saveMerchants(merchants) {
+    localStorage.setItem("merchants", JSON.stringify(merchants));
+}
 
-let email =
-document.getElementById("merchantEmail").value.trim();
+function getMerchantSession() {
+    try {
+        return JSON.parse(localStorage.getItem("merchant"));
+    } catch (error) {
+        console.error("Invalid merchant session:", error);
+        return null;
+    }
+}
 
-let phone =
-document.getElementById("merchantPhone").value.trim();
+function getProducts() {
+    try {
+        return JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    } catch (error) {
+        console.error("Could not read merchant products:", error);
+        return [];
+    }
+}
 
+function saveProducts(products) {
+    localStorage.setItem(
+        "merchantProducts",
+        JSON.stringify(products)
+    );
+}
 
-if(!name || !email || !phone){
-
-alert("Please fill all fields");
-return;
-
+function getOrders() {
+    try {
+        return JSON.parse(localStorage.getItem("orders")) || [];
+    } catch (error) {
+        console.error("Could not read orders:", error);
+        return [];
+    }
 }
 
 
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
+// ============================================
+// REGISTER MERCHANT
+// ============================================
 
+function registerMerchant() {
 
-let exists =
-merchants.find(m => m.email === email);
+    const name = document
+        .getElementById("merchantName")
+        ?.value
+        .trim();
 
+    const email = document
+        .getElementById("merchantEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
 
-if(exists){
+    const phone = document
+        .getElementById("merchantPhone")
+        ?.value
+        .trim();
 
-alert("Merchant already exists");
-return;
+    if (!name || !email || !phone) {
+        alert("Please fill all fields.");
+        return;
+    }
 
+    const merchants = getMerchants();
+
+    const exists = merchants.some(function(merchant) {
+        return merchant.email === email;
+    });
+
+    if (exists) {
+        alert("Merchant already exists.");
+        return;
+    }
+
+    const merchant = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        phone: phone,
+        storeName: name + " Store",
+        status: "Active",
+        online: true,
+        lastSeen: new Date().toLocaleString(),
+        joined: new Date().toLocaleDateString()
+    };
+
+    merchants.push(merchant);
+    saveMerchants(merchants);
+
+    localStorage.setItem(
+        "merchant",
+        JSON.stringify(merchant)
+    );
+
+    alert("Merchant registration successful.");
+
+    window.location.href = "merchant-dashboard.html";
 }
 
 
-let merchant = {
+// ============================================
+// MERCHANT LOGIN
+// ============================================
 
-id: Date.now(),
+function merchantLogin() {
 
-name:name,
+    const email = document
+        .getElementById("merchantEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
 
-email:email,
+    const phone = document
+        .getElementById("merchantPhone")
+        ?.value
+        .trim();
 
-phone:phone,
+    if (!email || !phone) {
+        alert("Please enter your email and phone.");
+        return;
+    }
 
-storeName:name + " Store",
+    const merchants = getMerchants();
 
-joined:new Date().toLocaleDateString()
+    const merchant = merchants.find(function(item) {
+        return (
+            item.email === email &&
+            item.phone === phone
+        );
+    });
 
-};
+    if (!merchant) {
+        alert("Incorrect merchant details.");
+        return;
+    }
 
+    if (merchant.status === "Suspended") {
+        alert("Your merchant account is suspended.");
+        return;
+    }
 
-merchants.push(merchant);
+    merchant.online = true;
+    merchant.lastSeen = new Date().toLocaleString();
 
+    saveMerchants(merchants);
 
-localStorage.setItem(
-"merchants",
-JSON.stringify(merchants)
-);
+    localStorage.setItem(
+        "merchant",
+        JSON.stringify(merchant)
+    );
 
+    alert("Login successful.");
 
-localStorage.setItem(
-"merchant",
-JSON.stringify(merchant)
-);
-
-
-alert("Merchant registration successful");
-
-
-window.location.href =
-"merchant-dashboard.html";
-
-
+    window.location.href = "merchant-dashboard.html";
 }
 
 
+// ============================================
+// MERCHANT DASHBOARD
+// ============================================
 
-// ================= LOGIN MERCHANT =================
+function loadMerchantDashboard() {
 
+    const merchant = getMerchantSession();
 
-function merchantLogin(){
+    if (!merchant) {
+        alert("Please login as merchant.");
+        window.location.href = "merchant-login.html";
+        return;
+    }
 
+    const products = getProducts();
+    const orders = getOrders();
 
-let email =
-document.getElementById("merchantEmail").value.trim();
+    const myProducts = products.filter(function(product) {
+        return product.merchantEmail === merchant.email;
+    });
 
+    const approved = myProducts.filter(function(product) {
+        return product.status === "Approved";
+    });
 
-let phone =
-document.getElementById("merchantPhone").value.trim();
+    const pending = myProducts.filter(function(product) {
+        return product.status === "Pending";
+    });
 
+    const myOrders = orders.filter(function(order) {
+        return Array.isArray(order.items) &&
+            order.items.some(function(item) {
+                return item.merchantEmail === merchant.email;
+            });
+    });
 
+    let revenue = 0;
 
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
+    myOrders.forEach(function(order) {
 
+        if (order.status !== "Completed") {
+            return;
+        }
 
+        if (!Array.isArray(order.items)) {
+            return;
+        }
 
-let merchant =
-merchants.find(m => 
-m.email === email &&
-m.phone === phone
-);
+        order.items.forEach(function(item) {
 
+            if (item.merchantEmail === merchant.email) {
+                revenue +=
+                    Number(item.price || 0) *
+                    Number(item.quantity || 0);
+            }
+        });
+    });
 
+    const welcome =
+        document.getElementById("merchantWelcome");
 
-if(!merchant){
+    const productCount =
+        document.getElementById("productCount");
 
-alert("Incorrect merchant details");
-return;
+    const approvedBox =
+        document.getElementById("approvedProducts");
 
+    const pendingBox =
+        document.getElementById("pendingProducts");
+
+    const ordersBox =
+        document.getElementById("merchantOrders");
+
+    const revenueBox =
+        document.getElementById("revenue");
+
+    if (welcome) {
+        welcome.innerText =
+            "Welcome " + merchant.storeName;
+    }
+
+    if (productCount) {
+        productCount.innerText =
+            myProducts.length;
+    }
+
+    if (approvedBox) {
+        approvedBox.innerText =
+            approved.length;
+    }
+
+    if (pendingBox) {
+        pendingBox.innerText =
+            pending.length;
+    }
+
+    if (ordersBox) {
+        ordersBox.innerText =
+            myOrders.length;
+    }
+
+    if (revenueBox) {
+        revenueBox.innerText =
+            revenue.toFixed(2);
+    }
 }
 
 
+// ============================================
+// MERCHANT LOGOUT
+// ============================================
 
-localStorage.setItem(
-"merchant",
-JSON.stringify(merchant)
-);
+function merchantLogout() {
 
-merchant.online = true;
+    const merchant = getMerchantSession();
 
-merchant.lastSeen =
-new Date().toLocaleString();
+    if (merchant) {
 
+        const merchants = getMerchants();
 
-localStorage.setItem(
-"merchant",
-JSON.stringify(merchant)
-);
+        const storedMerchant =
+            merchants.find(function(item) {
+                return item.email === merchant.email;
+            });
 
-alert("Login successful");
+        if (storedMerchant) {
+            storedMerchant.online = false;
+            storedMerchant.lastSeen =
+                new Date().toLocaleString();
 
+            saveMerchants(merchants);
+        }
+    }
 
-window.location.href =
-"merchant-dashboard.html";
+    localStorage.removeItem("merchant");
 
+    alert("Logged out.");
 
+    window.location.href = "merchant-login.html";
 }
 
 
+// ============================================
+// LOAD MERCHANT PRODUCTS
+// ============================================
 
-// ================= DASHBOARD =================
+function loadMerchantProducts() {
 
+    const box =
+        document.getElementById("merchantProducts");
 
-function loadMerchantDashboard(){
+    if (!box) {
+        return;
+    }
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
+    const merchant = getMerchantSession();
 
-if(!merchant){
+    if (!merchant) {
+        box.innerHTML =
+            "<p>Please login as merchant.</p>";
+        return;
+    }
 
-alert("Please login as merchant");
+    const products = getProducts();
 
-return;
+    const myProducts =
+        products.filter(function(product) {
+            return product.merchantEmail === merchant.email;
+        });
 
+    box.innerHTML = "";
+
+    if (myProducts.length === 0) {
+        box.innerHTML =
+            "<p>No products added yet.</p>";
+        return;
+    }
+
+    myProducts.forEach(function(product, index) {
+
+        const image =
+            product.image ||
+            "https://via.placeholder.com/250";
+
+        const stock =
+            Number(product.stock || 0);
+
+        box.innerHTML += `
+
+            <div class="product">
+
+                <img
+                    src="${image}"
+                    width="200"
+                    alt="${product.name || "Product"}"
+                >
+
+                <h3>${product.name}</h3>
+
+                <p>
+                    💰 Price: $${Number(product.price || 0).toFixed(2)}
+                </p>
+
+                <p>
+                    📂 Category: ${product.category || "-"}
+                </p>
+
+                <p>
+                    📦 Stock: ${stock}
+                </p>
+
+                <p>
+                    ${stock <= 0
+                        ? "❌ Out of Stock"
+                        : stock <= 5
+                            ? "⚠️ Low Stock"
+                            : "✅ In Stock"
+                    }
+                </p>
+
+                <p>
+                    Approval: ${product.status || "Pending"}
+                </p>
+
+                <p>
+                    Inventory: ${getStockStatus(stock)}
+                </p>
+
+                <button onclick="changeStock(${index}, 1)">
+                    ➕ Add Stock
+                </button>
+
+                <button onclick="changeStock(${index}, -1)">
+                    ➖ Remove Stock
+                </button>
+
+                <button onclick="editMerchantProduct(${index})">
+                    ✏️ Edit
+                </button>
+
+                <button onclick="deleteMerchantProduct(${index})">
+                    🗑 Delete
+                </button>
+
+            </div>
+        `;
+    });
 }
 
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+// ============================================
+// DELETE MERCHANT PRODUCT
+// ============================================
 
+function deleteMerchantProduct(index) {
 
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
+    const merchant = getMerchantSession();
 
+    if (!merchant) {
+        alert("Please login as merchant.");
+        return;
+    }
 
-// Get this merchant products
+    const products = getProducts();
 
-let myProducts =
-products.filter(function(product){
+    const myProducts =
+        products.filter(function(product) {
+            return product.merchantEmail === merchant.email;
+        });
 
-return product.merchantEmail === merchant.email;
+    const productToDelete =
+        myProducts[index];
 
-});
+    if (!productToDelete) {
+        alert("Product not found.");
+        return;
+    }
 
+    const realIndex =
+        products.findIndex(function(product) {
+            return product.id === productToDelete.id;
+        });
 
-// Approved products
+    if (realIndex === -1) {
+        alert("Product not found.");
+        return;
+    }
 
-let approved =
-myProducts.filter(function(product){
+    products.splice(realIndex, 1);
 
-return product.status === "Approved";
+    saveProducts(products);
 
-});
+    alert("Product deleted.");
 
-
-// Pending products
-
-let pending =
-myProducts.filter(function(product){
-
-return product.status === "Pending";
-
-});
-
-
-// Merchant orders
-
-let myOrders =
-orders.filter(function(order){
-
-return order.items && order.items.some(function(item){
-
-return item.merchantEmail === merchant.email;
-
-});
-
-});
-
-
-// Calculate revenue
-
-let revenue = 0;
-
-
-myOrders.forEach(function(order){
-
-if(order.status === "Completed"){
-
-order.items.forEach(function(item){
-
-if(item.merchantEmail === merchant.email){
-
-revenue += Number(item.price) * Number(item.quantity);
-
-}
-
-});
-
-}
-
-});
-
-
-
-// Update dashboard
-
-let welcome =
-document.getElementById("merchantWelcome");
-
-
-if(welcome){
-
-welcome.innerText =
-"Welcome " + merchant.storeName;
-
+    loadMerchantProducts();
 }
 
 
+// ============================================
+// MERCHANT ORDERS
+// ============================================
 
-document.getElementById("productCount").innerText =
-myProducts.length;
+function loadMerchantOrders() {
 
+    const merchant =
+        getMerchantSession();
 
-document.getElementById("approvedProducts").innerText =
-approved.length;
+    if (!merchant) {
+        alert("Please login.");
+        return;
+    }
 
+    const orders = getOrders();
 
-document.getElementById("pendingProducts").innerText =
-pending.length;
+    const box =
+        document.getElementById("merchantOrders");
 
+    if (!box) {
+        return;
+    }
 
-document.getElementById("merchantOrders").innerText =
-myOrders.length;
+    const myOrders =
+        orders.filter(function(order) {
+            return Array.isArray(order.items) &&
+                order.items.some(function(item) {
+                    return item.merchantEmail === merchant.email;
+                });
+        });
 
+    box.innerHTML = "";
 
-document.getElementById("revenue").innerText =
-revenue;
+    if (myOrders.length === 0) {
+        box.innerHTML =
+            "<p>No customer orders yet.</p>";
+        return;
+    }
 
+    myOrders.forEach(function(order) {
 
-}
+        const merchantTotal =
+            order.items.reduce(function(total, item) {
 
-// ================= LOGOUT =================
+                if (item.merchantEmail !== merchant.email) {
+                    return total;
+                }
 
+                return total +
+                    Number(item.price || 0) *
+                    Number(item.quantity || 0);
 
-function merchantLogout(){
+            }, 0);
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
+        box.innerHTML += `
 
+            <div class="product">
 
-if(merchant){
+                <h3>🧾 Order #${order.id}</h3>
 
-merchant.online = false;
+                <p>
+                    👤 Customer:
+                    ${order.customer || "-"}
+                </p>
 
-merchant.lastSeen =
-new Date().toLocaleString();
+                <p>
+                    📧 ${order.customerEmail || order.email || "-"}
+                </p>
 
+                <p>
+                    📞 ${order.phone || "-"}
+                </p>
 
-localStorage.setItem(
-"merchant",
-JSON.stringify(merchant)
-);
+                <p>
+                    💰 Merchant Total:
+                    $${merchantTotal.toFixed(2)}
+                </p>
 
-}
+                <p>
+                    📦 Status:
+                    ${order.status || "New"}
+                </p>
 
+                <p>
+                    🚚 Shipping:
+                    ${order.shippingStatus || "Processing"}
+                </p>
 
-localStorage.removeItem("merchant");
+                <button
+                    onclick="updateOrderStatus(${order.id}, 'Accepted')"
+                >
+                    ✅ Accept
+                </button>
 
+                <button
+                    onclick="updateOrderStatus(${order.id}, 'Shipped')"
+                >
+                    🚚 Ship
+                </button>
 
-alert("Logged out");
+                <button
+                    onclick="updateOrderStatus(${order.id}, 'Completed')"
+                >
+                    ✔ Complete
+                </button>
 
-
-window.location.href =
-"merchant-login.html";
-
-}
-
-// ================= MERCHANT PRODUCT MANAGEMENT =================
-
-
-function loadMerchantProducts(){
-
-
-let box =
-document.getElementById("merchantProducts");
-
-
-if(!box) return;
-
-
-
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-
-
-if(!merchant){
-
-box.innerHTML =
-"<p>Please login as merchant</p>";
-
-return;
-
-}
-
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-let myProducts =
-products.filter(function(product){
-
-return product.merchantEmail === merchant.email;
-
-});
-
-
-
-box.innerHTML = "";
-
-
-
-if(myProducts.length === 0){
-
-box.innerHTML =
-"<p>No products added yet.</p>";
-
-return;
-
+            </div>
+        `;
+    });
 }
 
 
+// ============================================
+// UPDATE ORDER STATUS
+// ============================================
 
-myProducts.forEach(function(product,index){
+function updateOrderStatus(orderId, status) {
 
+    const merchant =
+        getMerchantSession();
 
-box.innerHTML += `
+    if (!merchant) {
+        return;
+    }
 
-<div class="product">
+    const orders = getOrders();
 
+    const order =
+        orders.find(function(item) {
+            return item.id === orderId;
+        });
 
-<img src="${product.image}" width="200">
+    if (!order) {
+        alert("Order not found.");
+        return;
+    }
 
+    const belongsToMerchant =
+        Array.isArray(order.items) &&
+        order.items.some(function(item) {
+            return item.merchantEmail === merchant.email;
+        });
 
-<h3>
-${product.name}
-</h3>
+    if (!belongsToMerchant) {
+        alert("You cannot update this order.");
+        return;
+    }
 
+    order.status = status;
 
-<p>
-💰 Price: $${product.price}
-</p>
+    localStorage.setItem(
+        "orders",
+        JSON.stringify(orders)
+    );
 
+    if (typeof addNotification === "function") {
+        addNotification(
+            "Your order #" +
+            orderId +
+            " status changed to " +
+            status +
+            " 🚚"
+        );
+    }
 
-<p>
-📂 Category: ${product.category}
-</p>
-
-
-<p>
-📦 Stock: ${product.stock}
-</p>
-
-<p>
-${
-product.stock <= 5 
-? "⚠️ Low Stock" 
-: "✅ In Stock"
-}
-</p>
-
-
-<p>
-Approval:
-${product.status}
-</p>
-
-<p>
-Inventory:
-${getStockStatus(product.stock)}
-</p>
-
-<button onclick="changeStock(${index},1)">
-➕ Add Stock
-</button>
-
-
-<button onclick="changeStock(${index},-1)">
-➖ Remove Stock
-</button>
-<button onclick="editMerchantProduct(${index})">
-
-✏️ Edit
-
-</button>
-
-<button onclick="deleteMerchantProduct(${index})">
-
-🗑 Delete
-
-</button>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
+    loadMerchantOrders();
 }
 
 
+// ============================================
+// SHIP ORDER
+// ============================================
 
-// ================= DELETE PRODUCT =================
+function shipOrder(id) {
 
+    const merchant =
+        getMerchantSession();
 
-function deleteMerchantProduct(index){
+    if (!merchant) {
+        return;
+    }
 
+    const orders = getOrders();
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
+    const order =
+        orders.find(function(item) {
+            return item.id === id;
+        });
 
+    if (!order) {
+        alert("Order not found.");
+        return;
+    }
 
+    const belongsToMerchant =
+        Array.isArray(order.items) &&
+        order.items.some(function(item) {
+            return item.merchantEmail === merchant.email;
+        });
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    if (!belongsToMerchant) {
+        alert("You cannot ship this order.");
+        return;
+    }
 
+    order.shippingStatus = "Shipped";
+    order.trackingNumber =
+        "PF-" + Date.now();
 
+    localStorage.setItem(
+        "orders",
+        JSON.stringify(orders)
+    );
 
-let myProducts =
-products.filter(function(product){
+    alert("Order shipped 🚚");
 
-return product.merchantEmail === merchant.email;
-
-});
-
-
-
-let productToDelete =
-myProducts[index];
-
-
-
-let realIndex =
-products.findIndex(function(product){
-
-return product.id === productToDelete.id;
-
-});
-
-
-
-products.splice(realIndex,1);
-
-
-
-localStorage.setItem(
-
-"merchantProducts",
-
-JSON.stringify(products)
-
-);
-
-
-
-alert("Product deleted");
-
-
-
-loadMerchantProducts();
-
-
-}
-
-// ================= MERCHANT ORDERS =================
-
-function loadMerchantOrders(){
-
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-if(!merchant){
-
-alert("Please login");
-
-return;
-
-}
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-let box =
-document.getElementById("merchantOrders");
-
-if(!box) return;
-
-box.innerHTML = "";
-
-let myOrders =
-orders.filter(function(order){
-
-return order.merchantEmail === merchant.email;
-
-});
-
-if(myOrders.length === 0){
-
-box.innerHTML =
-"<p>No customer orders yet.</p>";
-
-return;
-
-}
-
-myOrders.forEach(function(order){
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>
-🧾 Order #${order.id}
-</h3>
-
-<p>
-👤 Customer:
-${order.customer}
-</p>
-
-<p>
-📧 ${order.email}
-</p>
-
-<p>
-📞 ${order.phone}
-</p>
-
-<p>
-💰 Total:
-$${order.total}
-</p>
-
-<p>
-📦 Status:
-${order.status}
-</p>
-
-<p>
-🚚 Shipping:
-${order.shippingStatus || "Processing"}
-</p>
-
-
-<button onclick="updateOrderStatus(${order.id},'Accepted')">
-
-✅ Accept
-
-</button>
-
-
-<button onclick="updateOrderStatus(${order.id},'Shipped')">
-
-🚚 Ship
-
-</button>
-
-
-<button onclick="updateOrderStatus(${order.id},'Completed')">
-
-✔ Complete
-
-</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-function updateOrderStatus(orderId,status){
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-orders.forEach(function(order){
-
-if(order.id===orderId){
-
-order.status=status;
-
-}
-
-});
-
-localStorage.setItem(
-"orders",
-JSON.stringify(orders)
-);
-
-addNotification(
-"Your order #" + orderId + " status changed to " + status + " 🚚"
-);
-loadMerchantOrders();
-
-}
-
-function shipOrder(id){
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-orders.forEach(function(order){
-
-if(order.id === id){
-
-order.shippingStatus="Shipped";
-
-order.trackingNumber =
-"PF-" + Date.now();
-
-}
-
-});
-
-
-localStorage.setItem(
-"orders",
-JSON.stringify(orders)
-);
-
-
-alert("Order shipped 🚚");
-
-loadMerchantOrders();
-
-}
-
-// ================= EDIT PRODUCT =================
-
-
-function loadEditProduct(){
-
-let product =
-JSON.parse(localStorage.getItem("editProduct"));
-
-
-if(!product) return;
-
-
-document.getElementById("editName").value =
-product.name;
-
-
-document.getElementById("editPrice").value =
-product.price;
-
-
-document.getElementById("editCategory").value =
-product.category;
-
-
-document.getElementById("editStock").value =
-product.stock;
-
-
-document.getElementById("editDescription").value =
-product.description || "";
-
+    loadMerchantOrders();
 }
 
 
+// ============================================
+// LOAD EDIT PRODUCT
+// ============================================
 
-// ================= UPDATE PRODUCT =================
+function loadEditProduct() {
 
+    const product =
+        JSON.parse(
+            localStorage.getItem("editProduct")
+        );
 
-function updateProduct(){
+    if (!product) {
+        return;
+    }
 
+    const name =
+        document.getElementById("editName");
 
-let product =
-JSON.parse(localStorage.getItem("editProduct"));
+    const price =
+        document.getElementById("editPrice");
 
+    const category =
+        document.getElementById("editCategory");
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    const stock =
+        document.getElementById("editStock");
 
+    const description =
+        document.getElementById("editDescription");
 
+    if (name) {
+        name.value = product.name || "";
+    }
 
-let index =
-products.findIndex(function(item){
+    if (price) {
+        price.value = product.price || "";
+    }
 
-return item.id === product.id;
+    if (category) {
+        category.value = product.category || "";
+    }
 
-});
+    if (stock) {
+        stock.value = product.stock || 0;
+    }
 
-
-
-products[index].name =
-document.getElementById("editName").value;
-
-
-products[index].price =
-Number(document.getElementById("editPrice").value);
-
-
-products[index].category =
-document.getElementById("editCategory").value;
-
-
-products[index].stock =
-Number(document.getElementById("editStock").value);
-
-
-products[index].description =
-document.getElementById("editDescription").value;
-
-
-
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
-
-
-
-alert("Product updated successfully");
-
-
-window.location.href =
-"merchant-products.html";
-
-
-}
-
-function editMerchantProduct(index){
-
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let myProducts =
-products.filter(function(product){
-
-return product.merchantEmail === merchant.email;
-
-});
-
-
-localStorage.setItem(
-"editProduct",
-JSON.stringify(myProducts[index])
-);
-
-
-window.location.href =
-"merchant-edit-product.html";
-
-}
-
-// ================= INVENTORY STATUS =================
-
-
-function getStockStatus(stock){
-
-
-if(stock <= 0){
-
-return "❌ Out of Stock";
-
+    if (description) {
+        description.value =
+            product.description || "";
+    }
 }
 
 
-if(stock <= 5){
+// ============================================
+// UPDATE PRODUCT
+// ============================================
 
-return "⚠️ Low Stock";
+function updateProduct() {
 
+    const product =
+        JSON.parse(
+            localStorage.getItem("editProduct")
+        );
+
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
+
+    const products = getProducts();
+
+    const index =
+        products.findIndex(function(item) {
+            return item.id === product.id;
+        });
+
+    if (index === -1) {
+        alert("Product not found.");
+        return;
+    }
+
+    const name =
+        document.getElementById("editName")
+        ?.value
+        .trim();
+
+    const price =
+        document.getElementById("editPrice")
+        ?.value;
+
+    const category =
+        document.getElementById("editCategory")
+        ?.value
+        .trim();
+
+    const stock =
+        document.getElementById("editStock")
+        ?.value;
+
+    const description =
+        document.getElementById("editDescription")
+        ?.value
+        .trim();
+
+    if (!name || !price || !category || stock === "") {
+        alert("Complete all product details.");
+        return;
+    }
+
+    products[index].name = name;
+    products[index].price = Number(price);
+    products[index].category = category;
+    products[index].stock = Number(stock);
+    products[index].description =
+        description || "";
+
+    // Editing sends the product back for review.
+    products[index].status = "Pending";
+
+    saveProducts(products);
+
+    localStorage.removeItem("editProduct");
+
+    alert("Product updated and sent for approval.");
+
+    window.location.href =
+        "merchant-products.html";
 }
 
 
-return "✅ Available";
+// ============================================
+// EDIT MERCHANT PRODUCT
+// ============================================
 
+function editMerchantProduct(index) {
 
-}
+    const merchant =
+        getMerchantSession();
 
-function changeStock(index, amount){
+    if (!merchant) {
+        alert("Please login as merchant.");
+        return;
+    }
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
+    const products = getProducts();
 
+    const myProducts =
+        products.filter(function(product) {
+            return product.merchantEmail === merchant.email;
+        });
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    const product =
+        myProducts[index];
 
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
 
-let myProducts =
-products.filter(function(product){
+    localStorage.setItem(
+        "editProduct",
+        JSON.stringify(product)
+    );
 
-return product.merchantEmail === merchant.email;
-
-});
-
-
-let product =
-myProducts[index];
-
-
-let realIndex =
-products.findIndex(function(item){
-
-return item.id === product.id;
-
-});
-
-
-products[realIndex].stock += amount;
-
-
-if(products[realIndex].stock < 0){
-
-products[realIndex].stock = 0;
-
+    window.location.href =
+        "merchant-edit-product.html";
 }
 
 
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
+// ============================================
+// STOCK STATUS
+// ============================================
 
+function getStockStatus(stock) {
 
-alert("Stock updated");
+    const value =
+        Number(stock || 0);
 
+    if (value <= 0) {
+        return "❌ Out of Stock";
+    }
 
-loadMerchantProducts();
+    if (value <= 5) {
+        return "⚠️ Low Stock";
+    }
 
-}
-
-// ================= MERCHANT ANALYTICS =================
-
-function loadMerchantAnalytics(){
-
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-
-if(!merchant){
-return;
+    return "✅ Available";
 }
 
 
-// PRODUCTS
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let myOrders =
-orders.filter(function(order){
-
-return order.items &&
-order.items.some(function(item){
-
-return item.merchantEmail === merchant.email;
-
-});
-
-});
-
-
-// ORDERS
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-let myOrders =
-orders.filter(function(order){
-
-return order.merchantEmail === merchant.email;
-
-});
-
-
-
-let revenue = 0;
-
-
-myOrders.forEach(function(order){
-
-revenue += Number(order.total);
-
-});
-
-
-
-let shipped =
-myOrders.filter(function(order){
-
-return order.shippingStatus === "Shipped";
-
-}).length;
-
-
-
-let completed =
-myOrders.filter(function(order){
-
-return order.status === "Completed";
-
-}).length;
-
-
-
-document.getElementById("productCount").innerText =
-myProducts.length;
-
-
-document.getElementById("merchantOrders").innerText =
-myOrders.length;
-
-
-document.getElementById("revenue").innerText =
-revenue;
-
-
-document.getElementById("shippedOrders").innerText =
-shipped;
-
-
-document.getElementById("completedOrders").innerText =
-completed;
-
-
-}
-
-// ================= SALES CHART =================
-
-function loadSalesChart(){
-
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-let myOrders =
-orders.filter(function(order){
-
-return order.merchantEmail === merchant.email;
-
-});
-
-
-let total = 0;
-
-
-myOrders.forEach(function(order){
-
-total += Number(order.total);
-
-});
-
-
-let ctx =
-document.getElementById("salesChart");
-
-
-if(!ctx) return;
-
-
-
-new Chart(ctx,{
-
-type:"bar",
-
-data:{
-
-labels:["Revenue"],
-
-datasets:[{
-
-label:"Sales",
-
-data:[total]
-
-}]
-
-},
-
-
-options:{
-
-responsive:true
-
+// ============================================
+// CHANGE STOCK
+// ============================================
+
+function changeStock(index, amount) {
+
+    const merchant =
+        getMerchantSession();
+
+    if (!merchant) {
+        alert("Please login as merchant.");
+        return;
+    }
+
+    const products = getProducts();
+
+    const myProducts =
+        products.filter(function(product) {
+            return product.merchantEmail === merchant.email;
+        });
+
+    const product =
+        myProducts[index];
+
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
+
+    const realIndex =
+        products.findIndex(function(item) {
+            return item.id === product.id;
+        });
+
+    if (realIndex === -1) {
+        alert("Product not found.");
+        return;
+    }
+
+    products[realIndex].stock =
+        Math.max(
+            0,
+            Number(products[realIndex].stock || 0) +
+            Number(amount)
+        );
+
+    saveProducts(products);
+
+    loadMerchantProducts();
 }
 
 
-});
+// ============================================
+// MERCHANT ANALYTICS
+// ============================================
 
+function loadMerchantAnalytics() {
 
+    const merchant =
+        getMerchantSession();
+
+    if (!merchant) {
+        return;
+    }
+
+    const products =
+        getProducts();
+
+    const orders =
+        getOrders();
+
+    const myProducts =
+        products.filter(function(product) {
+            return product.merchantEmail === merchant.email;
+        });
+
+    const myOrders =
+        orders.filter(function(order) {
+            return Array.isArray(order.items) &&
+                order.items.some(function(item) {
+                    return item.merchantEmail === merchant.email;
+                });
+        });
+
+    let revenue = 0;
+
+    myOrders.forEach(function(order) {
+
+        if (order.status !== "Completed") {
+            return;
+        }
+
+        order.items.forEach(function(item) {
+
+            if (item.merchantEmail === merchant.email) {
+                revenue +=
+                    Number(item.price || 0) *
+                    Number(item.quantity || 0);
+            }
+        });
+    });
+
+    const shipped =
+        myOrders.filter(function(order) {
+            return (
+                order.shippingStatus === "Shipped"
+            );
+        }).length;
+
+    const completed =
+        myOrders.filter(function(order) {
+            return order.status === "Completed";
+        }).length;
+
+    const productCount =
+        document.getElementById("productCount");
+
+    const orderCount =
+        document.getElementById("merchantOrders");
+
+    const revenueBox =
+        document.getElementById("revenue");
+
+    const shippedBox =
+        document.getElementById("shippedOrders");
+
+    const completedBox =
+        document.getElementById("completedOrders");
+
+    if (productCount) {
+        productCount.innerText =
+            myProducts.length;
+    }
+
+    if (orderCount) {
+        orderCount.innerText =
+            myOrders.length;
+    }
+
+    if (revenueBox) {
+        revenueBox.innerText =
+            revenue.toFixed(2);
+    }
+
+    if (shippedBox) {
+        shippedBox.innerText =
+            shipped;
+    }
+
+    if (completedBox) {
+        completedBox.innerText =
+            completed;
+    }
 }
 
 
+// ============================================
+// SALES CHART
+// ============================================
 
-// ================= BEST SELLING PRODUCTS =================
+function loadSalesChart() {
 
-function loadBestProducts(){
+    const merchant =
+        getMerchantSession();
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
+    const canvas =
+        document.getElementById("salesChart");
 
+    if (!merchant || !canvas) {
+        return;
+    }
 
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
+    if (
+        typeof Chart === "undefined"
+    ) {
+        console.warn(
+            "Chart.js is not loaded."
+        );
+        return;
+    }
 
+    const orders =
+        getOrders();
 
-let box =
-document.getElementById("bestProducts");
+    const myOrders =
+        orders.filter(function(order) {
+            return Array.isArray(order.items) &&
+                order.items.some(function(item) {
+                    return item.merchantEmail === merchant.email;
+                });
+        });
 
+    let total = 0;
 
-if(!box) return;
+    myOrders.forEach(function(order) {
 
+        order.items.forEach(function(item) {
 
-let products={};
+            if (item.merchantEmail === merchant.email) {
+                total +=
+                    Number(item.price || 0) *
+                    Number(item.quantity || 0);
+            }
+        });
+    });
 
-
-
-orders.forEach(function(order){
-
-
-order.items.forEach(function(item){
-
-
-if(item.merchantEmail === merchant.email){
-
-
-if(!products[item.name]){
-
-products[item.name]=0;
-
+    new Chart(canvas, {
+        type: "bar",
+        data: {
+            labels: ["Sales"],
+            datasets: [{
+                label: "Revenue",
+                data: [total]
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
 }
 
 
-products[item.name]+=item.quantity;
+// ============================================
+// BEST SELLING PRODUCTS
+// ============================================
 
+function loadBestProducts() {
 
+    const merchant =
+        getMerchantSession();
+
+    const box =
+        document.getElementById("bestProducts");
+
+    if (!merchant || !box) {
+        return;
+    }
+
+    const orders =
+        getOrders();
+
+    const products = {};
+
+    orders.forEach(function(order) {
+
+        if (!Array.isArray(order.items)) {
+            return;
+        }
+
+        order.items.forEach(function(item) {
+
+            if (item.merchantEmail !== merchant.email) {
+                return;
+            }
+
+            const quantity =
+                Number(item.quantity || 0);
+
+            if (!products[item.name]) {
+                products[item.name] = 0;
+            }
+
+            products[item.name] += quantity;
+        });
+    });
+
+    box.innerHTML = "";
+
+    const list =
+        Object.entries(products);
+
+    if (list.length === 0) {
+        box.innerHTML =
+            "<p>No sales yet.</p>";
+        return;
+    }
+
+    list.sort(function(a, b) {
+        return b[1] - a[1];
+    });
+
+    list.slice(0, 5).forEach(function(item) {
+
+        box.innerHTML += `
+
+            <div class="product">
+
+                <h3>
+                    🏆 ${item[0]}
+                </h3>
+
+                <p>
+                    Sold: ${item[1]}
+                </p>
+
+            </div>
+        `;
+    });
 }
 
 
-});
+// ============================================
+// SELLER ONLINE / OFFLINE STATUS
+// ============================================
 
+function getSellerStatus(email) {
 
-});
+    const merchants =
+        getMerchants();
 
+    const merchant =
+        merchants.find(function(item) {
+            return item.email === email;
+        });
 
+    if (!merchant) {
+        return "⚪ Offline";
+    }
 
-box.innerHTML="";
-
-
-let list =
-Object.entries(products);
-
-
-
-if(list.length===0){
-
-box.innerHTML =
-"<p>No sales yet.</p>";
-
-return;
-
-}
-
-
-
-list.sort(function(a,b){
-
-return b[1]-a[1];
-
-});
-
-
-
-list.slice(0,5).forEach(function(item){
-
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>
-🏆 ${item[0]}
-</h3>
-
-<p>
-Sold: ${item[1]}
-</p>
-
-</div>
-
-`;
-
-
-});
-
-
-}
-
-function getSellerStatus(email){
-
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
-
-
-let merchant =
-merchants.find(function(item){
-
-return item.email === email;
-
-});
-
-
-if(!merchant){
-
-return "⚪ Offline";
-
-}
-
-
-if(merchant.online){
-
-return "🟢 Online";
-
-}
-
-
-return "⚪ Offline";
-
+    return merchant.online
+        ? "🟢 Online"
+        : "⚪ Offline";
 }
