@@ -265,6 +265,7 @@ app.use(
 );
 
 
+
 // ============================================
 // HEALTH CHECK
 // ============================================
@@ -274,19 +275,68 @@ app.get(
     function (req, res) {
 
         return res.json({
-
             success: true,
-
             service:
                 "Product Finder Payment API",
-
             status:
                 "online"
-
         });
+
     }
 );
 
+
+// ============================================
+// DATABASE HEALTH CHECK
+// ============================================
+
+app.get(
+    "/api/health/database",
+    async function (req, res) {
+
+        try {
+
+            await prisma.$queryRaw`
+                SELECT 1
+            `;
+
+            return res.json({
+
+                success: true,
+
+                database:
+                    "connected"
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Database health check failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                database:
+                    "disconnected"
+
+            });
+
+        }
+    }
+);
+
+
+// ============================================
+// VERIFY PAYSTACK TRANSACTION
+// ============================================
+
+app.get(
+    "/api/paystack/verify/:reference",
+    async function (req, res) {
 
 // ============================================
 // INITIALIZE PAYSTACK TRANSACTION
