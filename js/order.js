@@ -926,13 +926,13 @@ async function initializePaystackPayment(
     return result;
 }
 
+
 // ============================================
-// WAIT FOR PAYSTACK PAYMENT VERIFICATION
+// WAIT FOR WEBHOOK PAYMENT STATUS
 // ============================================
 
-async function waitForPaystackPayment(
-    reference,
-    expectedAmount
+async function waitForPaymentStatus(
+    reference
 ) {
 
     const maxAttempts = 30;
@@ -949,76 +949,50 @@ async function waitForPaystackPayment(
             const response =
                 await fetch(
                     PAYMENT_API_BASE_URL +
-                    "/api/paystack/verify/" +
+                    "/api/payments/" +
                     encodeURIComponent(
                         reference
                     )
                 );
 
-            const result =
-                await response.json();
+            if (response.ok) {
 
-            if (
-                response.ok &&
-                result.success &&
-                result.data
-            ) {
-
-                const transaction =
-                    result.data;
-
-                const expectedAmountInSubunit =
-                    Math.round(
-                        Number(
-                            expectedAmount
-                        ) * 100
-                    );
-
-                const amountMatches =
-                    Number(
-                        transaction.amount
-                    ) ===
-                    expectedAmountInSubunit;
-
-                const success =
-                    transaction.status ===
-                    "success";
-
-                const currencyMatches =
-                    transaction.currency ===
-                    "GHS";
+                const result =
+                    await response.json();
 
                 if (
-                    success &&
-                    amountMatches &&
-                    currencyMatches
+                    result.success &&
+                    result.payment &&
+                    result.payment.status ===
+                        "PAID"
                 ) {
 
-                    return transaction;
+                    return result.payment;
                 }
             }
 
         } catch (error) {
 
             console.warn(
-                "Payment verification attempt failed:",
+                "Payment status check failed:",
                 error
             );
-
         }
 
         await new Promise(
             function(resolve) {
+
                 setTimeout(
                     resolve,
                     delayMs
                 );
+
             }
         );
     }
 
     throw new Error(
-        "Payment verification timed out. Your payment may still be processing. Reference: " +
+        "Payment is still processing. Reference: " +
         reference
     );
 }
