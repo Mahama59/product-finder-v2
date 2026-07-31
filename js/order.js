@@ -124,28 +124,22 @@ function placeOrder() {
     }
 
     const customerName =
-        document.getElementById(
-            "customerName"
-        )?.value.trim();
+        document.getElementById("customerName")?.value.trim();
 
     const customerEmail =
-        document.getElementById(
-            "customerEmail"
-        )?.value.trim().toLowerCase();
+        document.getElementById("customerEmail")
+        ?.value.trim()
+        .toLowerCase();
 
     const customerPhone =
-        document.getElementById(
-            "customerPhone"
-        )?.value.trim();
+        document.getElementById("customerPhone")?.value.trim();
 
     if (
         !customerName ||
         !customerEmail ||
         !customerPhone
     ) {
-        alert(
-            "Please complete all customer details."
-        );
+        alert("Please complete all customer details.");
         return;
     }
 
@@ -155,30 +149,29 @@ function placeOrder() {
         );
 
     if (!selectedPayment) {
-        alert(
-            "Please select a payment method."
-        );
+        alert("Please select a payment method.");
         return;
     }
 
     const paymentMethod =
         selectedPayment.value;
 
-    if (
-        paymentMethod.toLowerCase()
-        === "paystack"
-    ) {
+    if (paymentMethod === "Paystack") {
 
         payWithPaystack();
 
-    } else {
-
-        createOrder(
-            "Cash on Delivery"
-        );
+        return;
     }
-}
 
+    if (paymentMethod === "Cash on Delivery") {
+
+        createOrder("Cash on Delivery");
+
+        return;
+    }
+
+    alert("Invalid payment method.");
+}
 
 // ============================================
 // CREATE ORDER
