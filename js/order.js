@@ -478,111 +478,77 @@ function payWithPaystack() {
     }
 
     const email =
-        document.getElementById(
-            "customerEmail"
-        )?.value.trim();
+        document.getElementById("customerEmail")
+        ?.value.trim();
 
     if (!email) {
         alert("Please enter your email.");
         return;
     }
 
-    if (
-        typeof PaystackPop ===
-        "undefined"
-    ) {
-        alert(
-            "Paystack has not loaded. Please refresh and try again."
-        );
+    if (typeof PaystackPop === "undefined") {
+        alert("Paystack has not loaded. Please refresh.");
         return;
     }
 
     let total = 0;
 
     cart.forEach(function(item) {
-
         total +=
             Number(item.price || 0) *
             Number(item.quantity || 0);
-
     });
 
     if (total <= 0) {
-        alert(
-            "Order total must be greater than zero."
-        );
+        alert("Order total must be greater than zero.");
         return;
     }
 
-    /*
-     * Use your Paystack PUBLIC/TEST key here.
-     * Never put a Paystack SECRET KEY in frontend code.
-     *
-     * For production, payment initialization and
-     * verification should move to your backend.
-     */
-    const publicKey =
-        "YOUR_PAYSTACK_PUBLIC_KEY";
+    const publicKey = "YOUR_PAYSTACK_PUBLIC_KEY";
 
-    if (
-        publicKey ===
-        "YOUR_PAYSTACK_PUBLIC_KEY"
-    ) {
-        alert(
-            "Add your Paystack public key before testing payment."
-        );
+    if (publicKey === "YOUR_PAYSTACK_PUBLIC_KEY") {
+        alert("Add your Paystack public test key first.");
         return;
     }
 
-    const reference =
-        "PF-" +
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .slice(2, 8);
+    const paystack = new PaystackPop();
 
-    const handler =
-        PaystackPop.setup({
+    paystack.newTransaction({
 
-            key:
-                publicKey,
+        key: publicKey,
 
-            email:
-                email,
+        email: email,
 
-            amount:
-                Math.round(total * 100),
+        amount: Math.round(total * 100),
 
-            currency:
-                "GHS",
+        currency: "GHS",
 
-            ref:
-                reference,
+        onSuccess: function(transaction) {
 
-            callback:
-                function(response) {
+            alert(
+                "Payment completed.\nReference: " +
+                transaction.reference
+            );
 
-                    alert(
-                        "Payment successful.\nReference: " +
-                        response.reference
-                    );
+            createOrder(
+                "Paystack",
+                transaction.reference
+            );
+        },
 
-                    createOrder(
-                        "Paystack",
-                        response.reference
-                    );
-                },
+        onCancel: function() {
 
-            onClose:
-                function() {
+            alert("Payment cancelled.");
+        },
 
-                    alert(
-                        "Payment cancelled."
-                    );
-                }
+        onError: function(error) {
 
-        });
+            console.error("Paystack error:", error);
 
-    handler.openIframe();
+            alert(
+                "Payment could not be started."
+            );
+        }
+
+    });
 }
