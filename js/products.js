@@ -1457,9 +1457,7 @@ function openSellerStore(merchantEmail) {
     try {
         merchants =
             JSON.parse(
-                localStorage.getItem(
-                    "merchants"
-                )
+                localStorage.getItem("merchants")
             ) || [];
     } catch (error) {
         merchants = [];
@@ -1467,10 +1465,7 @@ function openSellerStore(merchantEmail) {
 
     const merchant =
         merchants.find(function(item) {
-            return (
-                item.email ===
-                merchantEmail
-            );
+            return item.email === merchantEmail;
         });
 
     if (!merchant) {
