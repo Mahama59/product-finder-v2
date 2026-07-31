@@ -466,27 +466,19 @@ app.post(
             const reference =
                 data.data.reference;
 
-            pendingPayments.set(
-                reference,
-                {
-
-                    reference:
-                        reference,
-
-                    email:
-                        email,
-
-                    expectedAmount:
-                        amount,
-
-                    status:
-                        "PENDING",
-
-                    createdAt:
-                        new Date().toISOString()
-
-                }
-            );
+await prisma.paymentIntent.create({
+    data: {
+        reference: reference,
+        email: email,
+        amount: amount,
+        currency: "GHS",
+        method: "PAYSTACK",
+        status: "PENDING",
+        accessCode:
+            data.data.access_code
+    }
+});
+            
 
             return res.json({
 
