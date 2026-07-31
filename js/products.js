@@ -487,6 +487,7 @@ function loadMarketplaceProducts() {
 
         card.className = "product";
 
+        // IMAGE
         const image =
             document.createElement("img");
 
@@ -497,12 +498,14 @@ function loadMarketplaceProducts() {
         image.alt =
             product.name || "Product";
 
+        // NAME
         const title =
             document.createElement("h3");
 
         title.textContent =
             product.name || "Product";
 
+        // PRICE
         const price =
             document.createElement("p");
 
@@ -512,6 +515,7 @@ function loadMarketplaceProducts() {
             "💰 $" +
             Number(product.price || 0).toFixed(2);
 
+        // CATEGORY
         const category =
             document.createElement("p");
 
@@ -519,6 +523,7 @@ function loadMarketplaceProducts() {
             "📂 " +
             (product.category || "-");
 
+        // SELLER
         const seller =
             document.createElement("p");
 
@@ -526,6 +531,7 @@ function loadMarketplaceProducts() {
             "🏪 " +
             (product.merchantName || "-");
 
+        // STOCK
         const stock =
             document.createElement("p");
 
@@ -567,14 +573,18 @@ function loadMarketplaceProducts() {
             function() {
 
                 if (stockNumber <= 0) {
-                    alert("This product is out of stock.");
+                    alert(
+                        "This product is out of stock."
+                    );
                     return;
                 }
 
                 if (
                     typeof addToCart !== "function"
                 ) {
-                    alert("Cart system is not available.");
+                    alert(
+                        "Cart system is not available."
+                    );
                     return;
                 }
 
@@ -582,6 +592,56 @@ function loadMarketplaceProducts() {
                     product.name,
                     product.price,
                     product.merchantEmail
+                );
+            };
+
+        // WISHLIST
+        const wishlistButton =
+            document.createElement("button");
+
+        wishlistButton.textContent =
+            "❤️ Wishlist";
+
+        wishlistButton.onclick =
+            function() {
+
+                if (
+                    typeof addToWishlistById !==
+                    "function"
+                ) {
+                    alert(
+                        "Wishlist system is not available."
+                    );
+                    return;
+                }
+
+                addToWishlistById(
+                    product.id
+                );
+            };
+
+        // COMPARE
+        const compareButton =
+            document.createElement("button");
+
+        compareButton.textContent =
+            "⚖️ Compare";
+
+        compareButton.onclick =
+            function() {
+
+                if (
+                    typeof addToCompare !==
+                    "function"
+                ) {
+                    alert(
+                        "Comparison system is not available."
+                    );
+                    return;
+                }
+
+                addToCompare(
+                    product.id
                 );
             };
 
@@ -593,6 +653,8 @@ function loadMarketplaceProducts() {
         card.appendChild(stock);
         card.appendChild(viewButton);
         card.appendChild(cartButton);
+        card.appendChild(wishlistButton);
+        card.appendChild(compareButton);
 
         box.appendChild(card);
     });
