@@ -798,41 +798,221 @@ function searchProducts() {
 function loadFeaturedProducts() {
 
     const box =
-        document.getElementById(
-            "featuredProducts"
-        );
+        document.getElementById("featuredProducts");
 
-    if (!box) {
-        return;
-    }
+    if (!box) return;
 
     const products =
-        getStoredProducts();
+        JSON.parse(
+            localStorage.getItem("merchantProducts")
+        ) || [];
 
-    const approvedProducts =
+    const approved =
         products.filter(function(product) {
-            return product.status === "Approved";
+            return String(product.status)
+                .trim()
+                .toLowerCase() === "approved";
         });
 
     box.innerHTML = "";
 
-    if (approvedProducts.length === 0) {
+    if (approved.length === 0) {
+
         box.innerHTML =
             "<p>No featured products available yet.</p>";
+
         return;
     }
 
-    approvedProducts
+    approved
         .slice(0, 4)
         .forEach(function(product) {
 
-            box.appendChild(
-                createProductCard(product, {
-                    showChat: true,
-                    showWishlist: true,
-                    showCompare: true
-                })
+            const card =
+                document.createElement("div");
+
+            card.className = "product";
+
+            // IMAGE
+            const image =
+                document.createElement("img");
+
+            image.src =
+                product.image ||
+                "https://via.placeholder.com/250";
+
+            image.alt =
+                product.name || "Product";
+
+            // NAME
+            const title =
+                document.createElement("h3");
+
+            title.textContent =
+                product.name || "Product";
+
+            // PRICE
+            const price =
+                document.createElement("p");
+
+            price.className = "price";
+
+            price.textContent =
+                "💰 $" +
+                Number(product.price || 0).toFixed(2);
+
+            // CATEGORY
+            const category =
+                document.createElement("p");
+
+            category.textContent =
+                "📂 " +
+                (product.category || "-");
+
+            // SELLER
+            const seller =
+                document.createElement("p");
+
+            seller.appendChild(
+                document.createTextNode("🏪 Seller: ")
             );
+
+            const sellerLink =
+                document.createElement("a");
+
+            sellerLink.href = "#";
+            sellerLink.className = "seller-link";
+
+            sellerLink.textContent =
+                product.merchantName || "Seller";
+
+            sellerLink.onclick =
+                function(event) {
+
+                    event.preventDefault();
+
+                    openSellerStore(
+                        product.merchantEmail
+                    );
+                };
+
+            seller.appendChild(sellerLink);
+
+            // STOCK
+            const stock =
+                document.createElement("p");
+
+            const stockNumber =
+                Number(product.stock || 0);
+
+            stock.textContent =
+                stockNumber > 0
+                    ? "✅ In Stock"
+                    : "❌ Out of Stock";
+
+            // VIEW
+            const viewButton =
+                document.createElement("button");
+
+            viewButton.textContent =
+                "👁 View Product";
+
+            viewButton.onclick =
+                function() {
+
+                    localStorage.setItem(
+                        "selectedProduct",
+                        JSON.stringify(product)
+                    );
+
+                    window.location.href =
+                        "pages/product-details.html";
+                };
+
+            // CART
+            const cartButton =
+                document.createElement("button");
+
+            cartButton.textContent =
+                "🛒 Add To Cart";
+
+            cartButton.onclick =
+                function() {
+
+                    if (stockNumber <= 0) {
+                        alert(
+                            "This product is out of stock."
+                        );
+                        return;
+                    }
+
+                    addToCart(
+                        product.name,
+                        product.price,
+                        product.merchantEmail
+                    );
+                };
+
+            // WISHLIST
+            const wishlistButton =
+                document.createElement("button");
+
+            wishlistButton.textContent =
+                "❤️ Wishlist";
+
+            wishlistButton.onclick =
+                function() {
+
+                    addToWishlistById(
+                        product.id
+                    );
+                };
+
+            // COMPARE
+            const compareButton =
+                document.createElement("button");
+
+            compareButton.textContent =
+                "⚖️ Compare";
+
+            compareButton.onclick =
+                function() {
+
+                    addToCompare(
+                        product.id
+                    );
+                };
+
+            // CHAT
+            const chatButton =
+                document.createElement("button");
+
+            chatButton.textContent =
+                "💬 Chat with Seller";
+
+            chatButton.onclick =
+                function() {
+
+                    openChat(
+                        product.merchantEmail,
+                        product.id
+                    );
+                };
+
+            card.appendChild(image);
+            card.appendChild(title);
+            card.appendChild(price);
+            card.appendChild(category);
+            card.appendChild(seller);
+            card.appendChild(stock);
+            card.appendChild(viewButton);
+            card.appendChild(cartButton);
+            card.appendChild(wishlistButton);
+            card.appendChild(compareButton);
+            card.appendChild(chatButton);
+
+            box.appendChild(card);
+
         });
 }
 
