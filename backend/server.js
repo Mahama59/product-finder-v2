@@ -3,8 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-const prisma =
-    require("./prismaClient");
+const prisma = require("./prismaClient");
+
 const app = express();
 
 const PORT =
@@ -17,13 +17,7 @@ const FRONTEND_URL =
     process.env.FRONTEND_URL ||
     "https://mahama59.github.io";
 
-// Temporary storage.
-// We will replace this with a real database later.
-const orders = [];
-const pendingPayments = new Map();
-
 if (!PAYSTACK_SECRET_KEY) {
-
     console.warn(
         "WARNING: PAYSTACK_SECRET_KEY is not configured."
     );
@@ -37,21 +31,85 @@ app.use(
 
 
 // ============================================
+// HEALTH CHECK
+// ============================================
+
+app.get(
+    "/",
+    function (req, res) {
+
+        return res.json({
+            success: true,
+            service:
+                "Product Finder Payment API",
+            status:
+                "online"
+        });
+    }
+);
+
+
+// ============================================
+// DATABASE HEALTH CHECK
+// ============================================
+
+app.get(
+    "/api/health/database",
+    async function (req, res) {
+
+        try {
+
+            await prisma.$queryRaw`
+                SELECT 1
+            `;
+
+            return res.json({
+                success: true,
+                database:
+                    "connected"
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Database health check failed:",
+                error
+            );
+
+            return res.status(500).json({
+                success: false,
+                database:
+                    "disconnected"
+            });
+        }
+    }
+);
+
+
+// ============================================
+// JSON BODY PARSING
+// ============================================
+
+app.use(
+    express.json()
+);
+
+
+// ============================================
 // PAYSTACK WEBHOOK
 // ============================================
 //
 // IMPORTANT:
-// This route must come before express.json()
-// because Paystack signature verification
-// requires the original raw request body.
-//
+// This route uses the raw body for signature
+// verification, so it must be registered BEFORE
+// express.json().
 
 app.post(
     "/api/paystack/webhook",
     express.raw({
         type: "application/json"
     }),
-    function (req, res) {
+    async function (req, res) {
 
         if (!PAYSTACK_SECRET_KEY) {
 
@@ -153,242 +211,166 @@ app.post(
         );
 
 
-// ========================================
-// SUCCESSFUL PAYSTACK PAYMENT
-// ========================================
-
-if (
-    event.event ===
-    "charge.success"
-) {
-
-    const transaction =
-        event.data || {};
-
-    const reference =
-        transaction.reference;
-
-    console.log(
-        "PAYSTACK PAYMENT SUCCESS",
-        {
-            reference:
-                transaction.reference,
-
-            amount:
-                transaction.amount,
-
-            currency:
-                transaction.currency,
-
-            channel:
-                transaction.channel,
-
-            paidAt:
-                transaction.paid_at
-        }
-    );
-
-    try {
-
-        const paymentIntent =
-            await prisma.paymentIntent.findUnique({
-                where: {
-                    reference:
-                        reference
-                }
-            });
-
-        if (!paymentIntent) {
-
-            console.warn(
-                "PaymentIntent not found:",
-                reference
-            );
-
-            return res.status(200).json({
-                success: true,
-                received: true
-            });
-        }
-
-        const expectedAmount =
-            Math.round(
-                Number(
-                    paymentIntent.amount
-                ) * 100
-            );
-
-        const receivedAmount =
-            Number(
-                transaction.amount
-            );
-
-        const amountMatches =
-            expectedAmount ===
-            receivedAmount;
-
-        const currencyMatches =
-            transaction.currency ===
-            paymentIntent.currency;
+        // ========================================
+        // SUCCESSFUL PAYMENT
+        // ========================================
 
         if (
-            !amountMatches ||
-            !currencyMatches
+            event.event ===
+            "charge.success"
         ) {
 
-            console.error(
-                "PAYSTACK PAYMENT MISMATCH",
+            const transaction =
+                event.data || {};
+
+            const reference =
+                transaction.reference;
+
+            console.log(
+                "PAYSTACK PAYMENT SUCCESS",
                 {
                     reference:
-                        reference,
+                        transaction.reference,
 
-                    expectedAmount:
-                        expectedAmount,
+                    amount:
+                        transaction.amount,
 
-                    receivedAmount:
-                        receivedAmount,
+                    currency:
+                        transaction.currency,
 
-                    expectedCurrency:
-                        paymentIntent.currency,
+                    channel:
+                        transaction.channel,
 
-                    receivedCurrency:
-                        transaction.currency
+                    paidAt:
+                        transaction.paid_at
                 }
             );
 
-            return res.status(200).json({
-                success: true,
-                received: true
-            });
-        }
+            try {
 
-        await prisma.paymentIntent.update({
-            where: {
-                reference:
-                    reference
-            },
+                const paymentIntent =
+                    await prisma.paymentIntent.findUnique({
+                        where: {
+                            reference:
+                                reference
+                        }
+                    });
 
-            data: {
+                if (!paymentIntent) {
 
-                status:
-                    "PAID",
+                    console.warn(
+                        "PaymentIntent not found:",
+                        reference
+                    );
 
-                channel:
-                    transaction.channel ||
-                    null,
+                    return res.status(200).json({
+                        success: true,
+                        received: true
+                    });
+                }
 
-                paidAt:
-                    transaction.paid_at
-                        ? new Date(
+                const expectedAmount =
+                    Math.round(
+                        Number(
+                            paymentIntent.amount
+                        ) * 100
+                    );
+
+                const receivedAmount =
+                    Number(
+                        transaction.amount
+                    );
+
+                const amountMatches =
+                    expectedAmount ===
+                    receivedAmount;
+
+                const currencyMatches =
+                    transaction.currency ===
+                    paymentIntent.currency;
+
+                if (
+                    !amountMatches ||
+                    !currencyMatches
+                ) {
+
+                    console.error(
+                        "PAYSTACK PAYMENT MISMATCH",
+                        {
+                            reference:
+                                reference,
+
+                            expectedAmount:
+                                expectedAmount,
+
+                            receivedAmount:
+                                receivedAmount,
+
+                            expectedCurrency:
+                                paymentIntent.currency,
+
+                            receivedCurrency:
+                                transaction.currency
+                        }
+                    );
+
+                    return res.status(200).json({
+                        success: true,
+                        received: true
+                    });
+                }
+
+                await prisma.paymentIntent.update({
+                    where: {
+                        reference:
+                            reference
+                    },
+
+                    data: {
+
+                        status:
+                            "PAID",
+
+                        channel:
+                            transaction.channel ||
+                            null,
+
+                        paidAt:
                             transaction.paid_at
-                        )
-                        : new Date()
+                                ? new Date(
+                                    transaction.paid_at
+                                )
+                                : new Date()
+                    }
+                });
 
+                console.log(
+                    "PaymentIntent marked PAID:",
+                    reference
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "PaymentIntent webhook update failed:",
+                    error
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Payment webhook processing failed."
+                });
             }
-        });
-
-        console.log(
-            "PaymentIntent marked PAID:",
-            reference
-        );
-
-    } catch (error) {
-
-        console.error(
-            "PaymentIntent webhook update failed:",
-            error
-        );
-
-        return res.status(500).json({
-            success: false,
-            message:
-                "Payment webhook processing failed."
-        });
-    }
-}
-
-
-// ============================================
-// JSON BODY PARSING
-// ============================================
-
-app.use(
-    express.json()
-);
-
-
-
-// ============================================
-// HEALTH CHECK
-// ============================================
-
-app.get(
-    "/",
-    function (req, res) {
-
-        return res.json({
-            success: true,
-            service:
-                "Product Finder Payment API",
-            status:
-                "online"
-        });
-
-    }
-);
-
-
-// ============================================
-// DATABASE HEALTH CHECK
-// ============================================
-
-app.get(
-    "/api/health/database",
-    async function (req, res) {
-
-        try {
-
-            await prisma.$queryRaw`
-                SELECT 1
-            `;
-
-            return res.json({
-
-                success: true,
-
-                database:
-                    "connected"
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Database health check failed:",
-                error
-            );
-
-            return res.status(500).json({
-
-                success: false,
-
-                database:
-                    "disconnected"
-
-            });
-
         }
+
+        return res.status(200).json({
+            success: true,
+            received: true
+        });
     }
 );
 
-
-// ============================================
-// VERIFY PAYSTACK TRANSACTION
-// ============================================
-
-app.get(
-    "/api/paystack/verify/:reference",
-    async function (req, res) {
 
 // ============================================
 // INITIALIZE PAYSTACK TRANSACTION
@@ -413,36 +395,27 @@ app.post(
         if (!email) {
 
             return res.status(400).json({
-
                 success: false,
-
                 message:
                     "Customer email is required."
-
             });
         }
 
         if (amount <= 0) {
 
             return res.status(400).json({
-
                 success: false,
-
                 message:
                     "Payment amount must be greater than zero."
-
             });
         }
 
         if (!PAYSTACK_SECRET_KEY) {
 
             return res.status(500).json({
-
                 success: false,
-
                 message:
                     "Paystack server key is not configured."
-
             });
         }
 
@@ -452,7 +425,6 @@ app.post(
                 await fetch(
                     "https://api.paystack.co/transaction/initialize",
                     {
-
                         method:
                             "POST",
 
@@ -464,7 +436,6 @@ app.post(
 
                             "Content-Type":
                                 "application/json"
-
                         },
 
                         body:
@@ -488,11 +459,8 @@ app.post(
 
                                     customerEmail:
                                         email
-
                                 }
-
                             })
-
                     }
                 );
 
@@ -505,36 +473,47 @@ app.post(
             ) {
 
                 return res.status(400).json({
-
                     success: false,
-
                     message:
                         data.message ||
                         "Paystack transaction initialization failed."
-
                 });
             }
 
             const reference =
                 data.data.reference;
 
-await prisma.paymentIntent.create({
-    data: {
-        reference: reference,
-        email: email,
-        amount: amount,
-        currency: "GHS",
-        method: "PAYSTACK",
-        status: "PENDING",
-        accessCode:
-            data.data.access_code
-    }
-});
-            
+            await prisma.paymentIntent.create({
+
+                data: {
+
+                    reference:
+                        reference,
+
+                    email:
+                        email,
+
+                    amount:
+                        amount,
+
+                    currency:
+                        "GHS",
+
+                    method:
+                        "PAYSTACK",
+
+                    status:
+                        "PENDING",
+
+                    accessCode:
+                        data.data.access_code
+                }
+            });
 
             return res.json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
                     data.message ||
@@ -545,7 +524,6 @@ await prisma.paymentIntent.create({
 
                 reference:
                     reference
-
             });
 
         } catch (error) {
@@ -561,7 +539,6 @@ await prisma.paymentIntent.create({
 
                 message:
                     "Unable to initialize Paystack transaction."
-
             });
         }
     }
@@ -582,24 +559,18 @@ app.get(
         if (!reference) {
 
             return res.status(400).json({
-
                 success: false,
-
                 message:
                     "Transaction reference is required."
-
             });
         }
 
         if (!PAYSTACK_SECRET_KEY) {
 
             return res.status(500).json({
-
                 success: false,
-
                 message:
                     "Paystack server key is not configured."
-
             });
         }
 
@@ -607,14 +578,11 @@ app.get(
 
             const response =
                 await fetch(
-
                     "https://api.paystack.co/transaction/verify/" +
                     encodeURIComponent(
                         reference
                     ),
-
                     {
-
                         method:
                             "GET",
 
@@ -626,9 +594,7 @@ app.get(
 
                             "Content-Type":
                                 "application/json"
-
                         }
-
                     }
                 );
 
@@ -643,12 +609,12 @@ app.get(
                     )
                     .json({
 
-                        success: false,
+                        success:
+                            false,
 
                         message:
                             data.message ||
                             "Paystack verification failed."
-
                     });
             }
 
@@ -668,7 +634,6 @@ app.get(
 
                 data:
                     transaction
-
             });
 
         } catch (error) {
@@ -680,11 +645,11 @@ app.get(
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Unable to verify transaction."
-
             });
         }
     }
@@ -697,38 +662,173 @@ app.get(
 
 app.get(
     "/api/payments/:reference",
-    function (req, res) {
+    async function (req, res) {
 
         const reference =
             req.params.reference;
 
-        const payment =
-            pendingPayments.get(
-                reference
+        try {
+
+            const payment =
+                await prisma.paymentIntent.findUnique({
+
+                    where: {
+                        reference:
+                            reference
+                    }
+                });
+
+            if (!payment) {
+
+                return res
+                    .status(404)
+                    .json({
+
+                        success:
+                            false,
+
+                        message:
+                            "Payment reference not found."
+                    });
+            }
+
+            return res.json({
+
+                success:
+                    true,
+
+                payment:
+                    payment
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Payment status lookup failed:",
+                error
             );
 
-        if (!payment) {
+            return res.status(500).json({
 
-            return res
-                .status(404)
-                .json({
+                success:
+                    false,
 
-                    success: false,
-
-                    message:
-                        "Payment reference not found."
-
-                });
+                message:
+                    "Unable to read payment status."
+            });
         }
+    }
+);
 
-        return res.json({
 
-            success: true,
+// ============================================
+// DATABASE - LIST PRODUCTS
+// ============================================
 
-            payment:
-                payment
+app.get(
+    "/api/products",
+    async function (req, res) {
 
-        });
+        try {
+
+            const products =
+                await prisma.product.findMany({
+
+                    include: {
+
+                        merchant: {
+
+                            select: {
+
+                                id:
+                                    true,
+
+                                name:
+                                    true,
+
+                                email:
+                                    true
+                            }
+                        }
+                    },
+
+                    orderBy: {
+
+                        createdAt:
+                            "desc"
+                    }
+                });
+
+            return res.json({
+
+                success:
+                    true,
+
+                count:
+                    products.length,
+
+                products:
+                    products
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Product database query failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "Unable to load products."
+            });
+        }
+    }
+);
+
+
+// ============================================
+// DATABASE - PRODUCT COUNT
+// ============================================
+
+app.get(
+    "/api/health/products",
+    async function (req, res) {
+
+        try {
+
+            const count =
+                await prisma.product.count();
+
+            return res.json({
+
+                success:
+                    true,
+
+                productCount:
+                    count
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Product count failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "Unable to read product count."
+            });
+        }
     }
 );
 
@@ -750,13 +850,9 @@ app.post(
                 ""
             ).trim();
 
-        const expectedAmount =
-            Number(
-                body.total || 0
-            );
-
         const customer =
-            body.customer || {};
+            body.customer ||
+            {};
 
         const items =
             Array.isArray(
@@ -769,247 +865,487 @@ app.post(
 
             return res.status(400).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Paystack payment reference is required."
-
             });
         }
 
-        if (
-            expectedAmount <= 0
-        ) {
+        if (!customer.name) {
 
             return res.status(400).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
-                    "Order total must be greater than zero."
-
+                    "Customer name is required."
             });
         }
 
-        if (
-            !customer.email
-        ) {
+        if (!customer.email) {
 
             return res.status(400).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Customer email is required."
-
             });
         }
 
-        if (
-            items.length === 0
-        ) {
+        if (!customer.phone) {
 
             return res.status(400).json({
 
-                success: false,
+                success:
+                    false,
+
+                message:
+                    "Customer phone is required."
+            });
+        }
+
+        if (items.length === 0) {
+
+            return res.status(400).json({
+
+                success:
+                    false,
 
                 message:
                     "Order must contain at least one item."
-
-            });
-        }
-
-        const alreadyProcessed =
-            orders.find(
-                function (order) {
-
-                    return (
-                        order.paymentReference ===
-                        reference
-                    );
-
-                }
-            );
-
-        if (
-            alreadyProcessed
-        ) {
-
-            return res.status(409).json({
-
-                success: false,
-
-                message:
-                    "This payment reference has already been used.",
-
-                order:
-                    alreadyProcessed
-
-            });
-        }
-
-        if (!PAYSTACK_SECRET_KEY) {
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Paystack server key is not configured."
-
             });
         }
 
         try {
 
-            const response =
-                await fetch(
+            // ------------------------------------
+            // FIND VERIFIED PAYMENT INTENT
+            // ------------------------------------
 
-                    "https://api.paystack.co/transaction/verify/" +
-                    encodeURIComponent(
-                        reference
-                    ),
+            const paymentIntent =
+                await prisma.paymentIntent.findUnique({
 
-                    {
-
-                        method:
-                            "GET",
-
-                        headers: {
-
-                            Authorization:
-                                "Bearer " +
-                                PAYSTACK_SECRET_KEY,
-
-                            "Content-Type":
-                                "application/json"
-
-                        }
-
+                    where: {
+                        reference:
+                            reference
                     }
-                );
+                });
 
-            const data =
-                await response.json();
+            if (!paymentIntent) {
+
+                return res.status(404).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "Payment intent not found."
+                });
+            }
 
             if (
-                !response.ok ||
-                !data.data
+                paymentIntent.status !==
+                "PAID"
             ) {
 
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
-                        data.message ||
-                        "Paystack transaction could not be verified."
-
+                        "Payment has not been confirmed."
                 });
             }
 
-            const transaction =
-                data.data;
 
-            const expectedAmountInSubunit =
+            // ------------------------------------
+            // CREATE / FIND CUSTOMER
+            // ------------------------------------
+
+            const customerUser =
+                await prisma.user.upsert({
+
+                    where: {
+                        email:
+                            customer.email
+                    },
+
+                    update: {
+
+                        name:
+                            customer.name,
+
+                        phone:
+                            customer.phone
+                    },
+
+                    create: {
+
+                        name:
+                            customer.name,
+
+                        email:
+                            customer.email,
+
+                        phone:
+                            customer.phone,
+
+                        role:
+                            "CUSTOMER"
+                    }
+                });
+
+
+            // ------------------------------------
+            // LOAD PRODUCTS FROM DATABASE
+            // ------------------------------------
+
+            const databaseItems =
+                [];
+
+            for (
+                const item of items
+            ) {
+
+                const productId =
+                    String(
+                        item.id ||
+                        ""
+                    ).trim();
+
+                const quantity =
+                    Number(
+                        item.quantity ||
+                        0
+                    );
+
+                if (
+                    !productId ||
+                    quantity <= 0 ||
+                    !Number.isInteger(
+                        quantity
+                    )
+                ) {
+
+                    return res.status(400).json({
+
+                        success:
+                            false,
+
+                        message:
+                            "Invalid product or quantity."
+                    });
+                }
+
+                const product =
+                    await prisma.product.findUnique({
+
+                        where: {
+
+                            id:
+                                productId
+                        }
+                    });
+
+                if (!product) {
+
+                    return res.status(404).json({
+
+                        success:
+                            false,
+
+                        message:
+                            "Product not found: " +
+                            productId
+                    });
+                }
+
+                if (
+                    product.stock <
+                    quantity
+                ) {
+
+                    return res.status(400).json({
+
+                        success:
+                            false,
+
+                        message:
+                            "Insufficient stock for " +
+                            product.name
+                    });
+                }
+
+                databaseItems.push({
+
+                    product:
+                        product,
+
+                    quantity:
+                        quantity
+                });
+            }
+
+
+            // ------------------------------------
+            // CALCULATE SERVER-SIDE TOTAL
+            // ------------------------------------
+
+            let calculatedTotal =
+                0;
+
+            for (
+                const item of
+                databaseItems
+            ) {
+
+                calculatedTotal +=
+                    Number(
+                        item.product.price
+                    ) *
+                    item.quantity;
+            }
+
+            calculatedTotal =
                 Math.round(
-                    expectedAmount *
+                    calculatedTotal *
+                    100
+                ) / 100;
+
+
+            // ------------------------------------
+            // MATCH PAYMENT AMOUNT
+            // ------------------------------------
+
+            const orderAmountInSubunit =
+                Math.round(
+                    calculatedTotal *
                     100
                 );
 
-            const verified =
-                transaction.status ===
-                    "success" &&
+            const paymentAmountInSubunit =
+                Math.round(
+                    Number(
+                        paymentIntent.amount
+                    ) *
+                    100
+                );
 
-                Number(
-                    transaction.amount
-                ) ===
-                    expectedAmountInSubunit &&
-
-                transaction.currency ===
-                    "GHS";
-
-            if (!verified) {
+            if (
+                orderAmountInSubunit !==
+                paymentAmountInSubunit
+            ) {
 
                 return res.status(400).json({
 
-                    success: false,
+                    success:
+                        false,
 
                     message:
-                        "Payment verification failed. Amount, currency, or status did not match the order."
-
+                        "Order total does not match the payment."
                 });
             }
 
-            const order = {
 
-                id:
-                    Date.now(),
+            // ------------------------------------
+            // PREVENT DUPLICATE PAYMENT
+            // ------------------------------------
 
-                customer:
-                    customer,
+            const existingPayment =
+                await prisma.payment.findUnique({
 
-                items:
-                    items,
+                    where: {
+                        reference:
+                            reference
+                    }
+                });
 
-                total:
-                    expectedAmount,
+            if (existingPayment) {
 
-                paymentMethod:
-                    "Paystack",
+                return res.status(409).json({
 
-                paymentReference:
-                    reference,
-
-                paymentStatus:
-                    "Paid",
-
-                status:
-                    "New",
-
-                shippingStatus:
-                    "Processing",
-
-                trackingNumber:
-                    "Not assigned",
-
-                date:
-                    new Date().toISOString()
-
-            };
-
-            orders.push(
-                order
-            );
-
-            return res
-                .status(201)
-                .json({
-
-                    success: true,
+                    success:
+                        false,
 
                     message:
-                        "Verified payment order created successfully.",
+                        "This payment has already been attached to an order.",
 
-                    order:
-                        order
-
+                    orderId:
+                        existingPayment.orderId
                 });
+            }
+
+
+            // ------------------------------------
+            // CREATE ORDER + ITEMS + PAYMENT
+            // + STOCK UPDATE ATOMICALLY
+            // ------------------------------------
+
+            const result =
+                await prisma.$transaction(
+                    async function (tx) {
+
+                        const order =
+                            await tx.order.create({
+
+                                data: {
+
+                                    customerId:
+                                        customerUser.id,
+
+                                    total:
+                                        calculatedTotal,
+
+                                    paymentMethod:
+                                        "PAYSTACK",
+
+                                    paymentStatus:
+                                        "PAID",
+
+                                    status:
+                                        "CONFIRMED",
+
+                                    shippingStatus:
+                                        "PROCESSING",
+
+                                    paymentReference:
+                                        reference,
+
+                                    address:
+                                        customer.address ||
+                                        null,
+
+                                    city:
+                                        customer.city ||
+                                        null,
+
+                                    items: {
+
+                                        create:
+                                            databaseItems.map(
+                                                function (
+                                                    item
+                                                ) {
+
+                                                    return {
+
+                                                        productId:
+                                                            item.product.id,
+
+                                                        productName:
+                                                            item.product.name,
+
+                                                        price:
+                                                            item.product.price,
+
+                                                        quantity:
+                                                            item.quantity
+                                                    };
+                                                }
+                                            )
+                                    },
+
+                                    payment: {
+
+                                        create: {
+
+                                            reference:
+                                                reference,
+
+                                            amount:
+                                                calculatedTotal,
+
+                                            currency:
+                                                "GHS",
+
+                                            method:
+                                                "PAYSTACK",
+
+                                            status:
+                                                "PAID",
+
+                                            channel:
+                                                paymentIntent.channel ||
+                                                null,
+
+                                            paidAt:
+                                                paymentIntent.paidAt ||
+                                                new Date()
+                                        }
+                                    }
+                                },
+
+                                include: {
+
+                                    items:
+                                        true,
+
+                                    payment:
+                                        true
+                                }
+                            });
+
+
+                        for (
+                            const item of
+                            databaseItems
+                        ) {
+
+                            await tx.product.update({
+
+                                where: {
+
+                                    id:
+                                        item.product.id
+                                },
+
+                                data: {
+
+                                    stock: {
+
+                                        decrement:
+                                            item.quantity
+                                    }
+                                }
+                            });
+                        }
+
+                        return order;
+                    }
+                );
+
+            return res.status(201).json({
+
+                success:
+                    true,
+
+                message:
+                    "Verified order created successfully.",
+
+                order:
+                    result
+            });
 
         } catch (error) {
 
             console.error(
-                "Verified order creation error:",
+                "Database order creation failed:",
                 error
             );
 
             return res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Unable to create verified order."
-
             });
         }
     }
@@ -1017,25 +1353,65 @@ app.post(
 
 
 // ============================================
-// TEMPORARY ORDER LIST
+// LIST DATABASE ORDERS
 // ============================================
 
 app.get(
     "/api/orders",
-    function (req, res) {
+    async function (req, res) {
 
-        return res.json({
+        try {
 
-            success:
-                true,
+            const orders =
+                await prisma.order.findMany({
 
-            count:
-                orders.length,
+                    include: {
 
-            orders:
-                orders
+                        customer:
+                            true,
 
-        });
+                        items:
+                            true,
+
+                        payment:
+                            true
+                    },
+
+                    orderBy: {
+
+                        createdAt:
+                            "desc"
+                    }
+                });
+
+            return res.json({
+
+                success:
+                    true,
+
+                count:
+                    orders.length,
+
+                orders:
+                    orders
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Order database query failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "Unable to load orders."
+            });
+        }
     }
 );
 
@@ -1053,104 +1429,5 @@ app.listen(
             PORT
         );
 
-    }
-);
-
-// ============================================
-// DATABASE - LIST PRODUCTS
-// ============================================
-
-app.get(
-    "/api/products",
-    async function (req, res) {
-
-        try {
-
-            const products =
-                await prisma.product.findMany({
-                    include: {
-                        merchant: {
-                            select: {
-                                id: true,
-                                name: true,
-                                email: true
-                            }
-                        }
-                    },
-
-                    orderBy: {
-                        createdAt: "desc"
-                    }
-                });
-
-            return res.json({
-
-                success: true,
-
-                count:
-                    products.length,
-
-                products:
-                    products
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Product database query failed:",
-                error
-            );
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Unable to load products."
-
-            });
-        }
-    }
-);
-
-// ============================================
-// DATABASE - PRODUCT COUNT
-// ============================================
-
-app.get(
-    "/api/health/products",
-    async function (req, res) {
-
-        try {
-
-            const count =
-                await prisma.product.count();
-
-            return res.json({
-
-                success: true,
-
-                productCount:
-                    count
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Product count failed:",
-                error
-            );
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Unable to read product count."
-
-            });
-        }
     }
 );
