@@ -607,10 +607,21 @@ function payWithPaystack() {
                      * do we create the local order.
                      */
 
-                    createOrder(
-                        "Paystack",
-                        transaction.reference
-                    );
+       const serverOrder =
+    await createVerifiedServerOrder(
+        transaction.reference,
+        total
+    );
+
+console.log(
+    "SERVER ORDER CREATED:",
+    serverOrder
+);
+
+createOrder(
+    "Paystack",
+    transaction.reference
+);
 
                 } catch (error) {
 
