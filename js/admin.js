@@ -1,836 +1,787 @@
-alert("admin.js connected");
+// ============================================
+// PRODUCT FINDER - ADMIN.JS
+// Admin authentication, dashboard, products,
+// merchants, customers and orders
+// ============================================
+
+console.log("admin.js loaded");
 
 
-// ================= ADMIN LOGIN =================
-function adminLogin(){
+// ============================================
+// STORAGE HELPERS
+// ============================================
 
-let email =
-document.getElementById("adminEmail").value.trim();
-
-let password =
-document.getElementById("adminPassword").value;
-
-
-let admins =
-JSON.parse(localStorage.getItem("admins")) || [];
-
-
-let admin =
-admins.find(function(a){
-
-return a.email === email &&
-a.password === password;
-
-});
-
-
-if(admin){
-
-localStorage.setItem(
-"adminLoggedIn",
-"true"
-);
-
-
-localStorage.setItem(
-"currentAdmin",
-JSON.stringify(admin)
-);
-
-
-alert("Admin login successful");
-
-
-window.location.href =
-"admin-dashboard.html";
-
+function getAdmins() {
+    try {
+        return JSON.parse(localStorage.getItem("admins")) || [];
+    } catch (error) {
+        console.error("Could not read admins:", error);
+        return [];
+    }
 }
 
-else{
-
-alert("Incorrect admin details");
-
+function saveAdmins(admins) {
+    localStorage.setItem("admins", JSON.stringify(admins));
 }
 
+function getProducts() {
+    try {
+        return JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    } catch (error) {
+        console.error("Could not read products:", error);
+        return [];
+    }
 }
 
-
-// ================= ADMIN PROTECTION =================
-
-
-function protectAdmin(){
-
-
-let admin =
-localStorage.getItem("adminLoggedIn");
-
-
-if(!admin){
-
-
-alert("Please login as admin");
-
-
-window.location.href =
-"admin-login.html";
-
-
+function saveProducts(products) {
+    localStorage.setItem(
+        "merchantProducts",
+        JSON.stringify(products)
+    );
 }
 
-
+function getMerchants() {
+    try {
+        return JSON.parse(localStorage.getItem("merchants")) || [];
+    } catch (error) {
+        console.error("Could not read merchants:", error);
+        return [];
+    }
 }
 
-// ================= ADMIN DASHBOARD =================
+function saveMerchants(merchants) {
+    localStorage.setItem(
+        "merchants",
+        JSON.stringify(merchants)
+    );
+}
 
-function loadAdminDashboard(){
+function getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem("users")) || [];
+    } catch (error) {
+        console.error("Could not read users:", error);
+        return [];
+    }
+}
 
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
+function getOrders() {
+    try {
+        return JSON.parse(localStorage.getItem("orders")) || [];
+    } catch (error) {
+        console.error("Could not read orders:", error);
+        return [];
+    }
+}
 
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
-
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-
-let pending =
-products.filter(function(product){
-
-return product.status === "Pending";
-
-});
-
-
-
-// Top summary
-
-let merchantCount =
-document.getElementById("merchantCount");
-
-let productCount =
-document.getElementById("productCount");
-
-let pendingCount =
-document.getElementById("pendingCount");
-
-
-
-if(merchantCount){
-
-merchantCount.innerText =
-merchants.length;
-
+function saveOrders(orders) {
+    localStorage.setItem(
+        "orders",
+        JSON.stringify(orders)
+    );
 }
 
 
-if(productCount){
+// ============================================
+// ADMIN LOGIN
+// ============================================
 
-productCount.innerText =
-products.length;
+function adminLogin() {
 
+    const email =
+        document.getElementById("adminEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
+
+    const password =
+        document.getElementById("adminPassword")
+        ?.value;
+
+    if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+    }
+
+    const admins = getAdmins();
+
+    const admin =
+        admins.find(function(account) {
+            return (
+                account.email === email &&
+                account.password === password
+            );
+        });
+
+    if (!admin) {
+        alert("Incorrect admin details.");
+        return;
+    }
+
+    localStorage.setItem(
+        "adminLoggedIn",
+        "true"
+    );
+
+    localStorage.setItem(
+        "currentAdmin",
+        JSON.stringify(admin)
+    );
+
+    alert("Admin login successful.");
+
+    window.location.href =
+        "admin-dashboard.html";
 }
 
 
-if(pendingCount){
+// ============================================
+// ADMIN REGISTER
+// ============================================
 
-pendingCount.innerText =
-pending.length;
+function registerAdmin() {
 
+    const name =
+        document.getElementById("adminName")
+        ?.value
+        .trim();
+
+    const email =
+        document.getElementById("adminEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
+
+    const password =
+        document.getElementById("adminPassword")
+        ?.value;
+
+    if (!name || !email || !password) {
+        alert("Complete all fields.");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+    }
+
+    const admins = getAdmins();
+
+    const exists =
+        admins.some(function(admin) {
+            return admin.email === email;
+        });
+
+    if (exists) {
+        alert("Admin already exists.");
+        return;
+    }
+
+    const admin = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        password: password,
+        createdAt: new Date().toISOString()
+    };
+
+    admins.push(admin);
+    saveAdmins(admins);
+
+    alert("Admin account created successfully.");
+
+    window.location.href =
+        "admin-login.html";
 }
 
 
+// ============================================
+// ADMIN LOGOUT
+// ============================================
 
-// Marketplace overview
+function adminLogout() {
 
-let adminProducts =
-document.getElementById("adminProductsCount");
+    localStorage.removeItem(
+        "adminLoggedIn"
+    );
 
-let adminMerchants =
-document.getElementById("adminMerchants");
+    localStorage.removeItem(
+        "currentAdmin"
+    );
 
-let adminCustomers =
-document.getElementById("adminCustomers");
+    alert("Admin logged out.");
 
-let adminOrders =
-document.getElementById("adminOrders");
-
-
-
-if(adminProducts){
-
-adminProducts.innerText =
-products.length;
-
+    window.location.href =
+        "admin-login.html";
 }
 
 
-if(adminMerchants){
+// ============================================
+// ADMIN DASHBOARD
+// ============================================
 
-adminMerchants.innerText =
-merchants.length;
+function loadAdminDashboard() {
 
+    const merchants = getMerchants();
+    const products = getProducts();
+    const users = getUsers();
+    const orders = getOrders();
+
+    const pending =
+        products.filter(function(product) {
+            return product.status === "Pending";
+        });
+
+    // Top summary
+    const merchantCount =
+        document.getElementById("merchantCount");
+
+    const productCount =
+        document.getElementById("productCount");
+
+    const pendingCount =
+        document.getElementById("pendingCount");
+
+    if (merchantCount) {
+        merchantCount.innerText =
+            merchants.length;
+    }
+
+    if (productCount) {
+        productCount.innerText =
+            products.length;
+    }
+
+    if (pendingCount) {
+        pendingCount.innerText =
+            pending.length;
+    }
+
+    // Marketplace overview
+    const adminProductsCount =
+        document.getElementById(
+            "adminProductsCount"
+        );
+
+    const adminMerchants =
+        document.getElementById(
+            "adminMerchants"
+        );
+
+    const adminCustomers =
+        document.getElementById(
+            "adminCustomers"
+        );
+
+    const adminOrders =
+        document.getElementById(
+            "adminOrders"
+        );
+
+    if (adminProductsCount) {
+        adminProductsCount.innerText =
+            products.length;
+    }
+
+    if (adminMerchants) {
+        adminMerchants.innerText =
+            merchants.length;
+    }
+
+    if (adminCustomers) {
+        adminCustomers.innerText =
+            users.length;
+    }
+
+    if (adminOrders) {
+        adminOrders.innerText =
+            orders.length;
+    }
 }
 
 
-if(adminCustomers){
+// ============================================
+// ADMIN STATS
+// Kept as compatibility wrapper for existing HTML
+// ============================================
 
-adminCustomers.innerText =
-users.length;
-
+function loadAdminStats() {
+    loadAdminDashboard();
 }
 
 
-if(adminOrders){
+// ============================================
+// ADMIN PRODUCTS
+// ============================================
 
-adminOrders.innerText =
-orders.length;
+function loadAdminProducts() {
 
+    const box =
+        document.getElementById(
+            "adminProducts"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    const products = getProducts();
+
+    box.innerHTML = "";
+
+    if (products.length === 0) {
+        box.innerHTML =
+            "<p>No products found.</p>";
+        return;
+    }
+
+    products.forEach(function(product, index) {
+
+        const status =
+            product.status || "Pending";
+
+        box.innerHTML += `
+
+            <div class="product">
+
+                <h3>
+                    ${product.name || "Unnamed Product"}
+                </h3>
+
+                <p>
+                    💰 Price:
+                    $${Number(product.price || 0).toFixed(2)}
+                </p>
+
+                <p>
+                    Seller:
+                    ${product.merchantName || "-"}
+                </p>
+
+                <p>
+                    Category:
+                    ${product.category || "-"}
+                </p>
+
+                <p>
+                    Stock:
+                    ${Number(product.stock || 0)}
+                </p>
+
+                <p>
+                    Status:
+                    <strong>${status}</strong>
+                </p>
+
+                <button
+                    onclick="approveProduct(${index})"
+                >
+                    ✅ Approve
+                </button>
+
+                <button
+                    onclick="rejectProduct(${index})"
+                >
+                    ❌ Reject
+                </button>
+
+                <button
+                    onclick="deleteProduct(${index})"
+                >
+                    🗑 Delete
+                </button>
+
+            </div>
+        `;
+    });
 }
 
 
-console.log("Admin Dashboard Loaded", {
-merchants: merchants.length,
-products: products.length,
-users: users.length,
-orders: orders.length
-});
+// ============================================
+// APPROVE PRODUCT
+// ============================================
 
-}
+function approveProduct(index) {
 
-// ================= ADMIN LOGOUT =================
+    const products = getProducts();
 
+    if (!products[index]) {
+        alert("Product not found.");
+        return;
+    }
 
-function adminLogout(){
+    products[index].status =
+        "Approved";
 
+    saveProducts(products);
 
-localStorage.removeItem(
-"adminLoggedIn"
-);
+    alert("Product approved.");
 
-
-alert("Admin logged out");
-
-
-window.location.href =
-"admin-login.html";
-
-
+    loadAdminProducts();
 }
 
 
-// ================= APPROVE PRODUCT =================
+// ============================================
+// REJECT PRODUCT
+// ============================================
 
+function rejectProduct(index) {
 
-function approveProduct(index){
+    const products = getProducts();
 
+    if (!products[index]) {
+        alert("Product not found.");
+        return;
+    }
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    products[index].status =
+        "Rejected";
 
+    saveProducts(products);
 
+    alert("Product rejected.");
 
-products[index].status =
-"Approved";
-
-
-
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
-
-
-
-alert("Product approved");
-
-
-loadAdminProducts();
-
-
+    loadAdminProducts();
 }
 
 
+// ============================================
+// DELETE PRODUCT
+// ============================================
 
+function deleteProduct(index) {
 
+    const products = getProducts();
 
-// ================= REJECT PRODUCT =================
+    if (!products[index]) {
+        alert("Product not found.");
+        return;
+    }
 
+    products.splice(index, 1);
 
-function rejectProduct(index){
+    saveProducts(products);
 
+    alert("Product deleted.");
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-products[index].status =
-"Rejected";
-
-
-
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
-
-
-
-alert("Product rejected");
-
-
-loadAdminProducts();
-
-
-}
-
-// ================= ADMIN REGISTER =================
-
-function registerAdmin(){
-
-
-let name =
-document.getElementById("adminName").value.trim();
-
-
-let email =
-document.getElementById("adminEmail").value.trim();
-
-
-let password =
-document.getElementById("adminPassword").value;
-
-
-
-if(!name || !email || !password){
-
-alert("Complete all fields");
-
-return;
-
+    loadAdminProducts();
 }
 
 
+// ============================================
+// ADMIN MERCHANTS
+// ============================================
 
-let admins =
-JSON.parse(localStorage.getItem("admins")) || [];
+function loadAdminMerchants() {
 
+    const box =
+        document.getElementById(
+            "adminMerchantList"
+        );
 
+    if (!box) {
+        return;
+    }
 
-let exists =
-admins.find(function(admin){
+    const merchants =
+        getMerchants();
 
-return admin.email === email;
+    box.innerHTML = "";
 
-});
+    if (merchants.length === 0) {
+        box.innerHTML =
+            "<p>No merchants found.</p>";
+        return;
+    }
 
+    merchants.forEach(function(merchant, index) {
 
+        box.innerHTML += `
 
-if(exists){
+            <div class="product">
 
-alert("Admin already exists");
+                <h3>
+                    🏪 ${merchant.storeName || merchant.name}
+                </h3>
 
-return;
+                <p>
+                    👤 Owner:
+                    ${merchant.name || "-"}
+                </p>
 
+                <p>
+                    📧 Email:
+                    ${merchant.email || "-"}
+                </p>
+
+                <p>
+                    📞 Phone:
+                    ${merchant.phone || "-"}
+                </p>
+
+                <p>
+                    Status:
+                    ${merchant.status || "Active"}
+                </p>
+
+                <p>
+                    ${
+                        merchant.online
+                            ? "🟢 Online"
+                            : "⚪ Offline"
+                    }
+                </p>
+
+                <button
+                    onclick="suspendMerchant('${merchant.email}')"
+                >
+                    ⛔ Suspend Merchant
+                </button>
+
+                <button
+                    onclick="deleteMerchant(${index})"
+                >
+                    ❌ Remove Merchant
+                </button>
+
+            </div>
+        `;
+    });
 }
 
 
+// ============================================
+// SUSPEND MERCHANT
+// ============================================
 
-let admin = {
+function suspendMerchant(email) {
 
+    const merchants =
+        getMerchants();
 
-id: Date.now(),
+    const merchant =
+        merchants.find(function(item) {
+            return item.email === email;
+        });
 
-name:name,
+    if (!merchant) {
+        alert("Merchant not found.");
+        return;
+    }
 
-email:email,
+    merchant.status =
+        "Suspended";
 
-password:password
+    merchant.online =
+        false;
 
+    saveMerchants(merchants);
 
-};
+    // Update active session if it belongs
+    try {
+        const session =
+            JSON.parse(
+                localStorage.getItem("merchant")
+            );
 
+        if (
+            session &&
+            session.email === email
+        ) {
+            localStorage.setItem(
+                "merchant",
+                JSON.stringify(merchant)
+            );
+        }
+    } catch (error) {
+        console.warn(
+            "Could not update merchant session."
+        );
+    }
 
+    alert("Merchant suspended.");
 
-admins.push(admin);
-
-
-
-localStorage.setItem(
-"admins",
-JSON.stringify(admins)
-);
-
-
-
-alert("Admin account created successfully");
-
-
-
-window.location.href =
-"admin-login.html";
-
-
-}
-
-function loadAdminStats(){
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
-
-
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
-
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-let productBox =
-document.getElementById("adminProducts");
-
-let merchantBox =
-document.getElementById("adminMerchants");
-
-let customerBox =
-document.getElementById("adminCustomers");
-
-let orderBox =
-document.getElementById("adminOrders");
-
-
-if(productBox){
-
-productBox.innerText = products.length;
-
+    loadAdminMerchants();
 }
 
 
-if(merchantBox){
+// ============================================
+// DELETE MERCHANT
+// ============================================
 
-merchantBox.innerText = merchants.length;
+function deleteMerchant(index) {
 
+    const merchants =
+        getMerchants();
+
+    if (!merchants[index]) {
+        alert("Merchant not found.");
+        return;
+    }
+
+    merchants.splice(index, 1);
+
+    saveMerchants(merchants);
+
+    alert("Merchant removed.");
+
+    loadAdminMerchants();
 }
 
 
-if(customerBox){
+// ============================================
+// ADMIN CUSTOMERS
+// ============================================
 
-customerBox.innerText = users.length;
+function loadAdminUsers() {
 
+    const box =
+        document.getElementById(
+            "adminUserList"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    const users =
+        getUsers();
+
+    box.innerHTML = "";
+
+    if (users.length === 0) {
+        box.innerHTML =
+            "<p>No customers found.</p>";
+        return;
+    }
+
+    users.forEach(function(user) {
+
+        box.innerHTML += `
+
+            <div class="product">
+
+                <h3>
+                    👤 ${user.name}
+                </h3>
+
+                <p>
+                    📧 ${user.email}
+                </p>
+
+            </div>
+        `;
+    });
 }
 
 
-if(orderBox){
-
-orderBox.innerText = orders.length;
-
-}
-
-}
-
-function loadAdminOrders(){
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-let box =
-document.getElementById("adminOrdersList");
-
-
-if(!box) return;
-
-
-box.innerHTML = "";
-
-
-if(orders.length === 0){
-
-box.innerHTML =
-"<p>No orders yet.</p>";
-
-return;
-
-}
-
-
-orders.forEach(function(order){
-
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>
-🧾 Order #${order.id}
-</h3>
-
-
-<p>
-👤 Customer:
-${order.customer}
-</p>
-
-
-<p>
-💰 Total:
-$${order.total}
-</p>
-
-
-<p>
-📦 Status:
-${order.status}
-</p>
-
-
-<p>
-📅 ${order.date}
-</p>
-
-
-<button onclick="adminUpdateOrder(${order.id},'Approved')">
-
-Approve
-
-</button>
-
-
-<button onclick="adminUpdateOrder(${order.id},'Completed')">
-
-Complete
-
-</button>
-
-
-</div>
-
-`;
-
-});
-
-}
-
-function adminUpdateOrder(id,status){
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-orders.forEach(function(order){
-
-if(order.id === id){
-
-order.status = status;
-
-}
-
-});
-
-
-localStorage.setItem(
-"orders",
-JSON.stringify(orders)
-);
-
-
-loadAdminOrders();
-
-}
-
-function loadAdminMerchants(){
-
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
-
-
-let box =
-document.getElementById("adminMerchantList");
-
-
-if(!box) return;
-
-
-box.innerHTML="";
-
-
-if(merchants.length === 0){
-
-box.innerHTML =
-"<p>No merchants found.</p>";
-
-return;
-
+// ============================================
+// ADMIN ORDERS
+// ============================================
+
+function loadAdminOrders() {
+
+    const orders =
+        getOrders();
+
+    const box =
+        document.getElementById(
+            "adminOrdersList"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    box.innerHTML = "";
+
+    if (orders.length === 0) {
+        box.innerHTML =
+            "<p>No orders yet.</p>";
+        return;
+    }
+
+    orders.forEach(function(order) {
+
+        box.innerHTML += `
+
+            <div class="product">
+
+                <h3>
+                    🧾 Order #${order.id}
+                </h3>
+
+                <p>
+                    👤 Customer:
+                    ${order.customer || "-"}
+                </p>
+
+                <p>
+                    📧 Email:
+                    ${order.customerEmail || order.email || "-"}
+                </p>
+
+                <p>
+                    💰 Total:
+                    $${Number(order.total || 0).toFixed(2)}
+                </p>
+
+                <p>
+                    📦 Status:
+                    ${order.status || "New"}
+                </p>
+
+                <p>
+                    🚚 Shipping:
+                    ${order.shippingStatus || "Processing"}
+                </p>
+
+                <p>
+                    📅 Date:
+                    ${order.date || "-"}
+                </p>
+
+                <button
+                    onclick="adminUpdateOrder(${order.id}, 'Approved')"
+                >
+                    ✅ Approve
+                </button>
+
+                <button
+                    onclick="adminUpdateOrder(${order.id}, 'Completed')"
+                >
+                    ✔ Complete
+                </button>
+
+            </div>
+        `;
+    });
 }
 
 
-merchants.forEach(function(merchant,index){
+// ============================================
+// ADMIN ORDER STATUS
+// ============================================
 
+function adminUpdateOrder(id, status) {
 
-box.innerHTML += `
+    const orders =
+        getOrders();
 
-<div class="product">
+    const order =
+        orders.find(function(item) {
+            return item.id === id;
+        });
 
-<h3>🏪 ${merchant.storeName}</h3>
+    if (!order) {
+        alert("Order not found.");
+        return;
+    }
 
-<p>
-👤 Owner:
-${merchant.name}
-</p>
+    order.status = status;
 
-<p>
-📧 Email:
-${merchant.email}
-</p>
+    saveOrders(orders);
 
-<p>
-Status:
-${merchant.status || "Active"}
-</p>
-
-<button onclick="suspendMerchant('${merchant.email}')">
-
-⛔ Suspend Merchant
-
-</button>
-
-
-<button onclick="deleteMerchant(${index})">
-
-❌ Remove Merchant
-
-</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-function deleteMerchant(index){
-
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
-
-
-merchants.splice(index,1);
-
-
-localStorage.setItem(
-"merchants",
-JSON.stringify(merchants)
-);
-
-
-alert("Merchant removed");
-
-
-loadAdminMerchants();
-
-}
-
-// ================= ADMIN PRODUCTS =================
-
-function loadAdminProducts(){
-
-
-let box =
-document.getElementById("adminProducts");
-
-
-if(!box) return;
-
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-box.innerHTML="";
-
-
-
-products.forEach(function(product,index){
-
-
-box.innerHTML += `
-
-<div class="product">
-
-
-<h3>
-${product.name}
-</h3>
-
-
-<p>
-Seller: ${product.merchantName}
-</p>
-
-
-<p>
-Status:
-${product.status}
-</p>
-
-
-
-<button onclick="approveProduct(${index})">
-
-✅ Approve
-
-</button>
-
-
-
-<button onclick="rejectProduct(${index})">
-
-❌ Reject
-
-</button>
-
-
-
-<button onclick="deleteProduct(${index})">
-
-🗑 Delete
-
-</button>
-
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-// ================= DELETE PRODUCT =================
-
-
-function deleteProduct(index){
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-products.splice(index,1);
-
-
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
-
-
-alert("Product deleted");
-
-
-loadAdminProducts();
-
-
-}
-
-function suspendMerchant(email){
-
-
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
-
-
-let merchant =
-merchants.find(function(item){
-
-return item.email === email;
-
-});
-
-
-if(merchant){
-
-merchant.status="Suspended";
-
-}
-
-
-localStorage.setItem(
-"merchants",
-JSON.stringify(merchants)
-);
-
-
-alert("Merchant suspended");
-
-
-}
-
-  function loadAdminUsers(){
-
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
-
-
-let box =
-document.getElementById("adminUserList");
-
-
-if(!box) return;
-
-
-box.innerHTML="";
-
-
-if(users.length === 0){
-
-box.innerHTML =
-"<p>No customers found.</p>";
-
-return;
-
-}
-
-
-users.forEach(function(user){
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>
-👤 ${user.name}
-</h3>
-
-<p>
-📧 ${user.email}
-</p>
-
-</div>
-
-`;
-
-});
-
+    loadAdminOrders();
 }
