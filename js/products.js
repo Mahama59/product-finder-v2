@@ -456,43 +456,60 @@ function createProductCard(product, options = {}) {
 function loadMarketplaceProducts() {
 
     const box =
-        document.getElementById(
-            "marketplaceProducts"
-        );
+        document.getElementById("marketplaceProducts");
 
     if (!box) {
+        alert("Marketplace container not found");
         return;
     }
 
-    const products =
-        getStoredProducts();
+    let products = [];
 
-    const approvedProducts =
+    try {
+        products =
+            JSON.parse(
+                localStorage.getItem("merchantProducts")
+            ) || [];
+    } catch (error) {
+        alert("Cannot read merchantProducts");
+        return;
+    }
+
+    alert("Products found: " + products.length);
+
+    const approved =
         products.filter(function(product) {
-            return product.status === "Approved";
+            return String(product.status).trim() === "Approved";
         });
+
+    alert("Approved: " + approved.length);
 
     box.innerHTML = "";
 
-    if (approvedProducts.length === 0) {
+    if (approved.length === 0) {
         box.innerHTML =
-            "<p>No approved products available yet.</p>";
+            "<p>No approved products found.</p>";
         return;
     }
 
-    approvedProducts.forEach(function(product) {
+    approved.forEach(function(product) {
 
-        box.appendChild(
-            createProductCard(product, {
-                showChat: true,
-                showWishlist: true,
-                showCompare: true
-            })
-        );
+        const div =
+            document.createElement("div");
 
+        div.className = "product";
+
+        div.innerHTML = `
+            <h3>${product.name || "Product"}</h3>
+            <p>💰 Price: $${product.price || 0}</p>
+            <p>📂 Category: ${product.category || "-"}</p>
+            <p>🏪 Seller: ${product.merchantName || "-"}</p>
+            <p>📦 Status: ${product.status || "-"}</p>
+        `;
+
+        box.appendChild(div);
     });
 }
-
 
 // ============================================
 // SEARCH
