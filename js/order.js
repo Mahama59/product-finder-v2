@@ -1,381 +1,595 @@
-alert("order.js connected");
+// ============================================
+// PRODUCT FINDER - ORDER.JS
+// Checkout, orders, Paystack and tracking
+// ============================================
+
+console.log("order.js loaded");
 
 
+// ============================================
+// STORAGE HELPERS
+// ============================================
+
+function getCart() {
+
+    try {
+        return JSON.parse(
+            localStorage.getItem("cart")
+        ) || [];
+    } catch (error) {
+        console.error("Could not read cart:", error);
+        return [];
+    }
+}
+
+
+function getOrders() {
+
+    try {
+        return JSON.parse(
+            localStorage.getItem("orders")
+        ) || [];
+    } catch (error) {
+        console.error("Could not read orders:", error);
+        return [];
+    }
+}
+
+
+function saveOrders(orders) {
+
+    localStorage.setItem(
+        "orders",
+        JSON.stringify(orders)
+    );
+}
+
+
+// ============================================
 // LOAD CHECKOUT
+// ============================================
 
-function loadCheckout(){
-alert(JSON.stringify(cart));
+function loadCheckout() {
 
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
+    const cart = getCart();
 
+    const box =
+        document.getElementById(
+            "checkoutItems"
+        );
 
-alert(
-"Checkout Cart Items: " + cart.length
-);
+    const totalBox =
+        document.getElementById(
+            "checkoutTotal"
+        );
 
+    if (!box) {
+        return;
+    }
 
-let box =
-document.getElementById("checkoutItems");
+    box.innerHTML = "";
 
+    let total = 0;
 
-let totalBox =
-document.getElementById("checkoutTotal");
+    if (cart.length === 0) {
 
+        box.innerHTML =
+            "<p>Your cart is empty.</p>";
 
+        if (totalBox) {
+            totalBox.innerText = "0.00";
+        }
 
-if(!box) return;
+        return;
+    }
 
+    cart.forEach(function(item) {
 
+        const price =
+            Number(item.price || 0);
 
-box.innerHTML="";
+        const quantity =
+            Number(item.quantity || 0);
 
+        total += price * quantity;
 
-let total = 0;
+        box.innerHTML += `
+            <p>
+                ${item.name || "Product"}
+                x ${quantity}
+                -
+                $${price.toFixed(2)}
+            </p>
+        `;
+    });
 
-
-
-cart.forEach(function(item){
-
-
-total += item.price * item.quantity;
-
-
-
-box.innerHTML += `
-
-<p>
-${item.name} x ${item.quantity}
-- $${item.price}
-</p>
-
-`;
-
-
-
-});
-
-
-
-totalBox.innerText = total;
-
-
+    if (totalBox) {
+        totalBox.innerText =
+            total.toFixed(2);
+    }
 }
 
 
-
+// ============================================
 // PLACE ORDER
-function placeOrder(){
+// ============================================
 
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
+function placeOrder() {
 
+    const cart = getCart();
 
-if(cart.length === 0){
+    if (cart.length === 0) {
+        alert("Cart is empty.");
+        return;
+    }
 
-alert("Cart is empty");
+    const customerName =
+        document.getElementById(
+            "customerName"
+        )?.value.trim();
 
-return;
+    const customerEmail =
+        document.getElementById(
+            "customerEmail"
+        )?.value.trim().toLowerCase();
 
+    const customerPhone =
+        document.getElementById(
+            "customerPhone"
+        )?.value.trim();
+
+    if (
+        !customerName ||
+        !customerEmail ||
+        !customerPhone
+    ) {
+        alert(
+            "Please complete all customer details."
+        );
+        return;
+    }
+
+    const selectedPayment =
+        document.querySelector(
+            'input[name="paymentMethod"]:checked'
+        );
+
+    if (!selectedPayment) {
+        alert(
+            "Please select a payment method."
+        );
+        return;
+    }
+
+    const paymentMethod =
+        selectedPayment.value;
+
+    if (
+        paymentMethod.toLowerCase()
+        === "paystack"
+    ) {
+
+        payWithPaystack();
+
+    } else {
+
+        createOrder(
+            "Cash on Delivery"
+        );
+    }
 }
 
 
-let customerName =
-document.getElementById("customerName").value.trim();
+// ============================================
+// CREATE ORDER
+// ============================================
 
-let customerEmail =
-document.getElementById("customerEmail").value.trim();
+function createOrder(
+    paymentMethod,
+    paymentReference = ""
+) {
 
-let customerPhone =
-document.getElementById("customerPhone").value.trim();
+    const cart = getCart();
 
+    if (cart.length === 0) {
+        alert("Cart is empty.");
+        return;
+    }
 
-if(!customerName || !customerEmail || !customerPhone){
+    const customerName =
+        document.getElementById(
+            "customerName"
+        )?.value.trim();
 
-alert("Please complete all customer details");
+    const customerEmail =
+        document.getElementById(
+            "customerEmail"
+        )?.value.trim().toLowerCase();
 
-return;
+    const customerPhone =
+        document.getElementById(
+            "customerPhone"
+        )?.value.trim();
 
+    const address =
+        document.getElementById(
+            "customerAddress"
+        )?.value.trim() || "";
+
+    const city =
+        document.getElementById(
+            "customerCity"
+        )?.value.trim() || "";
+
+    if (
+        !customerName ||
+        !customerEmail ||
+        !customerPhone
+    ) {
+        alert(
+            "Please complete customer details."
+        );
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach(function(item) {
+
+        total +=
+            Number(item.price || 0) *
+            Number(item.quantity || 0);
+
+    });
+
+    const orders = getOrders();
+
+    const order = {
+
+        id: Date.now(),
+
+        customer:
+            customerName,
+
+        customerEmail:
+            customerEmail,
+
+        email:
+            customerEmail,
+
+        phone:
+            customerPhone,
+
+        address:
+            address,
+
+        city:
+            city,
+
+        items:
+            cart.map(function(item) {
+
+                return {
+
+                    id:
+                        item.id,
+
+                    name:
+                        item.name,
+
+                    price:
+                        Number(item.price || 0),
+
+                    quantity:
+                        Number(
+                            item.quantity || 0
+                        ),
+
+                    merchantEmail:
+                        item.merchantEmail || ""
+
+                };
+
+            }),
+
+        total:
+            total,
+
+        paymentMethod:
+            paymentMethod,
+
+        paymentReference:
+            paymentReference,
+
+        paymentStatus:
+            paymentMethod ===
+            "Paystack"
+                ? "Paid"
+                : "Pending",
+
+        status:
+            "New",
+
+        shippingStatus:
+            "Processing",
+
+        trackingNumber:
+            "Not assigned",
+
+        date:
+            new Date().toLocaleString()
+
+    };
+
+    orders.push(order);
+
+    saveOrders(orders);
+
+    // Keep customer email available
+    // for existing customer-order pages.
+    localStorage.setItem(
+        "customerEmail",
+        customerEmail
+    );
+
+    // Notify customer if notifications.js exists.
+    if (
+        typeof addNotification ===
+        "function"
+    ) {
+
+        addNotification(
+            "Your order #" +
+            order.id +
+            " has been placed successfully 🎉"
+        );
+
+    }
+
+    localStorage.removeItem(
+        "cart"
+    );
+
+    alert(
+        "Order placed successfully 🎉"
+    );
+
+    window.location.href =
+        "success.html";
 }
 
 
-let paymentMethod =
-document.querySelector(
-'input[name="paymentMethod"]:checked'
-).value;
+// ============================================
+// CUSTOMER ORDER TRACKING
+// ============================================
 
+function loadCustomerOrders() {
 
+    const orders =
+        getOrders();
 
-if(paymentMethod === "Paystack"){
+    const email =
+        (
+            localStorage.getItem(
+                "customerEmail"
+            ) || ""
+        )
+        .trim()
+        .toLowerCase();
 
-payWithPaystack();
+    const box =
+        document.getElementById(
+            "customerOrders"
+        );
 
-}
-else{
+    if (!box) {
+        return;
+    }
 
-createOrder("Cash on Delivery");
+    box.innerHTML = "";
 
-}
+    if (!email) {
 
-}
+        box.innerHTML =
+            "<p>Please login first.</p>";
 
+        return;
+    }
 
-// ================= CUSTOMER ORDER TRACKING =================
+    const myOrders =
+        orders.filter(function(order) {
 
-function loadCustomerOrders(){
+            return (
+                String(
+                    order.customerEmail ||
+                    order.email ||
+                    ""
+                )
+                .trim()
+                .toLowerCase() ===
+                email
+            );
 
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
+        });
 
+    if (myOrders.length === 0) {
 
-let email =
-localStorage.getItem("customerEmail");
+        box.innerHTML =
+            "<p>No orders found.</p>";
 
+        return;
+    }
 
-let box =
-document.getElementById("customerOrders");
+    myOrders.forEach(function(order) {
 
+        box.innerHTML += `
 
-if(!box) return;
+            <div class="product">
 
+                <h3>
+                    🧾 Order #${order.id}
+                </h3>
 
-box.innerHTML="";
+                <p>
+                    📦 Order Status:
+                    ${order.status || "New"}
+                </p>
 
+                <p>
+                    💳 Payment:
+                    ${order.paymentStatus || "Pending"}
+                </p>
 
-if(orders.length === 0){
+                <p>
+                    🚚 Shipping:
+                    ${order.shippingStatus || "Processing"}
+                </p>
 
-box.innerHTML =
-"<p>No orders found.</p>";
+                <p>
+                    🔎 Tracking Number:
+                    ${order.trackingNumber || "Not assigned"}
+                </p>
 
-return;
+                <p>
+                    📍 Address:
+                    ${order.address || "Not provided"}
+                </p>
 
-}
+                <p>
+                    💰 Total:
+                    $${Number(order.total || 0).toFixed(2)}
+                </p>
 
+                <p>
+                    📅 Date:
+                    ${order.date || "-"}
+                </p>
 
-
-let myOrders =
-orders.filter(function(order){
-
-return order.customerEmail === email;
-
-});
-
-
-myOrders.forEach(function(order){
-
-
-box.innerHTML += `
-
-<div class="product">
-
-
-<h3>
-🧾 Order #${order.id}
-</h3>
-
-
-<p>
-📦 Order Status:
-${order.status}
-</p>
-
-
-<p>
-🚚 Shipping:
-${order.shippingStatus || "Processing"}
-</p>
-
-
-<p>
-🔎 Tracking Number:
-${order.trackingNumber || "Not assigned"}
-</p>
-
-
-<p>
-📍 Address:
-${order.address || "Not provided"}
-</p>
-
-
-<p>
-📅 Date:
-${order.date}
-</p>
-
-
-</div>
-
-`;
-
-});
-
-
+            </div>
+        `;
+    });
 }
 
-function createOrder(paymentMethod){
 
-
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
-
-
-let total = 0;
-
-
-cart.forEach(function(item){
-
-total += item.price * item.quantity;
-
-});
-
-
-let orders =
-JSON.parse(localStorage.getItem("orders")) || [];
-
-
-let order = {
-
-
-id: Date.now(),
-
-
-address:
-document.getElementById("customerAddress").value,
-
-
-city:
-document.getElementById("customerCity").value,
-
-
-customer:
-document.getElementById("customerName").value,
-
-
-email:
-document.getElementById("customerEmail").value,
-
-customerEmail:
-document.getElementById("customerEmail").value,
-
-phone:
-document.getElementById("customerPhone").value,
-
-
-items: cart,
-
-
-total: total,
-
-
-paymentMethod: paymentMethod,
-
-
-trackingNumber:"Not assigned",
-
-
-shippingStatus:"Processing",
-
-
-status:"New",
-
-
-date:new Date().toLocaleString()
-
-
-};
-
-
-
-orders.push(order);
-
-
-
-localStorage.setItem(
-"orders",
-JSON.stringify(orders)
-);
-
-addNotification(
-"Your order #" + order.id + " has been placed successfully 🎉"
-);
-
-localStorage.setItem(
-"customerEmail",
-document.getElementById("customerEmail").value
-);
-
-localStorage.removeItem("cart");
-
-
-
-alert("Order placed successfully 🎉");
-
-
-
-window.location.href =
-"success.html";
-
-
-}
-
-function payWithPaystack(){
-
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
-
-
-let total = 0;
-
-
-cart.forEach(function(item){
-
-total += item.price * item.quantity;
-
-});
-
-
-let handler = PaystackPop.setup({
-
-key: "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d",
-
-email:
-document.getElementById("customerEmail").value,
-
-
-amount:
-total * 100,
-
-
-currency: "GHS",
-
-
-callback: function(response){
-
-
-alert(
-"Payment successful. Reference: "
-+ response.reference
-);
-
-
-createOrder("Paystack");
-
-
-},
-
-
-onClose: function(){
-
-
-alert("Payment cancelled");
-
-
-}
-
-});
-
-
-handler.openIframe();
-
+// ============================================
+// PAYSTACK
+// ============================================
+
+function payWithPaystack() {
+
+    const cart = getCart();
+
+    if (cart.length === 0) {
+        alert("Cart is empty.");
+        return;
+    }
+
+    const email =
+        document.getElementById(
+            "customerEmail"
+        )?.value.trim();
+
+    if (!email) {
+        alert("Please enter your email.");
+        return;
+    }
+
+    if (
+        typeof PaystackPop ===
+        "undefined"
+    ) {
+        alert(
+            "Paystack has not loaded. Please refresh and try again."
+        );
+        return;
+    }
+
+    let total = 0;
+
+    cart.forEach(function(item) {
+
+        total +=
+            Number(item.price || 0) *
+            Number(item.quantity || 0);
+
+    });
+
+    if (total <= 0) {
+        alert(
+            "Order total must be greater than zero."
+        );
+        return;
+    }
+
+    /*
+     * Use your Paystack PUBLIC/TEST key here.
+     * Never put a Paystack SECRET KEY in frontend code.
+     *
+     * For production, payment initialization and
+     * verification should move to your backend.
+     */
+    const publicKey =
+        "YOUR_PAYSTACK_PUBLIC_KEY";
+
+    if (
+        publicKey ===
+        "YOUR_PAYSTACK_PUBLIC_KEY"
+    ) {
+        alert(
+            "Add your Paystack public key before testing payment."
+        );
+        return;
+    }
+
+    const reference =
+        "PF-" +
+        Date.now() +
+        "-" +
+        Math.random()
+            .toString(36)
+            .slice(2, 8);
+
+    const handler =
+        PaystackPop.setup({
+
+            key:
+                publicKey,
+
+            email:
+                email,
+
+            amount:
+                Math.round(total * 100),
+
+            currency:
+                "GHS",
+
+            ref:
+                reference,
+
+            callback:
+                function(response) {
+
+                    alert(
+                        "Payment successful.\nReference: " +
+                        response.reference
+                    );
+
+                    createOrder(
+                        "Paystack",
+                        response.reference
+                    );
+                },
+
+            onClose:
+                function() {
+
+                    alert(
+                        "Payment cancelled."
+                    );
+                }
+
+        });
+
+    handler.openIframe();
 }
