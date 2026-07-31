@@ -1,1301 +1,1577 @@
-alert("products.js connected");
+// ============================================
+// PRODUCT FINDER - PRODUCTS.JS
+// Products, Marketplace, Search, Wishlist,
+// Reviews, Seller Store, Recommendations,
+// Product Comparison and Product Details
+// ============================================
+
+console.log("products.js loaded");
 
 
-// ================= SAVE PRODUCT =================
+// ============================================
+// STORAGE HELPERS
+// ============================================
 
-function saveProduct(){
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-if(!merchant){
-    alert("Please login first");
-    return;
+function getStoredProducts() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("merchantProducts")
+        ) || [];
+    } catch (error) {
+        console.error("Could not read products:", error);
+        return [];
+    }
 }
 
-if(merchant.status === "Suspended"){
-    alert("Your account is suspended.");
-    return;
+function saveStoredProducts(products) {
+    localStorage.setItem(
+        "merchantProducts",
+        JSON.stringify(products)
+    );
 }
 
-
-  
-if(!merchant){
-
-alert("Please login first");
-
-return;
-
-}
-
-
-
-let name =
-document.getElementById("productName").value.trim();
-
-
-let price =
-document.getElementById("productPrice").value;
-
-
-let category =
-document.getElementById("productCategory").value.trim();
-
-
-let description =
-document.getElementById("productDescription").value.trim();
-
-
-let stock =
-document.getElementById("productStock").value;
-
-
-
-if(!name || !price || !category || !stock){
-
-alert("Complete product details");
-
-return;
-
+function getStoredReviews() {
+    try {
+        return JSON.parse(
+            localStorage.getItem("reviews")
+        ) || [];
+    } catch (error) {
+        console.error("Could not read reviews:", error);
+        return [];
+    }
 }
 
 
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-let product = {
-
-
-id: Date.now(),
-
-name:name,
-
-price:Number(price),
-
-category:category,
-
-description:description,
-
-stock:Number(stock),
-
-
-image:
-document.getElementById("imagePreview").src || 
-"https://via.placeholder.com/250",
-
-
-merchantEmail:
-merchant.email,
-
-merchantName:
-merchant.storeName,
-
-
-status:"Pending"
-
-
-};
-
-
-
-products.push(product);
-localStorage.setItem(
-"merchantProducts",
-JSON.stringify(products)
-);
-
-alert("Product saved successfully");
-
-window.location.href =
-"merchant-dashboard.html";
-
-}
-
-function previewImage(event){
-
-let file = event.target.files[0];
-
-
-if(!file){
-
-document.getElementById("imagePreview").src =
-"https://via.placeholder.com/250";
-
-return;
-
-}
-
-
-let reader = new FileReader();
-
-
-reader.onload = function(e){
-
-document.getElementById("imagePreview").src =
-e.target.result;
-
-};
-
-
-reader.readAsDataURL(file);
-
-}
-
-function loadMarketplaceProducts(){
-
-let box = document.getElementById("marketplaceProducts");
-
-if(!box) {
-    alert("Marketplace box not found");
-    return;
-}
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-alert("Marketplace products: " + products.length);
-
-
-// ONLY SHOW APPROVED PRODUCTS
-let approvedProducts =
-products.filter(function(product){
-
-return product.status === "Approved";
-
-});
-
-
-alert("Approved products: " + approvedProducts.length);
-
-
-box.innerHTML = "";
-
-
-approvedProducts.forEach(function(product){
-
-console.log(product);
-
-
-box.innerHTML += `
-
-<div class="product">
-
-<img 
-src="${product.image || 'https://via.placeholder.com/250'}"
-width="250">
-
-
-<h3>${product.name}</h3>
-
-<p class="price">
-💰 $${product.price}
-</p>
-
-<p>
-📂 Category:
-${product.category}
-</p>
-
-<p>
-
-🏪 Seller:
-
-<a class="seller-link"
-href="#"
-onclick="openSellerStore('${product.merchantEmail}')">
-
-${product.merchantName}
-
-</a>
-
-</p>
-
-<p>
-${getSellerStatus(product.merchantEmail)}
-</p>
-
-<button onclick="openProduct(${product.id})">
-👁 View Product
-</button>
-
-<button onclick="addToCart(
-'${product.name.replace(/'/g,"\\'")}',
-${product.price},
-'${product.merchantEmail}'
-)">
-🛒 Add To Cart
-</button>
-
-<button onclick="openChat(
-'${product.merchantEmail}',
-${product.id}
-)">
-💬 Chat with Seller
-</button>
-
-<button onclick="addToCompare(${product.id})">
-
-⚖️ Compare
-
-</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-  
-function openProduct(id){
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let product =
-products.find(function(p){
-
-return p.id == id;
-
-});
-
-
-if(product){
-
-localStorage.setItem(
-"selectedProduct",
-JSON.stringify(product)
-);
-
-
-window.location.href =
-"product-details.html";
-
-}
-
-}
-
-// ================= LOAD PRODUCT DETAILS =================
-
-function loadProductDetails(){
-
-let product =
-JSON.parse(localStorage.getItem("selectedProduct"));
-
-
-if(!product){
-
-alert("Product not found");
-
-return;
-
+// ============================================
+// SAVE PRODUCT
+// ============================================
+
+function saveProduct() {
+
+    const merchant = (() => {
+        try {
+            return JSON.parse(
+                localStorage.getItem("merchant")
+            );
+        } catch (error) {
+            return null;
+        }
+    })();
+
+    if (!merchant) {
+        alert("Please login first.");
+        return;
+    }
+
+    if (merchant.status === "Suspended") {
+        alert(
+            "Your account is suspended. You cannot add products."
+        );
+        return;
+    }
+
+    const name =
+        document.getElementById("productName")
+        ?.value
+        .trim();
+
+    const price =
+        document.getElementById("productPrice")
+        ?.value;
+
+    const category =
+        document.getElementById("productCategory")
+        ?.value
+        .trim();
+
+    const description =
+        document.getElementById("productDescription")
+        ?.value
+        .trim() || "";
+
+    const stock =
+        document.getElementById("productStock")
+        ?.value;
+
+    if (
+        !name ||
+        price === "" ||
+        !category ||
+        stock === ""
+    ) {
+        alert("Complete product details.");
+        return;
+    }
+
+    const numericPrice = Number(price);
+    const numericStock = Number(stock);
+
+    if (
+        !Number.isFinite(numericPrice) ||
+        numericPrice < 0
+    ) {
+        alert("Enter a valid price.");
+        return;
+    }
+
+    if (
+        !Number.isFinite(numericStock) ||
+        numericStock < 0
+    ) {
+        alert("Enter a valid stock quantity.");
+        return;
+    }
+
+    const imageElement =
+        document.getElementById("imagePreview");
+
+    const image =
+        imageElement?.src ||
+        "https://via.placeholder.com/250";
+
+    const products =
+        getStoredProducts();
+
+    const product = {
+        id: Date.now(),
+        name: name,
+        price: numericPrice,
+        category: category,
+        description: description,
+        stock: numericStock,
+        image: image,
+        merchantEmail: merchant.email,
+        merchantName:
+            merchant.storeName ||
+            merchant.name ||
+            "Seller",
+        status: "Pending",
+        createdAt: new Date().toISOString()
+    };
+
+    products.push(product);
+
+    saveStoredProducts(products);
+
+    alert(
+        "Product saved successfully and sent for approval."
+    );
+
+    window.location.href =
+        "merchant-dashboard.html";
 }
 
 
-let image =
-document.getElementById("productImage");
+// ============================================
+// IMAGE PREVIEW
+// ============================================
 
-let name =
-document.getElementById("productName");
+function previewImage(event) {
 
-let price =
-document.getElementById("productPrice");
+    const preview =
+        document.getElementById("imagePreview");
 
-let seller =
-document.getElementById("productSeller");
+    if (!preview) {
+        return;
+    }
 
-let category =
-document.getElementById("productCategory");
+    const file =
+        event?.target?.files?.[0];
 
-let description =
-document.getElementById("productDescription");
+    if (!file) {
+        preview.src =
+            "https://via.placeholder.com/250";
+        return;
+    }
 
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        preview.src =
+            "https://via.placeholder.com/250";
+        return;
+    }
 
-if(image){
+    const reader =
+        new FileReader();
 
-image.src = product.image;
+    reader.onload = function(e) {
+        preview.src = e.target.result;
+    };
 
+    reader.onerror = function() {
+        preview.src =
+            "https://via.placeholder.com/250";
+        alert("Could not load the selected image.");
+    };
+
+    reader.readAsDataURL(file);
 }
 
 
-if(name){
+// ============================================
+// PRODUCT CARD
+// ============================================
 
-name.innerText = product.name;
+function createProductCard(product, options = {}) {
 
+    const showChat =
+        options.showChat !== false;
+
+    const showCompare =
+        options.showCompare === true;
+
+    const showWishlist =
+        options.showWishlist !== false;
+
+    const card =
+        document.createElement("div");
+
+    card.className = "product";
+
+    const image =
+        document.createElement("img");
+
+    image.src =
+        product.image ||
+        "https://via.placeholder.com/250";
+
+    image.alt =
+        product.name || "Product";
+
+    const title =
+        document.createElement("h3");
+
+    title.textContent =
+        product.name || "Unnamed Product";
+
+    const price =
+        document.createElement("p");
+
+    price.className = "price";
+    price.textContent =
+        "💰 $" +
+        Number(product.price || 0).toFixed(2);
+
+    const category =
+        document.createElement("p");
+
+    category.textContent =
+        "📂 " + (product.category || "-");
+
+    const seller =
+        document.createElement("p");
+
+    seller.innerHTML = "🏪 Seller: ";
+
+    const sellerLink =
+        document.createElement("a");
+
+    sellerLink.href = "#";
+    sellerLink.className = "seller-link";
+    sellerLink.textContent =
+        product.merchantName || "Seller";
+
+    sellerLink.addEventListener(
+        "click",
+        function(event) {
+            event.preventDefault();
+            openSellerStore(
+                product.merchantEmail
+            );
+        }
+    );
+
+    seller.appendChild(sellerLink);
+
+    const status =
+        document.createElement("p");
+
+    if (
+        typeof getSellerStatus === "function"
+    ) {
+        status.textContent =
+            getSellerStatus(
+                product.merchantEmail
+            );
+    }
+
+    const rating =
+        document.createElement("p");
+
+    rating.className = "rating";
+    rating.textContent =
+        "⭐ " +
+        getProductRating(product.id);
+
+    const stock =
+        document.createElement("p");
+
+    const stockNumber =
+        Number(product.stock || 0);
+
+    stock.className = "stock";
+
+    if (stockNumber <= 0) {
+        stock.textContent =
+            "❌ Out of Stock";
+    } else if (stockNumber <= 5) {
+        stock.textContent =
+            "⚠️ Low Stock";
+    } else {
+        stock.textContent =
+            "✅ In Stock";
+    }
+
+    const viewButton =
+        document.createElement("button");
+
+    viewButton.textContent =
+        "👁 View Product";
+
+    viewButton.addEventListener(
+        "click",
+        function() {
+            openProduct(product.id);
+        }
+    );
+
+    const cartButton =
+        document.createElement("button");
+
+    cartButton.textContent =
+        "🛒 Add To Cart";
+
+    cartButton.addEventListener(
+        "click",
+        function() {
+
+            if (
+                typeof addToCart !== "function"
+            ) {
+                alert("Cart system is unavailable.");
+                return;
+            }
+
+            if (stockNumber <= 0) {
+                alert("This product is out of stock.");
+                return;
+            }
+
+            addToCart(
+                product.name,
+                product.price,
+                product.merchantEmail
+            );
+        }
+    );
+
+    card.appendChild(image);
+    card.appendChild(title);
+    card.appendChild(price);
+    card.appendChild(category);
+    card.appendChild(seller);
+    card.appendChild(status);
+    card.appendChild(rating);
+    card.appendChild(stock);
+    card.appendChild(viewButton);
+    card.appendChild(cartButton);
+
+    if (showWishlist) {
+
+        const wishlistButton =
+            document.createElement("button");
+
+        wishlistButton.textContent =
+            "❤️ Wishlist";
+
+        wishlistButton.addEventListener(
+            "click",
+            function() {
+                addToWishlistById(
+                    product.id
+                );
+            }
+        );
+
+        card.appendChild(wishlistButton);
+    }
+
+    if (showChat) {
+
+        const chatButton =
+            document.createElement("button");
+
+        chatButton.textContent =
+            "💬 Chat with Seller";
+
+        chatButton.addEventListener(
+            "click",
+            function() {
+
+                if (
+                    typeof openChat !== "function"
+                ) {
+                    alert("Chat system is unavailable.");
+                    return;
+                }
+
+                openChat(
+                    product.merchantEmail,
+                    product.id
+                );
+            }
+        );
+
+        card.appendChild(chatButton);
+    }
+
+    if (showCompare) {
+
+        const compareButton =
+            document.createElement("button");
+
+        compareButton.textContent =
+            "⚖️ Compare";
+
+        compareButton.addEventListener(
+            "click",
+            function() {
+                addToCompare(
+                    product.id
+                );
+            }
+        );
+
+        card.appendChild(compareButton);
+    }
+
+    return card;
 }
 
 
-if(price){
+// ============================================
+// MARKETPLACE
+// ============================================
 
-price.innerText = product.price;
+function loadMarketplaceProducts() {
 
+    const box =
+        document.getElementById(
+            "marketplaceProducts"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    const products =
+        getStoredProducts();
+
+    const approvedProducts =
+        products.filter(function(product) {
+            return product.status === "Approved";
+        });
+
+    box.innerHTML = "";
+
+    if (approvedProducts.length === 0) {
+        box.innerHTML =
+            "<p>No approved products available yet.</p>";
+        return;
+    }
+
+    approvedProducts.forEach(function(product) {
+
+        box.appendChild(
+            createProductCard(product, {
+                showChat: true,
+                showWishlist: true,
+                showCompare: true
+            })
+        );
+
+    });
 }
 
 
-if(seller){
+// ============================================
+// SEARCH
+// ============================================
 
-seller.innerText = product.merchantName;
+function searchProducts() {
 
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+    const categoryFilter =
+        document.getElementById(
+            "categoryFilter"
+        );
+
+    const box =
+        document.getElementById(
+            "marketplaceProducts"
+        );
+
+    if (!searchInput || !categoryFilter || !box) {
+        return;
+    }
+
+    const search =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+    const category =
+        categoryFilter.value;
+
+    const products =
+        getStoredProducts();
+
+    const results =
+        products.filter(function(product) {
+
+            if (
+                product.status !== "Approved"
+            ) {
+                return false;
+            }
+
+            const name =
+                String(product.name || "")
+                    .toLowerCase();
+
+            const matchesName =
+                name.includes(search);
+
+            const matchesCategory =
+                category === "" ||
+                product.category === category;
+
+            return (
+                matchesName &&
+                matchesCategory
+            );
+        });
+
+    box.innerHTML = "";
+
+    if (results.length === 0) {
+        box.innerHTML =
+            "<p>No products found.</p>";
+        return;
+    }
+
+    results.forEach(function(product) {
+
+        box.appendChild(
+            createProductCard(product, {
+                showChat: true,
+                showWishlist: true,
+                showCompare: true
+            })
+        );
+    });
 }
 
 
-if(category){
+// ============================================
+// FEATURED PRODUCTS
+// ============================================
 
-category.innerText = product.category;
+function loadFeaturedProducts() {
 
+    const box =
+        document.getElementById(
+            "featuredProducts"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    const products =
+        getStoredProducts();
+
+    const approvedProducts =
+        products.filter(function(product) {
+            return product.status === "Approved";
+        });
+
+    box.innerHTML = "";
+
+    if (approvedProducts.length === 0) {
+        box.innerHTML =
+            "<p>No featured products available yet.</p>";
+        return;
+    }
+
+    approvedProducts
+        .slice(0, 4)
+        .forEach(function(product) {
+
+            box.appendChild(
+                createProductCard(product, {
+                    showChat: true,
+                    showWishlist: true,
+                    showCompare: true
+                })
+            );
+        });
 }
 
 
-if(description){
+// ============================================
+// OPEN PRODUCT
+// ============================================
 
-description.innerText = product.description;
+function openProduct(id) {
 
-}
+    const products =
+        getStoredProducts();
 
-loadReviews();
-}
+    const product =
+        products.find(function(item) {
+            return item.id == id;
+        });
 
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
 
+    localStorage.setItem(
+        "selectedProduct",
+        JSON.stringify(product)
+    );
 
-// ================= ADD CURRENT PRODUCT TO CART =================
-
-function addCurrentProductToCart(){
-
-let product =
-JSON.parse(localStorage.getItem("selectedProduct"));
-
-
-if(!product){
-
-return;
-
-}
-
-
-let cart =
-JSON.parse(localStorage.getItem("cart")) || [];
-
-
-cart.push({
-
-id: product.id,
-
-name: product.name,
-
-price: product.price,
-
-quantity:1,
-
-merchantEmail:product.merchantEmail
-
-});
-
-
-localStorage.setItem(
-"cart",
-JSON.stringify(cart)
-);
-
-
-alert("Added to cart 🛒");
-
-
+    window.location.href =
+        "product-details.html";
 }
 
 
+// ============================================
+// PRODUCT DETAILS
+// ============================================
 
-// ================= SUBMIT REVIEW =================
+function loadProductDetails() {
 
-function submitReview(){
+    let product = null;
 
-let product =
-JSON.parse(localStorage.getItem("selectedProduct"));
+    try {
+        product =
+            JSON.parse(
+                localStorage.getItem(
+                    "selectedProduct"
+                )
+            );
+    } catch (error) {
+        product = null;
+    }
 
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
 
-let reviews =
-JSON.parse(localStorage.getItem("reviews")) || [];
+    const image =
+        document.getElementById(
+            "productImage"
+        );
 
+    const name =
+        document.getElementById(
+            "productName"
+        );
 
-let review = {
+    const price =
+        document.getElementById(
+            "productPrice"
+        );
 
+    const seller =
+        document.getElementById(
+            "productSeller"
+        );
 
-id:Date.now(),
+    const category =
+        document.getElementById(
+            "productCategory"
+        );
 
-productId:product.id,
+    const description =
+        document.getElementById(
+            "productDescription"
+        );
 
-productName:product.name,
+    if (image) {
+        image.src =
+            product.image ||
+            "https://via.placeholder.com/250";
+    }
 
-name:
-document.getElementById("reviewName").value,
+    if (name) {
+        name.innerText =
+            product.name || "";
+    }
 
+    if (price) {
+        price.innerText =
+            Number(product.price || 0).toFixed(2);
+    }
 
-text:
-document.getElementById("reviewText").value,
+    if (seller) {
+        seller.innerText =
+            product.merchantName || "";
+    }
 
+    if (category) {
+        category.innerText =
+            product.category || "";
+    }
 
-rating:
-Number(document.getElementById("reviewRating").value)
+    if (description) {
+        description.innerText =
+            product.description || "";
+    }
 
+    loadReviews();
 
-};
-
-
-reviews.push(review);
-
-
-localStorage.setItem(
-"reviews",
-JSON.stringify(reviews)
-);
-
-
-alert("Review submitted ⭐");
-
-
-loadReviews();
-
+    if (
+        typeof loadRecommendations === "function"
+    ) {
+        loadRecommendations();
+    }
 }
 
 
+// ============================================
+// ADD CURRENT PRODUCT TO CART
+// ============================================
 
-// ================= LOAD REVIEWS =================
+function addCurrentProductToCart() {
 
-function loadReviews(){
+    const product =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedProduct"
+            )
+        );
 
-let product =
-JSON.parse(localStorage.getItem("selectedProduct"));
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
 
+    if (Number(product.stock || 0) <= 0) {
+        alert("This product is out of stock.");
+        return;
+    }
 
-let reviewsBox =
-document.getElementById("reviews");
+    if (
+        typeof addToCart !== "function"
+    ) {
+        alert("Cart system is unavailable.");
+        return;
+    }
 
-
-let ratingBox =
-document.getElementById("averageRating");
-
-
-if(!product || !reviewsBox){
-
-return;
-
+    addToCart(
+        product.name,
+        product.price,
+        product.merchantEmail
+    );
 }
 
 
-let reviews =
-JSON.parse(localStorage.getItem("reviews")) || [];
-
-
-let productReviews =
-reviews.filter(function(review){
-
-return review.productId == product.id;
-
-});
-
-
-reviewsBox.innerHTML="";
-
-
-let total = 0;
-
-
-productReviews.forEach(function(review){
-
-
-total += Number(review.rating);
-
-
-reviewsBox.innerHTML += `
-
-<div class="product">
-
-<h3>
-${review.name}
-</h3>
-
-
-<p>
-${review.text}
-</p>
-
-
-<p>
-${"⭐".repeat(review.rating)}
-</p>
-
-
-</div>
-
-`;
-
-});
-
-
-if(productReviews.length > 0){
-
-ratingBox.innerText =
-(total / productReviews.length).toFixed(1)
-+ " ⭐";
-
-}
-else{
-
-ratingBox.innerText =
-"No ratings yet";
-
-}
-
-
-}
-
-// ================= SEARCH PRODUCTS =================
-
-function searchProducts(){
-
-let search =
-document.getElementById("searchInput").value.toLowerCase();
-
-
-let category =
-document.getElementById("categoryFilter").value;
-
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-
-let approved =
-products.filter(function(product){
-
-return product.status === "Approved";
-
-});
-
-
-
-let results =
-approved.filter(function(product){
-
-
-let matchName =
-product.name.toLowerCase()
-.includes(search);
-
-
-
-let matchCategory =
-category === "" ||
-product.category === category;
-
-
-
-return matchName && matchCategory;
-
-
-});
-
-
-
-let box =
-document.getElementById("marketplaceProducts");
-
-
-box.innerHTML="";
-
-
-
-if(results.length===0){
-
-box.innerHTML =
-"<p>No products found.</p>";
-
-return;
-
+// ============================================
+// REVIEWS
+// ============================================
+
+function submitReview() {
+
+    const product =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedProduct"
+            )
+        );
+
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
+
+    const name =
+        document.getElementById("reviewName")
+        ?.value
+        .trim();
+
+    const text =
+        document.getElementById("reviewText")
+        ?.value
+        .trim();
+
+    const rating =
+        Number(
+            document.getElementById(
+                "reviewRating"
+            )?.value
+        );
+
+    if (!name || !text || !rating) {
+        alert("Please complete the review.");
+        return;
+    }
+
+    const reviews =
+        getStoredReviews();
+
+    reviews.push({
+        id: Date.now(),
+        productId: product.id,
+        productName: product.name,
+        name: name,
+        text: text,
+        rating: rating,
+        createdAt:
+            new Date().toISOString()
+    });
+
+    localStorage.setItem(
+        "reviews",
+        JSON.stringify(reviews)
+    );
+
+    alert("Review submitted ⭐");
+
+    const reviewName =
+        document.getElementById(
+            "reviewName"
+        );
+
+    const reviewText =
+        document.getElementById(
+            "reviewText"
+        );
+
+    if (reviewName) {
+        reviewName.value = "";
+    }
+
+    if (reviewText) {
+        reviewText.value = "";
+    }
+
+    loadReviews();
 }
 
 
+function loadReviews() {
 
-results.forEach(function(product){
+    const product =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedProduct"
+            )
+        );
 
-box.innerHTML += `
+    const reviewsBox =
+        document.getElementById(
+            "reviews"
+        );
 
-<div class="product">
+    const ratingBox =
+        document.getElementById(
+            "averageRating"
+        );
 
-<h3>${product.name}</h3>
+    if (
+        !product ||
+        !reviewsBox
+    ) {
+        return;
+    }
 
-<p>💰 Price: $${product.price}</p>
+    const reviews =
+        getStoredReviews();
 
-<p>📂 ${product.category}</p>
+    const productReviews =
+        reviews.filter(function(review) {
+            return review.productId == product.id;
+        });
 
-<p>
+    reviewsBox.innerHTML = "";
 
-🏪 Seller:
+    if (productReviews.length === 0) {
 
-<a class="seller-link"
-href="#"
-onclick="openSellerStore('${product.merchantEmail}')">
+        reviewsBox.innerHTML =
+            "<p>No reviews yet.</p>";
 
-${product.merchantName}
+        if (ratingBox) {
+            ratingBox.innerText =
+                "No ratings yet";
+        }
 
-</a>
+        return;
+    }
 
-</p>
+    let total = 0;
 
-<p>⭐ ${getProductRating(product.id)}</p>
+    productReviews.forEach(function(review) {
 
-<button onclick="openProduct(${product.id})">
-👁 View Product
-</button>
+        total += Number(
+            review.rating || 0
+        );
 
-<button onclick="addToCart(
-'${product.name}',
-${product.price},
-'${product.merchantEmail}'
-)">
-🛒 Add To Cart
-</button>
+        const reviewElement =
+            document.createElement("div");
 
-<button onclick="addToWishlistById(${product.id})">
-❤️ Wishlist
-</button>
+        reviewElement.className =
+            "product";
 
-</div>
+        const title =
+            document.createElement("h3");
 
-`;
+        title.textContent =
+            review.name || "Customer";
 
-});
-  
-}
+        const text =
+            document.createElement("p");
 
-function addToWishlistById(id){
+        text.textContent =
+            review.text || "";
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+        const rating =
+            document.createElement("p");
 
-let product =
-products.find(function(item){
+        rating.textContent =
+            "⭐".repeat(
+                Math.max(
+                    1,
+                    Math.min(
+                        5,
+                        Number(review.rating || 0)
+                    )
+                )
+            );
 
-return item.id == id;
+        reviewElement.appendChild(title);
+        reviewElement.appendChild(text);
+        reviewElement.appendChild(rating);
 
-});
+        reviewsBox.appendChild(
+            reviewElement
+        );
+    });
 
-if(!product){
+    if (ratingBox) {
 
-return;
-
-}
-
-let wishlist =
-JSON.parse(localStorage.getItem("wishlist")) || [];
-
-let exists =
-wishlist.find(function(item){
-
-return item.id == id;
-
-});
-
-if(exists){
-
-alert("Already in wishlist ❤️");
-
-return;
-
-}
-
-wishlist.push(product);
-
-localStorage.setItem(
-"wishlist",
-JSON.stringify(wishlist)
-);
-
-alert("Added to wishlist ❤️");
-
-}
-
-// ================= LOAD WISHLIST =================
-
-function loadWishlist(){
-
-let box =
-document.getElementById("wishlistItems");
-
-if(!box) return;
-
-let wishlist =
-JSON.parse(localStorage.getItem("wishlist")) || [];
-
-box.innerHTML = "";
-
-if(wishlist.length === 0){
-
-box.innerHTML =
-"<p>Your wishlist is empty ❤️</p>";
-
-return;
-
-}
-
-wishlist.forEach(function(product,index){
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>${product.name}</h3>
-
-<p>💰 $${product.price}</p>
-
-<p>🏪 ${product.merchantName}</p>
-
-<button onclick="addToCart(
-'${product.name}',
-${product.price},
-'${product.merchantEmail}'
-)">
-🛒 Add To Cart
-</button>
-
-<button onclick="removeWishlist(${index})">
-❌ Remove
-</button>
-
-</div>
-
-`;
-
-});
-
+        ratingBox.innerText =
+            (
+                total /
+                productReviews.length
+            ).toFixed(1) + " ⭐";
+    }
 }
 
 
+// ============================================
+// PRODUCT RATING
+// ============================================
 
-// ================= REMOVE WISHLIST =================
+function getProductRating(productId) {
 
-function removeWishlist(index){
+    const reviews =
+        getStoredReviews();
 
-let wishlist =
-JSON.parse(localStorage.getItem("wishlist")) || [];
+    const productReviews =
+        reviews.filter(function(review) {
+            return review.productId == productId;
+        });
 
-wishlist.splice(index,1);
+    if (productReviews.length === 0) {
+        return "No ratings yet";
+    }
 
-localStorage.setItem(
-"wishlist",
-JSON.stringify(wishlist)
-);
+    const total =
+        productReviews.reduce(
+            function(sum, review) {
+                return (
+                    sum +
+                    Number(review.rating || 0)
+                );
+            },
+            0
+        );
 
-loadWishlist();
+    const average =
+        total /
+        productReviews.length;
 
-}
-
-// ================= PRODUCT RATING =================
-
-
-function getProductRating(productId){
-
-let reviews =
-JSON.parse(localStorage.getItem("reviews")) || [];
-
-
-let productReviews =
-reviews.filter(function(review){
-
-return review.productId == productId;
-
-});
-
-
-if(productReviews.length === 0){
-
-return "No ratings yet";
-
-}
-
-
-let total = 0;
-
-
-productReviews.forEach(function(review){
-
-total += Number(review.rating);
-
-});
-
-
-let average =
-total / productReviews.length;
-
-
-return average.toFixed(1) + " ⭐ (" 
-+ productReviews.length 
-+ " reviews)";
-
-}
-
-// ================= RECOMMENDATION ENGINE =================
-
-function loadRecommendations(){
-
-
-let currentProduct =
-JSON.parse(localStorage.getItem("selectedProduct"));
-
-
-let box =
-document.getElementById("recommendations");
-
-
-if(!box || !currentProduct){
-
-return;
-
+    return (
+        average.toFixed(1) +
+        " ⭐ (" +
+        productReviews.length +
+        " reviews)"
+    );
 }
 
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+// ============================================
+// WISHLIST
+// ============================================
 
+function addToWishlistById(id) {
 
+    const products =
+        getStoredProducts();
 
-let recommended =
-products.filter(function(product){
+    const product =
+        products.find(function(item) {
+            return item.id == id;
+        });
 
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
 
-return (
+    let wishlist = [];
 
-product.status === "Approved" &&
+    try {
+        wishlist =
+            JSON.parse(
+                localStorage.getItem(
+                    "wishlist"
+                )
+            ) || [];
+    } catch (error) {
+        wishlist = [];
+    }
 
-product.category === currentProduct.category &&
+    const exists =
+        wishlist.some(function(item) {
+            return item.id == id;
+        });
 
-product.id !== currentProduct.id
+    if (exists) {
+        alert("Already in wishlist ❤️");
+        return;
+    }
 
-);
+    wishlist.push(product);
 
+    localStorage.setItem(
+        "wishlist",
+        JSON.stringify(wishlist)
+    );
 
-});
-
-
-
-box.innerHTML="";
-
-
-
-if(recommended.length === 0){
-
-box.innerHTML =
-"<p>No recommendations yet.</p>";
-
-return;
-
+    alert("Added to wishlist ❤️");
 }
 
 
+function addToWishlist(product) {
 
-recommended.slice(0,4)
-.forEach(function(product){
+    if (!product) {
+        return;
+    }
 
-
-box.innerHTML += `
-
-<div class="product">
-
-<h3>
-${product.name}
-</h3>
-
-
-<p>
-💰 $${product.price}
-</p>
-
-
-<p>
-🏪 ${product.merchantName}
-</p>
-
-
-<p>
-⭐ ${getProductRating(product.id)}
-</p>
-
-
-<button onclick="openProduct(${product.id})">
-
-View Product
-
-</button>
-
-
-</div>
-
-`;
-
-
-});
-
-
+    addToWishlistById(product.id);
 }
 
 
-// ================= FEATURED PRODUCTS =================
-function loadFeaturedProducts(){
+function loadWishlist() {
 
-let box = document.getElementById("featuredProducts");
+    const box =
+        document.getElementById(
+            "wishlistItems"
+        );
 
-if(!box){
-    alert("featuredProducts box missing");
-    return;
+    if (!box) {
+        return;
+    }
+
+    let wishlist = [];
+
+    try {
+        wishlist =
+            JSON.parse(
+                localStorage.getItem(
+                    "wishlist"
+                )
+            ) || [];
+    } catch (error) {
+        wishlist = [];
+    }
+
+    box.innerHTML = "";
+
+    if (wishlist.length === 0) {
+        box.innerHTML =
+            "<p>Your wishlist is empty ❤️</p>";
+        return;
+    }
+
+    wishlist.forEach(function(product, index) {
+
+        const card =
+            createProductCard(product, {
+                showChat: false,
+                showWishlist: false,
+                showCompare: false
+            });
+
+        const removeButton =
+            document.createElement("button");
+
+        removeButton.textContent =
+            "❌ Remove";
+
+        removeButton.addEventListener(
+            "click",
+            function() {
+                removeWishlist(index);
+            }
+        );
+
+        card.appendChild(removeButton);
+
+        box.appendChild(card);
+    });
 }
 
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+function removeWishlist(index) {
 
+    let wishlist = [];
 
-let approvedProducts =
-products.filter(function(product){
+    try {
+        wishlist =
+            JSON.parse(
+                localStorage.getItem(
+                    "wishlist"
+                )
+            ) || [];
+    } catch (error) {
+        wishlist = [];
+    }
 
-return product.status === "Approved";
+    wishlist.splice(index, 1);
 
-});
+    localStorage.setItem(
+        "wishlist",
+        JSON.stringify(wishlist)
+    );
 
-
-box.innerHTML = "";
-
-
-if(approvedProducts.length === 0){
-
-box.innerHTML = "<p>No approved products.</p>";
-return;
-
+    loadWishlist();
 }
 
 
-approvedProducts.slice(0,4).forEach(function(product){
+// ============================================
+// RECOMMENDATIONS
+// ============================================
 
-box.innerHTML += `
+function loadRecommendations() {
 
-<div class="product">
+    const currentProduct =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedProduct"
+            )
+        );
 
-<img src="${product.image || 'https://via.placeholder.com/250'}"
-width="250"
-height="250">
+    const box =
+        document.getElementById(
+            "recommendations"
+        );
 
-<h3>${product.name}</h3>
+    if (
+        !currentProduct ||
+        !box
+    ) {
+        return;
+    }
 
-<p>💰 $${product.price}</p>
+    const products =
+        getStoredProducts();
 
-<p>📂 ${product.category}</p>
+    const recommended =
+        products.filter(function(product) {
 
-<p>
+            return (
+                product.status === "Approved" &&
+                product.category ===
+                    currentProduct.category &&
+                product.id !==
+                    currentProduct.id
+            );
+        });
 
-🏪 Seller:
+    box.innerHTML = "";
 
-<a class="seller-link"
-href="#"
-onclick="openSellerStore('${product.merchantEmail}')">
+    if (recommended.length === 0) {
+        box.innerHTML =
+            "<p>No recommendations yet.</p>";
+        return;
+    }
 
-${product.merchantName}
+    recommended
+        .slice(0, 4)
+        .forEach(function(product) {
 
-</a>
-
-</p>
-
-<button onclick="openProduct(${product.id})">
-👁 View Product
-</button>
-
-</div>
-
-`;
-
-});
-
-
+            box.appendChild(
+                createProductCard(product, {
+                    showChat: true,
+                    showWishlist: true,
+                    showCompare: true
+                })
+            );
+        });
 }
 
 
-// ================= OPEN SELLER STORE =================
+// ============================================
+// SELLER STORE
+// ============================================
 
-function openSellerStore(merchantEmail){
+function openSellerStore(merchantEmail) {
 
-let merchants =
-JSON.parse(localStorage.getItem("merchants")) || [];
+    let merchants = [];
 
+    try {
+        merchants =
+            JSON.parse(
+                localStorage.getItem(
+                    "merchants"
+                )
+            ) || [];
+    } catch (error) {
+        merchants = [];
+    }
 
-let merchant =
-merchants.find(function(item){
+    const merchant =
+        merchants.find(function(item) {
+            return (
+                item.email ===
+                merchantEmail
+            );
+        });
 
-return item.email === merchantEmail;
+    if (!merchant) {
+        alert("Seller not found.");
+        return;
+    }
 
-});
+    localStorage.setItem(
+        "selectedSeller",
+        JSON.stringify(merchant)
+    );
 
-
-if(!merchant){
-
-alert("Seller not found");
-
-return;
-
+    window.location.href =
+        "seller-store.html";
 }
 
 
-localStorage.setItem(
-"selectedSeller",
-JSON.stringify(merchant)
-);
+function loadSellerStore() {
 
+    const seller =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedSeller"
+            )
+        );
 
-window.location.href =
-"seller-store.html";
+    if (!seller) {
+        alert("Seller not found.");
+        window.location.href =
+            "marketplace.html";
+        return;
+    }
 
+    const storeName =
+        document.getElementById(
+            "storeName"
+        );
+
+    const storeInfo =
+        document.getElementById(
+            "storeInfo"
+        );
+
+    const box =
+        document.getElementById(
+            "sellerProducts"
+        );
+
+    if (storeName) {
+        storeName.innerText =
+            "🏪 " +
+            (
+                seller.storeName ||
+                seller.name ||
+                "Seller Store"
+            );
+    }
+
+    if (storeInfo) {
+        storeInfo.innerText =
+            "Seller: " +
+            (seller.name || "-");
+    }
+
+    if (!box) {
+        return;
+    }
+
+    const products =
+        getStoredProducts();
+
+    const sellerProducts =
+        products.filter(function(product) {
+
+            return (
+                product.merchantEmail ===
+                    seller.email &&
+                product.status ===
+                    "Approved"
+            );
+        });
+
+    box.innerHTML = "";
+
+    if (sellerProducts.length === 0) {
+        box.innerHTML =
+            "<p>No products available.</p>";
+        return;
+    }
+
+    sellerProducts.forEach(function(product) {
+
+        box.appendChild(
+            createProductCard(product, {
+                showChat: true,
+                showWishlist: true,
+                showCompare: true
+            })
+        );
+    });
 }
 
 
+// ============================================
+// PRODUCT COMPARISON
+// ============================================
 
-// ================= LOAD SELLER STORE =================
+function addToCompare(productId) {
 
-function loadSellerStore(){
+    let compare = [];
 
-let seller =
-JSON.parse(localStorage.getItem("selectedSeller"));
+    try {
+        compare =
+            JSON.parse(
+                localStorage.getItem(
+                    "compareProducts"
+                )
+            ) || [];
+    } catch (error) {
+        compare = [];
+    }
 
+    const numericId =
+        Number(productId);
 
-if(!seller){
+    if (compare.includes(numericId)) {
+        alert(
+            "Product already selected."
+        );
+        return;
+    }
 
-alert("Seller not found");
+    if (compare.length >= 4) {
+        alert(
+            "You can compare up to 4 products."
+        );
+        return;
+    }
 
-window.location.href="marketplace.html";
+    compare.push(numericId);
 
-return;
+    localStorage.setItem(
+        "compareProducts",
+        JSON.stringify(compare)
+    );
 
+    alert(
+        "Product added for comparison."
+    );
 }
 
 
-document.getElementById("storeName").innerText =
-"🏪 " + seller.storeName;
+function loadComparison() {
 
+    let compare = [];
 
-document.getElementById("storeInfo").innerText =
-"Seller: " + seller.name;
+    try {
+        compare =
+            JSON.parse(
+                localStorage.getItem(
+                    "compareProducts"
+                )
+            ) || [];
+    } catch (error) {
+        compare = [];
+    }
 
+    const products =
+        getStoredProducts();
 
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
+    const selected =
+        products.filter(function(product) {
 
+            return compare.some(function(id) {
+                return Number(id) ===
+                    Number(product.id);
+            });
+        });
 
-let sellerProducts =
-products.filter(function(product){
+    const box =
+        document.getElementById(
+            "comparisonTable"
+        );
 
-return product.merchantEmail === seller.email &&
-product.status === "Approved";
+    if (!box) {
+        return;
+    }
 
-});
+    if (selected.length === 0) {
+        box.innerHTML =
+            "<p>No products selected for comparison.</p>";
+        return;
+    }
 
+    const table =
+        document.createElement("table");
 
-let box =
-document.getElementById("sellerProducts");
+    table.border = "1";
+    table.cellPadding = "10";
 
+    const header =
+        document.createElement("tr");
 
-box.innerHTML = "";
+    const featureHeader =
+        document.createElement("th");
 
+    featureHeader.textContent =
+        "Feature";
 
-if(sellerProducts.length === 0){
+    header.appendChild(
+        featureHeader
+    );
 
-box.innerHTML =
-"<p>No products available.</p>";
+    selected.forEach(function(product) {
 
-return;
+        const th =
+            document.createElement("th");
 
+        th.textContent =
+            product.name;
+
+        header.appendChild(th);
+    });
+
+    table.appendChild(header);
+
+    function addRow(label, valueGetter) {
+
+        const tr =
+            document.createElement("tr");
+
+        const labelCell =
+            document.createElement("td");
+
+        labelCell.innerHTML =
+            "<strong>" +
+            label +
+            "</strong>";
+
+        tr.appendChild(labelCell);
+
+        selected.forEach(function(product) {
+
+            const td =
+                document.createElement("td");
+
+            td.textContent =
+                valueGetter(product);
+
+            tr.appendChild(td);
+        });
+
+        table.appendChild(tr);
+    }
+
+    addRow(
+        "Price",
+        function(product) {
+            return "$" +
+                Number(product.price || 0)
+                    .toFixed(2);
+        }
+    );
+
+    addRow(
+        "Category",
+        function(product) {
+            return product.category || "-";
+        }
+    );
+
+    addRow(
+        "Seller",
+        function(product) {
+            return product.merchantName || "-";
+        }
+    );
+
+    addRow(
+        "Stock",
+        function(product) {
+            return Number(
+                product.stock || 0
+            );
+        }
+    );
+
+    addRow(
+        "Rating",
+        function(product) {
+            return getProductRating(
+                product.id
+            );
+        }
+    );
+
+    addRow(
+        "Description",
+        function(product) {
+            return product.description || "-";
+        }
+    );
+
+    box.innerHTML = "";
+    box.appendChild(table);
 }
 
 
-sellerProducts.forEach(function(product){
+function clearComparison() {
 
-box.innerHTML += `
+    localStorage.removeItem(
+        "compareProducts"
+    );
 
-<div class="product">
+    alert("Comparison cleared.");
 
-<img
-src="${product.image || 'https://via.placeholder.com/250'}"
-width="250"
-height="250">
-
-<h3>${product.name}</h3>
-
-<p>💰 $${product.price}</p>
-
-<p>📂 ${product.category}</p>
-
-<p>⭐ ${getProductRating(product.id)}</p>
-
-<button onclick="openProduct(${product.id})">
-👁 View Product
-</button>
-
-<button onclick="addToCart(
-'${product.name.replace(/'/g,"\\'")}',
-${product.price},
-'${product.merchantEmail}'
-)">
-🛒 Add To Cart
-</button>
-
-</div>
-
-`;
-
-});
-
+    window.location.reload();
 }
-
-// ================= PRODUCT COMPARISON =================
-
-function addToCompare(productId){
-
-let compare =
-JSON.parse(localStorage.getItem("compareProducts")) || [];
-
-
-if(compare.includes(productId)){
-
-alert("Product already selected.");
-
-return;
-
-}
-
-
-if(compare.length >= 4){
-
-alert("You can compare up to 4 products.");
-
-return;
-
-}
-
-
-compare.push(productId);
-
-
-localStorage.setItem(
-"compareProducts",
-JSON.stringify(compare)
-);
-
-
-alert("Product added for comparison.");
-
-}
-
-
-function loadComparison(){
-
-let compare =
-JSON.parse(localStorage.getItem("compareProducts")) || [];
-
-
-let products =
-JSON.parse(localStorage.getItem("merchantProducts")) || [];
-
-
-let selected =
-products.filter(function(product){
-
-return compare.includes(product.id);
-
-});
-
-
-let box =
-document.getElementById("comparisonTable");
-
-
-if(!box) return;
-
-
-if(selected.length === 0){
-
-box.innerHTML =
-"<p>No products selected for comparison.</p>";
-
-return;
-
-}
-
-
-let html = `
-<table border="1" cellpadding="10">
-
-<tr>
-
-<th>Feature</th>
-`;
-
-
-selected.forEach(function(product){
-
-html += `<th>${product.name}</th>`;
-
-});
-
-
-html += "</tr>";
-
-
-function row(title,key){
-
-html += `<tr><td><b>${title}</b></td>`;
-
-
-selected.forEach(function(product){
-
-html += `<td>${product[key] || "-"}</td>`;
-
-});
-
-
-html += "</tr>";
-
-}
-
-
-row("Price","price");
-
-row("Category","category");
-
-row("Seller","merchantName");
-
-row("Stock","stock");
-
-row("Description","description");
-
-
-html += "</table>";
-
-
-box.innerHTML = html;
-
-}
-
-
-function clearComparison(){
-
-localStorage.removeItem("compareProducts");
-
-alert("Comparison cleared.");
-
-window.location.reload();
-
-}
-
-
