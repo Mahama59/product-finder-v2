@@ -1,74 +1,89 @@
-alert("security.js connected");
+// ===============================
+// PRODUCT FINDER - SECURITY.JS
+// Page access protection
+// ===============================
+
+console.log("security.js loaded");
 
 
-// ================= CHECK LOGIN =================
+// ===============================
+// CUSTOMER
+// ===============================
 
-function requireLogin(){
+function requireLogin() {
 
-let user =
-localStorage.getItem("user");
+    const user =
+        localStorage.getItem("user") ||
+        localStorage.getItem("customer");
 
+    if (!user) {
+        alert("Please login first.");
+        window.location.href = "login.html";
+        return false;
+    }
 
-if(!user){
-
-alert("Please login first");
-
-window.location.href="login.html";
-
-}
-
-}
-
-
-
-// ================= CHECK ADMIN =================
-
-function requireAdmin(){
-
-let admin =
-localStorage.getItem("adminLoggedIn");
-
-
-if(!admin){
-
-alert("Admin access only");
-
-window.location.href="admin-login.html";
-
-}
-
+    return true;
 }
 
 
+// ===============================
+// ADMIN
+// ===============================
 
-// ================= CHECK MERCHANT =================
+function requireAdmin() {
 
-function requireMerchant(){
+    const loggedIn =
+        localStorage.getItem("adminLoggedIn");
 
+    if (loggedIn !== "true") {
+        alert("Admin access only.");
+        window.location.href = "admin-login.html";
+        return false;
+    }
 
-let merchant =
-JSON.parse(localStorage.getItem("merchant"));
-
-
-if(!merchant){
-
-alert("Merchant login required");
-
-window.location.href="merchant-login.html";
-
-return;
-
+    return true;
 }
 
 
-
-if(merchant.status === "Suspended"){
-
-
-alert("Your merchant account is suspended");
-
-
-window.location.href="../index.html";
+// Keep compatibility with pages that currently use protectAdmin()
+function protectAdmin() {
+    return requireAdmin();
+}
 
 
+// ===============================
+// MERCHANT
+// ===============================
+
+function requireMerchant() {
+
+    let merchant = null;
+
+    try {
+        merchant =
+            JSON.parse(localStorage.getItem("merchant"));
+    } catch (error) {
+        console.error("Invalid merchant session:", error);
+    }
+
+    if (!merchant) {
+        alert("Merchant login required.");
+        window.location.href = "merchant-login.html";
+        return false;
+    }
+
+    if (merchant.status === "Suspended") {
+        alert("Your merchant account is suspended.");
+        localStorage.removeItem("merchant");
+        window.location.href = "../index.html";
+        return false;
+    }
+
+    return true;
+}
+
+
+// Compatibility
+function protectMerchant() {
+    return requireMerchant();
 }
