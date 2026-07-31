@@ -95,19 +95,35 @@ id="marketplaceProducts">
 <script src="../js/chat.js"></script>
 <script src="../js/products.js"></script>
 <script src="../js/main.js"></script>
-   
-  
+
 <script>
+document.addEventListener("DOMContentLoaded", function () {
 
-document.addEventListener("DOMContentLoaded", function(){
+    const box =
+        document.getElementById("marketplaceProducts");
 
-console.log("Marketplace page ready");
+    if (!box) {
+        return;
+    }
 
-loadMarketplaceProducts();
+    // Check whether products.js loaded correctly
+    if (typeof loadMarketplaceProducts !== "function") {
+
+        box.innerHTML = `
+            <div class="product">
+                <h3>❌ Marketplace JavaScript did not load</h3>
+                <p>products.js is not available on this page.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+    // Run the normal marketplace loader
+    loadMarketplaceProducts();
 
 });
-
 </script>
-</body>
 
+</body>
 </html>
