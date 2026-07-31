@@ -1,175 +1,156 @@
-alert("auth.js connected");
+// ===============================
+// PRODUCT FINDER - AUTH.JS
+// Customer authentication only
+// ===============================
+
+console.log("auth.js loaded");
 
 
-// ================= REGISTER USER =================
+// ===============================
+// HELPERS
+// ===============================
 
-function registerUser(){
-
-let name =
-document.getElementById("registerName").value.trim();
-
-let email =
-document.getElementById("registerEmail").value.trim();
-
-let password =
-document.getElementById("registerPassword").value;
-
-
-if(!name || !email || !password){
-
-alert("Please complete all fields");
-return;
-
+function getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem("users")) || [];
+    } catch (error) {
+        console.error("Could not read users:", error);
+        return [];
+    }
 }
 
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
-
-
-
-let exists =
-users.find(function(user){
-
-return user.email === email;
-
-});
-
-
-
-if(exists){
-
-alert("Account already exists");
-return;
-
+function saveUsers(users) {
+    localStorage.setItem("users", JSON.stringify(users));
 }
 
 
+// ===============================
+// REGISTER CUSTOMER
+// ===============================
 
-let user = {
+function registerUser() {
 
-id: Date.now(),
+    const name = document
+        .getElementById("registerName")
+        ?.value
+        .trim();
 
-name:name,
+    const email = document
+        .getElementById("registerEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
 
-email:email,
+    const password = document
+        .getElementById("registerPassword")
+        ?.value;
 
-password:password
+    if (!name || !email || !password) {
+        alert("Please complete all fields.");
+        return;
+    }
 
-};
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters.");
+        return;
+    }
 
+    const users = getUsers();
 
+    const exists = users.some(function(user) {
+        return user.email === email;
+    });
 
-users.push(user);
+    if (exists) {
+        alert("An account with this email already exists.");
+        return;
+    }
 
+    const user = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        password: password,
+        createdAt: new Date().toISOString()
+    };
 
+    users.push(user);
+    saveUsers(users);
 
-localStorage.setItem(
-"users",
-JSON.stringify(users)
-);
+    alert("Registration successful.");
 
-
-
-alert("Registration successful");
-
-
-window.location.href="login.html";
-
-
+    window.location.href = "login.html";
 }
 
 
+// ===============================
+// LOGIN CUSTOMER
+// ===============================
 
-// ================= LOGIN USER =================
+function loginUser() {
 
+    const email = document
+        .getElementById("loginEmail")
+        ?.value
+        .trim()
+        .toLowerCase();
 
-function loginUser(){
+    const password = document
+        .getElementById("loginPassword")
+        ?.value;
 
+    if (!email || !password) {
+        alert("Please enter your email and password.");
+        return;
+    }
 
-let email =
-document.getElementById("loginEmail").value.trim();
+    const users = getUsers();
 
+    const user = users.find(function(account) {
+        return (
+            account.email === email &&
+            account.password === password
+        );
+    });
 
+    if (!user) {
+        alert("Wrong email or password.");
+        return;
+    }
 
-let password =
-document.getElementById("loginPassword").value;
+    // Main customer session
+    localStorage.setItem("user", JSON.stringify(user));
 
+    // Compatibility with existing customer pages
+    localStorage.setItem("customer", JSON.stringify(user));
+    localStorage.setItem("customerEmail", user.email);
+    localStorage.setItem("loggedIn", "true");
 
+    alert("Welcome " + user.name + "!");
 
-let users =
-JSON.parse(localStorage.getItem("users")) || [];
-
-
-
-let user =
-users.find(function(user){
-
-return user.email === email &&
-user.password === password;
-
-});
-
-
-
-if(!user){
-
-alert("Wrong email or password");
-return;
-
+    window.location.href = "../index.html";
 }
 
 
+// ===============================
+// CUSTOMER LOGOUT
+// ===============================
 
-localStorage.setItem(
-"user",
-JSON.stringify(user)
-);
+function logoutUser() {
 
-localStorage.setItem(
-"customer",
-JSON.stringify(user)
-);
-  
-localStorage.setItem(
-"customerEmail",
-user.email
-);
+    localStorage.removeItem("user");
+    localStorage.removeItem("customer");
+    localStorage.removeItem("customerEmail");
+    localStorage.removeItem("loggedIn");
 
+    alert("Logged out successfully.");
 
-localStorage.setItem(
-"loggedIn",
-"true"
-);
-
-
-
-alert(
-"Welcome " + user.name
-);
-
-
-
-window.location.href="../index.html";
-
-
+    window.location.href = "login.html";
 }
 
 
-
-// ================= LOGOUT =================
-
-function logoutUser(){
-
-localStorage.removeItem("user");
-
-localStorage.removeItem("customer");
-
-localStorage.removeItem("loggedIn");
-
-alert("Logged out");
-
-
-window.location.href="login.html";
-
+// Compatibility for older pages
+function customerLogout() {
+    logoutUser();
 }
