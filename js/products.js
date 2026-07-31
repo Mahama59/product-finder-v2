@@ -525,12 +525,32 @@ function loadMarketplaceProducts() {
 
         // SELLER
         const seller =
-            document.createElement("p");
+    document.createElement("p");
 
-        seller.textContent =
-            "🏪 " +
-            (product.merchantName || "-");
+seller.appendChild(
+    document.createTextNode("🏪 Seller: ")
+);
 
+const sellerLink =
+    document.createElement("a");
+
+sellerLink.href = "#";
+sellerLink.className = "seller-link";
+
+sellerLink.textContent =
+    product.merchantName || "Seller";
+
+sellerLink.onclick =
+    function(event) {
+
+        event.preventDefault();
+
+        openSellerStore(
+            product.merchantEmail
+        );
+    };
+
+seller.appendChild(sellerLink);
         // STOCK
         const stock =
             document.createElement("p");
