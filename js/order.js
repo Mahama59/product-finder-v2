@@ -868,3 +868,60 @@ async function createVerifiedServerOrder(
 
     return result.order;
 }
+
+// ============================================
+// INITIALIZE PAYSTACK PAYMENT ON SERVER
+// ============================================
+
+async function initializePaystackPayment(
+    email,
+    amount
+) {
+
+    const response = await fetch(
+        PAYMENT_API_BASE_URL +
+        "/api/paystack/initialize",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+                email: email,
+                amount: amount
+            })
+        }
+    );
+
+    let result;
+
+    try {
+        result =
+            await response.json();
+    } catch (error) {
+        throw new Error(
+            "Payment server returned an invalid response."
+        );
+    }
+
+    if (
+        !response.ok ||
+        !result.success
+    ) {
+        throw new Error(
+            result.message ||
+            "Could not initialize Paystack payment."
+        );
+    }
+
+    if (!result.accessCode) {
+        throw new Error(
+            "Paystack did not return an access code."
+        );
+    }
+
+    return result;
+}
