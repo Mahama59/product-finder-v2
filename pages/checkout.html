@@ -1,143 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<title>Checkout - Product Finder</title>
+    <meta charset="UTF-8">
 
-<link rel="stylesheet" href="../style.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout - Product Finder</title>
+
+    <link rel="stylesheet"
+          href="../style.css">
 
 </head>
 
-
 <body onload="loadCheckout()">
-
-
 
 <nav>
 
-<h2>🛍 Product Finder</h2>
+    <h2>🛍 Product Finder</h2>
 
-<a href="cart.html">
-← Cart
-</a>
+    <a href="cart.html">
+        ← Cart
+    </a>
 
 </nav>
 
-
-
 <header class="hero">
 
-<h1>
-💳 Checkout
-</h1>
+    <h1>
+        💳 Checkout
+    </h1>
 
 </header>
 
-
-
 <div class="card">
 
+    <h2>
+        Customer Details
+    </h2>
 
-<h2>
-Customer Details
-</h2>
+    <input
+        id="customerName"
+        type="text"
+        placeholder="Full Name"
+    >
 
-<input id="customerAddress"
-placeholder="Delivery Address">
+    <br><br>
 
-<br><br>
+    <input
+        id="customerEmail"
+        type="email"
+        placeholder="Email"
+    >
 
-<input id="customerCity"
-placeholder="City">
+    <br><br>
 
-<br><br>
-  
-<input id="customerName"
-placeholder="Full Name">
+    <input
+        id="customerPhone"
+        type="tel"
+        placeholder="Phone Number"
+    >
 
+    <br><br>
 
-<br><br>
+    <input
+        id="customerAddress"
+        type="text"
+        placeholder="Delivery Address"
+    >
 
+    <br><br>
 
-<input id="customerEmail"
-placeholder="Email">
+    <input
+        id="customerCity"
+        type="text"
+        placeholder="City"
+    >
 
+    <br><br>
 
-<br><br>
+    <h2>
+        Order Summary
+    </h2>
 
+    <div id="checkoutItems">
+        <p>Loading order...</p>
+    </div>
 
-<input id="customerPhone"
-placeholder="Phone Number">
+    <h2>
+        Total:
+        $<span id="checkoutTotal">0.00</span>
+    </h2>
 
+    <h2>
+        💳 Payment Method
+    </h2>
 
-<br><br>
+    <label>
 
+        <input
+            type="radio"
+            name="paymentMethod"
+            value="Paystack"
+            checked
+        >
 
-<h2>
-Order Summary
-</h2>
+        Paystack (Card / Mobile Money)
 
+    </label>
 
-<div id="checkoutItems">
+    <br><br>
+
+    <label>
+
+        <input
+            type="radio"
+            name="paymentMethod"
+            value="Cash on Delivery"
+        >
+
+        Cash on Delivery
+
+    </label>
+
+    <br><br>
+
+    <button onclick="placeOrder()">
+        ✅ Place Order
+    </button>
 
 </div>
-
-
-<h2>
-
-Total:
-$<span id="checkoutTotal">
-0
-</span>
-
-</h2>
-
-<h2>💳 Payment Method</h2>
-
-<label>
-
-<input
-type="radio"
-name="paymentMethod"
-value="Paystack"
-checked>
-
-Paystack (Card / Mobile Money)
-
-</label>
-
-<br><br>
-
-<label>
-
-<input
-type="radio"
-name="paymentMethod"
-value="Cash">
-
-Cash on Delivery
-
-</label>
-
-<br><br>
-
-
-<button onclick="placeOrder()">
-
-✅ Place Order
-
-</button>
-
-
-</div>
-
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
-<script src="../js/notifications.js"></script>
-
-<script src="../js/order.js"></script>
+<script src="../js/notifications.js?v=2"></script>
+<script src="../js/order.js?v=2"></script>
 
 </body>
 
