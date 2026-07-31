@@ -484,9 +484,7 @@ function payWithPaystack() {
     const cart = getCart();
 
     if (cart.length === 0) {
-
         alert("Cart is empty.");
-
         return;
     }
 
@@ -499,11 +497,7 @@ function payWithPaystack() {
         .toLowerCase();
 
     if (!email) {
-
-        alert(
-            "Please enter your email."
-        );
-
+        alert("Please enter your email.");
         return;
     }
 
@@ -511,11 +505,9 @@ function payWithPaystack() {
         typeof PaystackPop ===
         "undefined"
     ) {
-
         alert(
             "Paystack has not loaded. Please refresh."
         );
-
         return;
     }
 
@@ -530,124 +522,122 @@ function payWithPaystack() {
     });
 
     if (total <= 0) {
-
         alert(
             "Order total must be greater than zero."
         );
-
         return;
     }
 
-    const publicKey =
-        "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d";
-
-    if (
-        publicKey ===
-        "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d"
-    ) {
-
-        alert(
-            "Add your Paystack public test key first."
-        );
-
-        return;
-    }
-
-    const paystack =
-        new PaystackPop();
-
-    paystack.newTransaction({
-
-        key:
-            publicKey,
-
-        email:
-            email,
-
-        amount:
-            Math.round(
-                total * 100
-            ),
-
-        currency:
-            "GHS",
-
-        onSuccess:
-            async function(transaction) {
-
-                console.log(
-                    "Paystack reference received:",
-                    transaction.reference
-                );
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * Do NOT create the order yet.
-                 *
-                 * First ask our backend to verify
-                 * this reference directly with Paystack.
-                 */
-
-                try {
-
-                    const verified =
-                        await verifyPaystackPayment(
-                            transaction.reference,
-                            total
-                        );
-
-                    console.log(
-                        "PAYMENT VERIFIED:",
-                        verified
-                    );
-
-                    /*
-                     * Only after server verification
-                     * do we create the local order.
-                     */
-
-       const serverOrder =
-    await createVerifiedServerOrder(
-        transaction.reference,
+    initializePaystackPayment(
+        email,
         total
-    );
+    )
+        .then(function(initialized) {
 
-console.log(
-    "SERVER ORDER CREATED:",
-    serverOrder
-);
+            console.log(
+                "Paystack initialized:",
+                initialized
+            );
 
-createOrder(
-    "Paystack",
-    transaction.reference
-);
+            const paystack =
+                new PaystackPop();
 
-                } catch (error) {
+            paystack.resumeTransaction(
+                initialized.accessCode,
+                {
+                    onSuccess:
+                        async function(transaction) {
 
-                    console.error(
-                        "Payment verification failed:",
-                        error
-                    );
+                            console.log(
+                                "Paystack payment completed:",
+                                transaction.reference
+                            );
 
-                    alert(
-                        "Payment was received by Paystack, but our server could not verify it. Your order has NOT been confirmed. Please contact support with your reference:\n\n" +
-                        transaction.reference
-                    );
+                            try {
+
+                                const verified =
+                                    await verifyPaystackPayment(
+                                        transaction.reference,
+                                        total
+                                    );
+
+                                console.log(
+                                    "PAYMENT VERIFIED:",
+                                    verified
+                                );
+
+                                const serverOrder =
+                                    await createVerifiedServerOrder(
+                                        transaction.reference,
+                                        total
+                                    );
+
+                                console.log(
+                                    "SERVER ORDER CREATED:",
+                                    serverOrder
+                                );
+
+                                createOrder(
+                                    "Paystack",
+                                    transaction.reference
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Payment/order verification failed:",
+                                    error
+                                );
+
+                                alert(
+                                    "Payment could not be fully verified. Your order has NOT been confirmed.\n\nReference: " +
+                                    transaction.reference
+                                );
+                            }
+                        },
+
+                    onCancel:
+                        function() {
+
+                            alert(
+                                "Payment cancelled."
+                            );
+
+                        },
+
+                    onError:
+                        function(error) {
+
+                            console.error(
+                                "Paystack error:",
+                                error
+                            );
+
+                            alert(
+                                "Paystack payment could not be completed."
+                            );
+
+                        }
                 }
-            },
+            );
 
-        onCancel:
-            function() {
+        })
+        .catch(function(error) {
 
-                alert(
-                    "Payment cancelled."
-                );
+            console.error(
+                "Paystack initialization failed:",
+                error
+            );
 
-            },
+            alert(
+                error.message ||
+                "Unable to start Paystack payment."
+            );
 
-        onError:
-            function(error) {
+        });
+}
+
+function(error) {
 
                 console.error(
                     "Paystack error:",
