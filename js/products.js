@@ -458,56 +458,143 @@ function loadMarketplaceProducts() {
     const box =
         document.getElementById("marketplaceProducts");
 
-    if (!box) {
-        alert("Marketplace container not found");
-        return;
-    }
+    if (!box) return;
 
-    let products = [];
-
-    try {
-        products =
-            JSON.parse(
-                localStorage.getItem("merchantProducts")
-            ) || [];
-    } catch (error) {
-        alert("Cannot read merchantProducts");
-        return;
-    }
-
-    alert("Products found: " + products.length);
+    const products =
+        JSON.parse(
+            localStorage.getItem("merchantProducts")
+        ) || [];
 
     const approved =
         products.filter(function(product) {
-            return String(product.status).trim() === "Approved";
+            return String(product.status)
+                .trim()
+                .toLowerCase() === "approved";
         });
-
-    alert("Approved: " + approved.length);
 
     box.innerHTML = "";
 
     if (approved.length === 0) {
         box.innerHTML =
-            "<p>No approved products found.</p>";
+            "<p>No approved products available.</p>";
         return;
     }
 
     approved.forEach(function(product) {
 
-        const div =
+        const card =
             document.createElement("div");
 
-        div.className = "product";
+        card.className = "product";
 
-        div.innerHTML = `
-            <h3>${product.name || "Product"}</h3>
-            <p>💰 Price: $${product.price || 0}</p>
-            <p>📂 Category: ${product.category || "-"}</p>
-            <p>🏪 Seller: ${product.merchantName || "-"}</p>
-            <p>📦 Status: ${product.status || "-"}</p>
-        `;
+        const image =
+            document.createElement("img");
 
-        box.appendChild(div);
+        image.src =
+            product.image ||
+            "https://via.placeholder.com/250";
+
+        image.alt =
+            product.name || "Product";
+
+        const title =
+            document.createElement("h3");
+
+        title.textContent =
+            product.name || "Product";
+
+        const price =
+            document.createElement("p");
+
+        price.className = "price";
+
+        price.textContent =
+            "💰 $" +
+            Number(product.price || 0).toFixed(2);
+
+        const category =
+            document.createElement("p");
+
+        category.textContent =
+            "📂 " +
+            (product.category || "-");
+
+        const seller =
+            document.createElement("p");
+
+        seller.textContent =
+            "🏪 " +
+            (product.merchantName || "-");
+
+        const stock =
+            document.createElement("p");
+
+        const stockNumber =
+            Number(product.stock || 0);
+
+        stock.textContent =
+            stockNumber > 0
+                ? "✅ In Stock"
+                : "❌ Out of Stock";
+
+        // VIEW PRODUCT
+        const viewButton =
+            document.createElement("button");
+
+        viewButton.textContent =
+            "👁 View Product";
+
+        viewButton.onclick =
+            function() {
+
+                localStorage.setItem(
+                    "selectedProduct",
+                    JSON.stringify(product)
+                );
+
+                window.location.href =
+                    "product-details.html";
+            };
+
+        // ADD TO CART
+        const cartButton =
+            document.createElement("button");
+
+        cartButton.textContent =
+            "🛒 Add To Cart";
+
+        cartButton.onclick =
+            function() {
+
+                if (stockNumber <= 0) {
+                    alert("This product is out of stock.");
+                    return;
+                }
+
+                if (
+                    typeof addToCart !== "function"
+                ) {
+                    alert("Cart system is not available.");
+                    return;
+                }
+
+                addToCart(
+                    product.name,
+                    product.price,
+                    product.merchantEmail
+                );
+            };
+
+        card.appendChild(image);
+        card.appendChild(title);
+        card.appendChild(price);
+        card.appendChild(category);
+        card.appendChild(seller);
+        card.appendChild(stock);
+        card.appendChild(viewButton);
+        card.appendChild(cartButton);
+
+        box.appendChild(card);
     });
 }
 
