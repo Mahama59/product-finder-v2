@@ -1055,3 +1055,61 @@ app.listen(
 
     }
 );
+
+// ============================================
+// DATABASE - LIST PRODUCTS
+// ============================================
+
+app.get(
+    "/api/products",
+    async function (req, res) {
+
+        try {
+
+            const products =
+                await prisma.product.findMany({
+                    include: {
+                        merchant: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true
+                            }
+                        }
+                    },
+
+                    orderBy: {
+                        createdAt: "desc"
+                    }
+                });
+
+            return res.json({
+
+                success: true,
+
+                count:
+                    products.length,
+
+                products:
+                    products
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Product database query failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to load products."
+
+            });
+        }
+    }
+);
