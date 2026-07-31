@@ -755,3 +755,115 @@ async function verifyPaystackPayment(
 
     return transaction;
 }
+
+// ============================================
+// CREATE VERIFIED SERVER ORDER
+// ============================================
+
+async function createVerifiedServerOrder(
+    paymentReference,
+    total
+) {
+
+    const customer = {
+        name:
+            document.getElementById(
+                "customerName"
+            )?.value.trim(),
+
+        email:
+            document.getElementById(
+                "customerEmail"
+            )?.value.trim().toLowerCase(),
+
+        phone:
+            document.getElementById(
+                "customerPhone"
+            )?.value.trim(),
+
+        address:
+            document.getElementById(
+                "customerAddress"
+            )?.value.trim() || "",
+
+        city:
+            document.getElementById(
+                "customerCity"
+            )?.value.trim() || ""
+    };
+
+    const cart = getCart();
+
+    const items =
+        cart.map(function(item) {
+
+            return {
+                id: item.id,
+                name: item.name,
+                price:
+                    Number(
+                        item.price || 0
+                    ),
+                quantity:
+                    Number(
+                        item.quantity || 0
+                    ),
+                merchantEmail:
+                    item.merchantEmail || ""
+            };
+
+        });
+
+    const response = await fetch(
+        PAYMENT_API_BASE_URL +
+        "/api/orders/paystack",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/json"
+            },
+
+            body: JSON.stringify({
+
+                paymentReference:
+                    paymentReference,
+
+                total:
+                    total,
+
+                customer:
+                    customer,
+
+                items:
+                    items
+            })
+        }
+    );
+
+    let result;
+
+    try {
+
+        result =
+            await response.json();
+
+    } catch (error) {
+
+        throw new Error(
+            "Payment server returned an invalid response."
+        );
+
+    }
+
+    if (!response.ok || !result.success) {
+
+        throw new Error(
+            result.message ||
+            "Verified order could not be created."
+        );
+    }
+
+    return result.order;
+}
