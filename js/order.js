@@ -539,11 +539,11 @@ function payWithPaystack() {
     }
 
     const publicKey =
-        "YOUR_PAYSTACK_PUBLIC_KEY";
+        "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d";
 
     if (
         publicKey ===
-        "YOUR_PAYSTACK_PUBLIC_KEY"
+        "pk_test_f4ae21eeec7c8ae8c3d3764b03b9f67967fc2a0d"
     ) {
 
         alert(
