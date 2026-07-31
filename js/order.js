@@ -359,7 +359,7 @@ function createOrder(
     );
 
     window.location.href =
-        "success.html";
+    "my-orders.html";
 }
 
 
