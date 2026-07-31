@@ -148,6 +148,45 @@ app.post(
             const transaction =
                 event.data || {};
 
+           const reference =
+    transaction.reference;
+
+const pending =
+    pendingPayments.get(reference);
+
+const amountMatches =
+    pending &&
+    Number(transaction.amount) ===
+        Math.round(
+            Number(
+                pending.expectedAmount
+            ) * 100
+        );
+
+const currencyMatches =
+    transaction.currency === "GHS";
+
+if (
+    pending &&
+    amountMatches &&
+    currencyMatches
+) {
+
+    pending.status = "PAID";
+
+    pending.paidAt =
+        transaction.paid_at ||
+        new Date().toISOString();
+
+    pending.channel =
+        transaction.channel || "";
+
+    pendingPayments.set(
+        reference,
+        pending
+    );
+}
+            
             console.log(
                 "PAYMENT SUCCESS",
                 {
