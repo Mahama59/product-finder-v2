@@ -479,10 +479,6 @@ function loadCustomerOrders() {
 // PAYSTACK
 // ============================================
 
-// ============================================
-// PAYSTACK
-// ============================================
-
 function payWithPaystack() {
 
     const cart = getCart();
