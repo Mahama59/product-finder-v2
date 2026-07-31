@@ -1113,3 +1113,44 @@ app.get(
         }
     }
 );
+
+// ============================================
+// DATABASE - PRODUCT COUNT
+// ============================================
+
+app.get(
+    "/api/health/products",
+    async function (req, res) {
+
+        try {
+
+            const count =
+                await prisma.product.count();
+
+            return res.json({
+
+                success: true,
+
+                productCount:
+                    count
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Product count failed:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Unable to read product count."
+
+            });
+        }
+    }
+);
