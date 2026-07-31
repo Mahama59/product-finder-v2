@@ -153,107 +153,159 @@ app.post(
         );
 
 
-        // ========================================
-        // SUCCESSFUL PAYMENT
-        // ========================================
+// ========================================
+// SUCCESSFUL PAYSTACK PAYMENT
+// ========================================
+
+if (
+    event.event ===
+    "charge.success"
+) {
+
+    const transaction =
+        event.data || {};
+
+    const reference =
+        transaction.reference;
+
+    console.log(
+        "PAYSTACK PAYMENT SUCCESS",
+        {
+            reference:
+                transaction.reference,
+
+            amount:
+                transaction.amount,
+
+            currency:
+                transaction.currency,
+
+            channel:
+                transaction.channel,
+
+            paidAt:
+                transaction.paid_at
+        }
+    );
+
+    try {
+
+        const paymentIntent =
+            await prisma.paymentIntent.findUnique({
+                where: {
+                    reference:
+                        reference
+                }
+            });
+
+        if (!paymentIntent) {
+
+            console.warn(
+                "PaymentIntent not found:",
+                reference
+            );
+
+            return res.status(200).json({
+                success: true,
+                received: true
+            });
+        }
+
+        const expectedAmount =
+            Math.round(
+                Number(
+                    paymentIntent.amount
+                ) * 100
+            );
+
+        const receivedAmount =
+            Number(
+                transaction.amount
+            );
+
+        const amountMatches =
+            expectedAmount ===
+            receivedAmount;
+
+        const currencyMatches =
+            transaction.currency ===
+            paymentIntent.currency;
 
         if (
-            event.event ===
-            "charge.success"
+            !amountMatches ||
+            !currencyMatches
         ) {
 
-            const transaction =
-                event.data || {};
-
-            const reference =
-                transaction.reference;
-
-            const pending =
-                pendingPayments.get(
-                    reference
-                );
-
-            console.log(
-                "PAYMENT SUCCESS",
+            console.error(
+                "PAYSTACK PAYMENT MISMATCH",
                 {
                     reference:
-                        transaction.reference,
+                        reference,
 
-                    amount:
-                        transaction.amount,
+                    expectedAmount:
+                        expectedAmount,
 
-                    currency:
-                        transaction.currency,
+                    receivedAmount:
+                        receivedAmount,
 
-                    channel:
-                        transaction.channel,
+                    expectedCurrency:
+                        paymentIntent.currency,
 
-                    paidAt:
-                        transaction.paid_at
+                    receivedCurrency:
+                        transaction.currency
                 }
             );
 
-            if (pending) {
-
-                const amountMatches =
-                    Number(
-                        transaction.amount
-                    ) ===
-                    Math.round(
-                        Number(
-                            pending.expectedAmount
-                        ) * 100
-                    );
-
-                const currencyMatches =
-                    transaction.currency ===
-                    "GHS";
-
-                if (
-                    amountMatches &&
-                    currencyMatches
-                ) {
-
-                    pending.status =
-                        "PAID";
-
-                    pending.paidAt =
-                        transaction.paid_at ||
-                        new Date().toISOString();
-
-                    pending.channel =
-                        transaction.channel ||
-                        "";
-
-                    pendingPayments.set(
-                        reference,
-                        pending
-                    );
-
-                    console.log(
-                        "Payment marked PAID:",
-                        reference
-                    );
-
-                } else {
-
-                    console.warn(
-                        "Payment amount/currency mismatch:",
-                        reference
-                    );
-                }
-            }
+            return res.status(200).json({
+                success: true,
+                received: true
+            });
         }
 
-        return res.status(200).json({
+        await prisma.paymentIntent.update({
+            where: {
+                reference:
+                    reference
+            },
 
-            success: true,
+            data: {
 
-            received: true
+                status:
+                    "PAID",
 
+                channel:
+                    transaction.channel ||
+                    null,
+
+                paidAt:
+                    transaction.paid_at
+                        ? new Date(
+                            transaction.paid_at
+                        )
+                        : new Date()
+
+            }
+        });
+
+        console.log(
+            "PaymentIntent marked PAID:",
+            reference
+        );
+
+    } catch (error) {
+
+        console.error(
+            "PaymentIntent webhook update failed:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "Payment webhook processing failed."
         });
     }
-);
+}
 
 
 // ============================================
