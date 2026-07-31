@@ -3,7 +3,8 @@
   "scripts": {
     "start": "node server.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev --name init",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
