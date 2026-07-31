@@ -118,3 +118,18 @@ model Payment {
 
   order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
+
+model PaymentIntent {
+  id              String         @id @default(cuid())
+  reference       String         @unique
+  email           String
+  amount          Decimal        @db.Decimal(12, 2)
+  currency        String         @default("GHS")
+  method          PaymentMethod
+  status          PaymentStatus  @default(PENDING)
+  accessCode      String?
+  channel         String?
+  paidAt          DateTime?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
