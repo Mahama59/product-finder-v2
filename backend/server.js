@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
+const path = require("path");
 const prisma = require("./prismaClient");
 
 const app = express();
@@ -1415,6 +1416,12 @@ app.get(
     }
 );
 
+// Serve frontend files
+app.use(express.static(path.join(__dirname, "..")));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "index.html"));
+});
 
 // ============================================
 // START SERVER
