@@ -22,11 +22,14 @@ const FRONTEND_URL =
 
 app.use(
     cors({
-        origin: FRONTEND_URL,
-        credentials: true
+        origin: [
+            FRONTEND_URL,
+            "http://localhost:3000",
+            "http://127.0.0.1:3000"
+        ],
+        credentials:true
     })
 );
-
 
 app.use(
     express.json()
@@ -697,8 +700,8 @@ app.delete(
 
                 where:{
 
-                    id:
-                    req.params.id
+                   id:
+Number(req.params.id)
 
                 }
 
