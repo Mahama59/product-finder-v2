@@ -109,3 +109,107 @@ router.post("/register", async (req,res)=>{
 
 
 module.exports = router;
+
+// LOGIN
+router.post("/login", async (req,res)=>{
+
+    try{
+
+        const {
+            email,
+            password
+        } = req.body;
+
+
+        if(!email || !password){
+
+            return res.status(400).json({
+                success:false,
+                message:"Email and password are required"
+            });
+
+        }
+
+
+        const user =
+        await prisma.user.findUnique({
+
+            where:{
+                email
+            }
+
+        });
+
+
+        if(!user){
+
+            return res.status(404).json({
+                success:false,
+                message:"User not found"
+            });
+
+        }
+
+
+        const match =
+        await bcrypt.compare(
+            password,
+            user.password
+        );
+
+
+        if(!match){
+
+            return res.status(401).json({
+                success:false,
+                message:"Invalid password"
+            });
+
+        }
+
+
+        const token =
+        jwt.sign(
+            {
+                id:user.id,
+                email:user.email,
+                role:user.role
+            },
+            JWT_SECRET,
+            {
+                expiresIn:"7d"
+            }
+        );
+
+
+        res.json({
+
+            success:true,
+
+            token,
+
+            user:{
+                id:user.id,
+                name:user.name,
+                email:user.email,
+                role:user.role
+            }
+
+        });
+
+
+    }catch(error){
+
+        console.error(error);
+
+        res.status(500).json({
+
+            success:false,
+
+            message:"Login failed"
+
+        });
+
+    }
+
+});
