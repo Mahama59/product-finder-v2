@@ -127,58 +127,106 @@ function registerMerchant() {
 // MERCHANT LOGIN
 // ============================================
 
-function merchantLogin() {
 
-    const email = document
-        .getElementById("merchantEmail")
-        ?.value
-        .trim()
-        .toLowerCase();
+async function merchantLogin() {
 
-    const phone = document
-        .getElementById("merchantPhone")
-        ?.value
-        .trim();
+    const email =
+    document.getElementById("merchantEmail")
+    .value
+    .trim()
+    .toLowerCase();
 
-    if (!email || !phone) {
-        alert("Please enter your email and phone.");
+
+    const password =
+    document.getElementById("merchantPassword")
+    .value;
+
+
+    if(!email || !password){
+
+        alert("Enter email and password");
         return;
+
     }
 
-    const merchants = getMerchants();
 
-    const merchant = merchants.find(function(item) {
-        return (
-            item.email === email &&
-            item.phone === phone
+    try{
+
+        const response =
+        await fetch(
+            "http://localhost:3000/api/auth/login",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+                    email,
+                    password
+                })
+            }
         );
-    });
 
-    if (!merchant) {
-        alert("Incorrect merchant details.");
-        return;
+
+        const data =
+        await response.json();
+
+
+
+        if(!data.success){
+
+            alert(data.message);
+            return;
+
+        }
+
+
+
+        if(data.user.role !== "MERCHANT"){
+
+            alert("This account is not a merchant account");
+            return;
+
+        }
+
+
+
+        // SAVE REAL SESSION
+
+        localStorage.setItem(
+            "token",
+            data.token
+        );
+
+
+        localStorage.setItem(
+            "merchant",
+            JSON.stringify(data.user)
+        );
+
+
+
+        alert("Merchant login successful 🚀");
+
+
+        window.location.href =
+        "merchant-dashboard.html";
+
+
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "Server connection failed"
+        );
+
     }
 
-    if (merchant.status === "Suspended") {
-        alert("Your merchant account is suspended.");
-        return;
-    }
-
-    merchant.online = true;
-    merchant.lastSeen = new Date().toLocaleString();
-
-    saveMerchants(merchants);
-
-    localStorage.setItem(
-        "merchant",
-        JSON.stringify(merchant)
-    );
-
-    alert("Login successful.");
-
-    window.location.href = "merchant-dashboard.html";
 }
-
 
 // ============================================
 // MERCHANT DASHBOARD
