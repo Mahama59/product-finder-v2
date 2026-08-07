@@ -118,7 +118,10 @@ await prisma.user.findUnique({
 
                 password:hashedPassword,
 
-                role: role || "CUSTOMER"
+                role:
+role === "MERCHANT"
+? "MERCHANT"
+: "CUSTOMER"
 
             }
 
