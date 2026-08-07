@@ -15,31 +15,48 @@ async function main() {
     // CREATE / FIND DEMO MERCHANT
     // ==========================================
 
-    const merchant =
-        await prisma.user.upsert({
+    const bcrypt = require("bcrypt");
 
-            where: {
-                email:
-                    "merchant@productfinder.test"
-            },
+const merchantPassword =
+    await bcrypt.hash(
+        "123456",
+        10
+    );
 
-            update: {},
 
-            create: {
+const merchant =
+    await prisma.user.upsert({
 
-                name:
-                    "Product Finder Demo Store",
+        where:{
+            email:
+            "merchant@productfinder.test"
+        },
 
-                email:
-                    "merchant@productfinder.test",
+        update:{},
 
-                phone:
-                    "0000000000",
+        create:{
 
-                role:
-                    "MERCHANT"
-            }
-        });
+            name:
+            "Product Finder Demo Store",
+
+            email:
+            "merchant@productfinder.test",
+
+            phone:
+            "0000000000",
+
+            password:
+            merchantPassword,
+
+            role:
+            "MERCHANT",
+
+            merchantStatus:
+            "APPROVED"
+
+        }
+
+    });
 
     console.log(
         "Merchant ready:",
