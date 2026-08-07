@@ -587,9 +587,11 @@ app.post(
                     category:
                     category || "General",
 
-                    image:
-                    image || null
-                    merchantId
+                   image:
+image || null,
+
+merchantId:
+merchantId
                 }
 
             });
