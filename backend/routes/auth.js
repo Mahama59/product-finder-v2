@@ -114,7 +114,7 @@ router.post("/register", async (req,res)=>{
 
                 password:hashedPassword,
 
-                role: role || "CUSTOMER"
+                role:"CUSTOMER"
 
             }
 
