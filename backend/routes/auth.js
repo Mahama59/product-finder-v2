@@ -5,6 +5,52 @@ const prisma = require("../prismaClient");
 
 const router = express.Router();
 
+const protect = require("../middleware/auth");
+
+
+router.get("/me", protect, async(req,res)=>{
+
+    try{
+
+        const user =
+        await prisma.user.findUnique({
+
+            where:{
+                id:req.user.id
+            },
+
+            select:{
+                id:true,
+                name:true,
+                email:true,
+                phone:true,
+                role:true
+            }
+
+        });
+
+
+        res.json({
+
+            success:true,
+            user
+
+        });
+
+
+    }catch(error){
+
+        res.status(500).json({
+
+            success:false,
+            message:"Unable to fetch user"
+
+        });
+
+    }
+
+});
+
 const JWT_SECRET =
     process.env.JWT_SECRET || "product-finder-secret";
 
