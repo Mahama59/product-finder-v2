@@ -19,12 +19,14 @@ router.get("/me", protect, async(req,res)=>{
                 id:req.user.id
             },
 
-            select:{
-                id:true,
-                name:true,
-                email:true,
-                phone:true,
-                role:true
+           select:{
+    id:true,
+    name:true,
+    email:true,
+    phone:true,
+    role:true,
+    merchantStatus:true
+}  
             }
 
         });
@@ -79,12 +81,14 @@ router.post("/register", async (req,res)=>{
         }
 
 
-        const existing =
-        await prisma.user.findUnique({
-            where:{
-                email
-            }
-        });
+     const existing =
+await prisma.user.findUnique({
+
+    where:{
+        email: email.toLowerCase()
+    }
+
+});
 
 
         if(existing){
@@ -114,7 +118,7 @@ router.post("/register", async (req,res)=>{
 
                 password:hashedPassword,
 
-                role:"CUSTOMER"
+                role: role || "CUSTOMER"
 
             }
 
@@ -176,15 +180,14 @@ router.post("/login", async (req,res)=>{
         }
 
 
-        const user =
-        await prisma.user.findUnique({
+       const user =
+await prisma.user.findUnique({
 
-            where:{
-                email
-            }
+    where:{
+        email: email.toLowerCase()
+    }
 
-        });
-
+});
 
         if(!user){
 
