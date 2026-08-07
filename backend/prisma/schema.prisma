@@ -48,6 +48,7 @@ model User {
   phone       String?
   password    String
   role        UserRole  @default(CUSTOMER)
+  merchantStatus  MerchantStatus  @default(PENDING)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -109,7 +110,7 @@ model Payment {
   reference         String        @unique
   amount            Decimal       @db.Decimal(12, 2)
   currency          String        @default("GHS")
-  method            PaymentMethod
+  method PaymentMethod @default(PAYSTACK)
   status            PaymentStatus @default(PENDING)
   channel           String?
   gatewayResponse   String?
@@ -126,7 +127,7 @@ model PaymentIntent {
   email           String
   amount          Decimal        @db.Decimal(12, 2)
   currency        String         @default("GHS")
-  method          PaymentMethod
+ method PaymentMethod @default(PAYSTACK)
   status          PaymentStatus  @default(PENDING)
   accessCode      String?
   channel         String?
@@ -134,3 +135,9 @@ model PaymentIntent {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
+enum MerchantStatus {
+  PENDING
+  APPROVED
+  SUSPENDED
+}
+
