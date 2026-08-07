@@ -24,13 +24,21 @@ function saveMerchants(merchants) {
     localStorage.setItem("merchants", JSON.stringify(merchants));
 }
 
-function getMerchantSession() {
-    try {
-        return JSON.parse(localStorage.getItem("merchant"));
-    } catch (error) {
-        console.error("Invalid merchant session:", error);
+function getMerchantSession(){
+
+    const merchant =
+    localStorage.getItem("merchant");
+
+
+    if(!merchant){
+
         return null;
+
     }
+
+
+    return JSON.parse(merchant);
+
 }
 
 function getProducts() {
