@@ -5,7 +5,10 @@ const cors = require("cors");
 const path = require("path");
 
 const prisma = require("./prismaClient");
+const protect = require("./middleware/auth");
+const allowRoles = require("./middleware/role");
 const authRoutes = require("./routes/auth");
+const merchantRoutes = require("./routes/merchant");
 const app = express();
 
 const PORT =
@@ -34,6 +37,12 @@ app.use(
 app.use(
     express.json()
 );
+
+app.use(
+        "/api/merchant",
+            merchantRoutes
+            );
+
 
 app.use("/api/auth", authRoutes);
 
@@ -534,8 +543,9 @@ app.get(
 
 app.post(
     "/api/products",
+    protect,
+    allowRoles("MERCHANT","ADMIN"),
     async function(req,res){
-
         try{
 
          const {
@@ -571,28 +581,29 @@ app.post(
             const product =
             await prisma.product.create({
 
-                data:{
+              data:{
 
-                    name,
+    name,
 
-                    description:
-                    description || null,
+    description:
+    description || null,
 
-                    price:
-                    Number(price),
+    price:
+    Number(price),
 
-                    stock:
-                    Number(stock || 0),
+    stock:
+    Number(stock || 0),
 
-                    category:
-                    category || "General",
+    category:
+    category || "General",
 
-                   image:
-image || null,
+    image:
+    image || null,
 
-merchantId:
-merchantId
-                }
+    merchantId:
+    req.user.id
+
+}
 
             });
 
