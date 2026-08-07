@@ -5,7 +5,7 @@ const cors = require("cors");
 const path = require("path");
 
 const prisma = require("./prismaClient");
-
+const authRoutes = require("./routes/auth");
 const app = express();
 
 const PORT =
@@ -35,6 +35,7 @@ app.use(
     express.json()
 );
 
+app.use("/api/auth", authRoutes);
 
 app.use(
     express.urlencoded({
@@ -537,16 +538,15 @@ app.post(
 
         try{
 
-            const {
-
-                name,
-                description,
-                price,
-                stock,
-                category,
-                image
-
-            } = req.body;
+         const {
+    name,
+    description,
+    price,
+    stock,
+    category,
+    image,
+    merchantId
+} = req.body;
 
 
 
@@ -589,7 +589,7 @@ app.post(
 
                     image:
                     image || null
-
+                    merchantId
                 }
 
             });
@@ -700,9 +700,7 @@ app.delete(
 
                 where:{
 
-                   id:
-Number(req.params.id)
-
+                  id:req.params.id
                 }
 
             });
@@ -871,27 +869,15 @@ app.post(
 
             if(!user){
 
-                user =
-                await prisma.user.create({
-
-                    data:{
-
-                        name:
-                        customer.name,
-
-                        email:
-                        customer.email,
-
-                        phone:
-                        customer.phone,
-
-                        role:
-                        "CUSTOMER"
-
-                    }
-
-                });
-
+            user = await prisma.user.create({
+ data:{
+    name:customer.name,
+    email:customer.email,
+    phone:customer.phone,
+    password:"guest-account",
+    role:"CUSTOMER"
+ }
+});
             }
 
 
@@ -1006,7 +992,7 @@ app.post(
 
 
                             total,
-
+                            paymentMethod:"PAYSTACK",
 
                             paymentReference,
 
