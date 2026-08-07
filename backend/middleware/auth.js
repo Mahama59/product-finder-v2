@@ -1,37 +1,52 @@
-
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET =
-process.env.JWT_SECRET || "product-finder-secret";
+    process.env.JWT_SECRET || "product-finder-secret";
 
 
-function protect(req,res,next){
+function protect(req, res, next) {
 
     const header =
-    req.headers.authorization;
+        req.headers.authorization;
 
 
-    if(!header){
+    if (!header) {
 
         return res.status(401).json({
+
             success:false,
-            message:"No token provided"
+
+            message:"Authorization token required"
+
+        });
+
+    }
+
+
+    if (!header.startsWith("Bearer ")) {
+
+        return res.status(401).json({
+
+            success:false,
+
+            message:"Invalid authorization format"
+
         });
 
     }
 
 
     const token =
-    header.split(" ")[1];
+        header.split(" ")[1];
 
 
-    try{
+    try {
 
         const decoded =
-        jwt.verify(
-            token,
-            JWT_SECRET
-        );
+            jwt.verify(
+                token,
+                JWT_SECRET
+            );
 
 
         req.user = decoded;
@@ -40,12 +55,17 @@ function protect(req,res,next){
         next();
 
 
-    }catch(error){
+    } catch(error) {
+
 
         return res.status(401).json({
+
             success:false,
-            message:"Invalid token"
+
+            message:"Token expired or invalid"
+
         });
+
 
     }
 
