@@ -135,18 +135,19 @@ function registerMerchant() {
 // MERCHANT LOGIN
 // ============================================
 
-
-async function merchantLogin() {
+async function merchantLogin(){
 
     const email =
-    document.getElementById("merchantEmail")
+    document
+    .getElementById("merchantEmail")
     .value
     .trim()
     .toLowerCase();
 
 
     const password =
-    document.getElementById("merchantPassword")
+    document
+    .getElementById("merchantPassword")
     .value;
 
 
@@ -160,10 +161,12 @@ async function merchantLogin() {
 
     try{
 
+
         const response =
         await fetch(
             "http://localhost:3000/api/auth/login",
             {
+
                 method:"POST",
 
                 headers:{
@@ -171,16 +174,18 @@ async function merchantLogin() {
                 },
 
                 body:JSON.stringify({
+
                     email,
                     password
+
                 })
+
             }
         );
 
 
         const data =
         await response.json();
-
 
 
         if(!data.success){
@@ -191,17 +196,16 @@ async function merchantLogin() {
         }
 
 
-
         if(data.user.role !== "MERCHANT"){
 
-            alert("This account is not a merchant account");
+            alert(
+            "This account is not a merchant"
+            );
+
             return;
 
         }
 
-
-
-        // SAVE REAL SESSION
 
         localStorage.setItem(
             "token",
@@ -215,13 +219,13 @@ async function merchantLogin() {
         );
 
 
-
-        alert("Merchant login successful 🚀");
+        alert(
+        "Merchant login successful"
+        );
 
 
         window.location.href =
         "merchant-dashboard.html";
-
 
 
     }catch(error){
@@ -229,7 +233,7 @@ async function merchantLogin() {
         console.error(error);
 
         alert(
-            "Server connection failed"
+        "Login failed"
         );
 
     }
