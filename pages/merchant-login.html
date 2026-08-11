@@ -1,64 +1,23 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-
-<title>Merchant Login</title>
-
-<link rel="stylesheet" href="../style.css">
-
-</head>
-
-
-<body>
-
-
-<nav>
-
-<h2>🛍 Product Finder</h2>
-
-<a href="../index.html">Home</a>
+<!DOCTYPE html><html><head><title>Merchant Login</title><link rel="stylesheet" href="../style.css"></head><body><nav><h2>🛍 Product Finder</h2><a href="../index.html">Home</a>
 
 <a href="merchant-register.html">Register</a>
 
-</nav>
-
-
-
-<div class="card">
-
-<h2>🔐 Seller Login</h2>
-
-
-<input id="merchantEmail"
-placeholder="Email">
-
+</nav><div class="card"><h2>🔐 Seller Login</h2><form onsubmit="merchantLogin(event)"><input
+id="merchantEmail"
+type="email"
+placeholder="Email"
+required>
 
 <br><br>
 
-<input 
+<input
 id="merchantPassword"
 type="password"
-placeholder="Password">
-
+placeholder="Password"
+required>
 
 <br><br>
 
-
-<button onclick="merchantLogin()">
-
+<button type="submit">
 Login
-
-</button>
-
-
-</div>
-
-
-
-<script src="../js/merchant.js"></script>
-
-
-</body>
-
-</html>
+</button></form><p id="loginMessage"></p></div><script src="../js/merchant.js"></script></body></html>
