@@ -135,111 +135,115 @@ function registerMerchant() {
 // MERCHANT LOGIN
 // ============================================
 
-async function merchantLogin(){
+async function merchantLogin(event) {
 
-    const email =
+if (event) {
+    event.preventDefault();
+}
+
+const email =
     document
     .getElementById("merchantEmail")
     .value
     .trim()
     .toLowerCase();
 
-
-    const password =
+const password =
     document
     .getElementById("merchantPassword")
     .value;
 
+const message =
+    document.getElementById("loginMessage");
 
-    if(!email || !password){
+if (!email || !password) {
 
-        alert("Enter email and password");
-        return;
+    message.innerText =
+        "Please enter your email and password.";
 
-    }
+    return;
+}
 
+try {
 
-    try{
+    message.innerText =
+        "Logging in...";
 
-
-        const response =
+    const response =
         await fetch(
             "http://localhost:3000/api/auth/login",
             {
+                method: "POST",
 
-                method:"POST",
-
-                headers:{
-                    "Content-Type":"application/json"
+                headers: {
+                    "Content-Type":
+                        "application/json"
                 },
 
-                body:JSON.stringify({
-
-                    email,
-                    password
-
+                body: JSON.stringify({
+                    email: email,
+                    password: password
                 })
-
             }
         );
 
-
-        const data =
+    const data =
         await response.json();
 
+    if (!response.ok || !data.success) {
 
-        if(!data.success){
+        message.innerText =
+            data.message ||
+            "Login failed.";
 
-            alert(data.message);
-            return;
+        return;
+    }
 
-        }
+    // Make sure this is actually a merchant
+    if (data.user.role !== "MERCHANT") {
 
+        message.innerText =
+            "This account is not a merchant account.";
 
-        if(data.user.role !== "MERCHANT"){
+        return;
+    }
 
-            alert(
-            "This account is not a merchant"
-            );
+    // Save backend authentication
+    localStorage.setItem(
+        "token",
+        data.token
+    );
 
-            return;
+    localStorage.setItem(
+        "merchant",
+        JSON.stringify(data.user)
+    );
 
-        }
+    // Also keep the logged-in user
+    localStorage.setItem(
+        "user",
+        JSON.stringify(data.user)
+    );
 
+    message.innerText =
+        "Login successful!";
 
-        localStorage.setItem(
-            "token",
-            data.token
-        );
-
-
-        localStorage.setItem(
-            "merchant",
-            JSON.stringify(data.user)
-        );
-
-
-        alert(
-        "Merchant login successful"
-        );
-
-
-        window.location.href =
+    window.location.href =
         "merchant-dashboard.html";
 
+} catch (error) {
 
-    }catch(error){
+    console.error(
+        "Merchant login error:",
+        error
+    );
 
-        console.error(error);
-
-        alert(
-        "Login failed"
-        );
-
-    }
+    message.innerText =
+        "Cannot connect to Product Finder server.";
 
 }
 
+}
 // ============================================
 // MERCHANT DASHBOARD
 // ============================================
