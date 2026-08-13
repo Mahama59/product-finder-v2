@@ -9,7 +9,7 @@ console.log("order.js loaded");
 // PAYM0
 // Local testing:
 const PAYMENT_API_BASE_URL =
-    "http://localhost:3000";
+    "https://turbo-space-palm-tree-5jp65476vqg2rq7-3000.app.github.dev";
 
 // Later, when the backend is deployed to Render:
 // const PAYMENT_API_BASE_URL =

@@ -36,7 +36,7 @@ async function loadMerchantDashboard(){
 
         const response =
         await fetch(
-            "http://localhost:3000/api/dashboard/merchant",
+            "https://turbo-space-palm-tree-5jp65476vqg2rq7-3000.app.github.dev/api/dashboard/merchant",
             {
 
                 headers:{

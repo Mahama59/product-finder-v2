@@ -31,7 +31,7 @@ async function loadMerchantProducts(){
 
         const response =
         await fetch(
-            "http://localhost:3000/api/merchant/products",
+            "https://turbo-space-palm-tree-5jp65476vqg2rq7-3000.app.github.dev/api/merchant/products",
             {
 
                 headers:{
@@ -136,7 +136,7 @@ async function deleteMerchantProduct(id){
 
     await fetch(
 
-        "http://localhost:3000/api/products/"
+        "https://turbo-space-palm-tree-5jp65476vqg2rq7-3000.app.github.dev/api/products/"
         + id,
 
         {
