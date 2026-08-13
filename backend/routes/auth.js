@@ -27,7 +27,7 @@ router.get("/me", protect, async(req,res)=>{
     role:true,
     merchantStatus:true
 }  
-            }
+
 
         });
 
