@@ -170,9 +170,7 @@ try {
         "Logging in...";
 
     const response =
-        await fetch(
-            "http://localhost:3000/api/auth/login",
-            {
+        await fetch("https://legendary-bassoon-45946gp4v7v3j7vv-3000.app.github.dev/api/auth/login", {
                 method: "POST",
 
                 headers: {
